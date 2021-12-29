@@ -6,13 +6,22 @@
 
 bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
+	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 	
-	FVector2D DragWindowOffset = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
-	FVector2D DragWindowOffsetResult = DragWindowOffset - DragWidgetResult->DragOffset;
+	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
+
+	if (!IsValid(DragWidgetResult))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cast returned null."))
+		return false;
+	}
+	
+	const FVector2D DragWindowOffset = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
+	const FVector2D DragWindowOffsetResult = DragWindowOffset - DragWidgetResult->DragOffset;
 
 	DragWidgetResult->WidgetReference->AddToViewport();
-	DragWidgetResult->WidgetReference->SetPositionInViewport(DragWidgetResult->DragOffset, false);
+	DragWidgetResult->WidgetReference->SetVisibility(ESlateVisibility::Visible);
+	DragWidgetResult->WidgetReference->SetPositionInViewport(DragWindowOffsetResult, false);
 	
 	return true;
 }
