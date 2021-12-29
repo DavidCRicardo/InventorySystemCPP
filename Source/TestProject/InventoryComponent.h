@@ -22,7 +22,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	void InitInventory(int32 numberSlots);
+	//void InitInventory(int32 numberSlots);
 	void RefreshInventorySlots();
 	
 public:	
@@ -35,6 +35,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 NumberOfSlots;
 
+	FItemDataTable* ItemDB_Reference;
+	UDataTable* ItemData;
+	
+	void InitInventory(int32 numberSlots = 32);
 	UFUNCTION()
 	static void ANewTestingMethod();
 	UFUNCTION()

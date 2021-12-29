@@ -27,6 +27,7 @@ AItem::AItem()
 	// Find Row from ItemDB
 	static const FString ContextString(TEXT("test"));
 	FItemDataTable* ItemDB_Reference = MyDataTable->FindRow<FItemDataTable>(FName(TEXT("Apple")), ContextString, true);
+
 	if (ItemDB_Reference)
 	{
 		Item_Data.Amount = ItemDB_Reference->Amount;
@@ -34,7 +35,7 @@ AItem::AItem()
 		UE_LOG (LogTemp, Warning, TEXT ("Our Row exists!!"));
 	}
 
-	UE_LOG (LogTemp, Warning, TEXT ("Terminated InventoryItem Constructor!!"));
+	UE_LOG (LogTemp, Warning, TEXT ("Terminated Item Constructor!!"));
 
 }
 

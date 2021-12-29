@@ -57,6 +57,7 @@ void AMyPlayerController::ToggleInventory()
 
 		if (W_InventoryLayout->GetVisibility() == ESlateVisibility::Hidden)
 		{
+			InventoryComponent->InitInventory();
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Visible);
 			
 			SetInputMode(FInputModeGameAndUI());

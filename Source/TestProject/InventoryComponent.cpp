@@ -10,7 +10,13 @@ UInventoryComponent::UInventoryComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	
+	// Get ItemDB 
+    static ConstructorHelpers::FObjectFinder<UDataTable> ItemObject(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+	if (ItemObject.Succeeded())
+	{
+		ItemData = ItemObject.Object;
+	}
 }
 
 
@@ -40,6 +46,11 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 /* Initializes the Inventory Array to a Specified Size */    
 void UInventoryComponent::InitInventory(const int32 numberSlots)
 {
+	static const FString ContextString(TEXT("TestItem"));
+    FItemDataTable* Item = ItemData->FindRow<FItemDataTable>(FName(TEXT("Apple")), ContextString, true);
+
+	UE_LOG (LogTemp, Warning, TEXT ("Terminated InventoryItem Constructor!!"));
+	
 	/* Clear Inventory */
 	Inventory.Empty(numberSlots);
 	//Inventory.Reset(numberSlots);        
@@ -47,21 +58,11 @@ void UInventoryComponent::InitInventory(const int32 numberSlots)
 	for(size_t i = 0; i < numberSlots - 1; i++)
 	{
 		AItem* EmptyItem;
-
-		// Get ItemDB 
-		static ConstructorHelpers::FObjectFinder<UDataTable> ItemDBObject(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
-		// Find Row from ItemDB
-		static const FString ContextString(TEXT("test"));
-		FItemDataTable* ItemDB_Reference = ItemDBObject.Object->FindRow<FItemDataTable>(FName(TEXT("Apple")), ContextString, true);
-		if (ItemDB_Reference)
-		{
-			//EmptyItem->Item_Data.Amount = ItemDB_Reference->Amount;
-			//EmptyItem->Item_Data.Icon = ItemDB_Reference->Icon;
-			UE_LOG (LogTemp, Warning, TEXT ("Our Row exists!!"));
-		}
-
-		UE_LOG (LogTemp, Warning, TEXT ("Terminated InventoryItem Constructor!!"));
+		//EmptyItem->Item_Data.Icon = Item->Icon;
 		
+		//FCString::Atoi(*);
+		//EmptyItem->ID = Item->ID;
+		//EmptyItem->Amount = Item->Amount;
 		Inventory.Add(EmptyItem);
 	}
 

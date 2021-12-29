@@ -17,7 +17,7 @@ void UInventoryLayout::NativeConstruct()
 
 	Super::SetTitleToWindow("INVENTORY");
  
-	//InitializeInventorySlots();
+	InitializeInventorySlots();
 
 	UE_LOG (LogTemp, Warning, TEXT ("Inventory Layout Initialized!!"));
 }
@@ -26,15 +26,23 @@ void UInventoryLayout::InitializeInventorySlots()
 {
 	UE_LOG (LogTemp, Warning, TEXT ("Initialization started with Inventory Slots!"));
 	
-	//for(int i = 0; i < Inventory->NumberOfSlots; i++)
-	/*for(int i = 0; i < 7; i++)
+	/*for(int i = 0; i < Inventory->NumberOfSlots; i++)
+	{
+		uint8 Collumn = i % 7;
+		uint8 Row = i / 4;
+		
+		W_InventorySlot = CreateWidget<UUserWidget>(GetWorld(), WidgetClassInventory);
+		InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, Row, Collumn);
+	}*/
+
+	for(int i = 0; i < 7; i++)
 	{
 		for(int j = 0; j < 4; j++)
 		{
 			W_InventorySlot = CreateWidget<UUserWidget>(GetWorld(), WidgetClassInventory);
 			InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, i, j);
 		}
-	}*/
+	}
 	
 	UE_LOG (LogTemp, Warning, TEXT ("Initialization terminated with Inventory Slots!"));
 }

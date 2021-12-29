@@ -20,7 +20,7 @@ public:
 	UPROPERTY()
 	class UInventoryComponent* Inventory;
 	
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* InventoryGridPanel;
 	
 	UPROPERTY(meta = (BindWidget))
