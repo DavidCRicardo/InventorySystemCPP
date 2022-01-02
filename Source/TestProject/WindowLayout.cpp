@@ -2,6 +2,8 @@
 
 
 #include "WindowLayout.h"
+#include "DragWidget.h"
+#include "MyPlayerController.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
@@ -14,7 +16,7 @@ void UWindowLayout::NativeConstruct()
 	QuitButton->OnClicked.AddUniqueDynamic(this, &UWindowLayout::OnButtonQuitClicked);
 	
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
-	
+
 	SetTitleToWindow();
 
 	TopBorder->OnMouseButtonDownEvent.BindUFunction(this,"MyFunction");

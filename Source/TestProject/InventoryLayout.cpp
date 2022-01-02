@@ -2,13 +2,17 @@
 
 
 #include "InventoryLayout.h"
-#include "InventoryComponent.h"
+#include "MyPlayerController.h"
+#include "Inventory_Slot.h"
 #include "Components/UniformGridPanel.h"
 
 UInventoryLayout::UInventoryLayout()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventorySlotObj(TEXT("/Game/UI/BP_InventorySlot"));
-	WidgetClassInventory = InventorySlotObj.Class;
+	static ConstructorHelpers::FClassFinder<UInventory_Slot> InventorySlotObj(TEXT("/Game/UI/WBP_InventorySlot"));
+	WidgetClassInventorySlot = InventorySlotObj.Class;
+
+	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/Textures/T_UI_Slot"));
+	Background_Slot = ObjectFind.Object;
 }
 
 void UInventoryLayout::NativeConstruct()
@@ -39,12 +43,33 @@ void UInventoryLayout::InitializeInventorySlots()
 	{
 		for(int j = 0; j < 4; j++)
 		{
-			W_InventorySlot = CreateWidget<UUserWidget>(GetWorld(), WidgetClassInventory);
+			W_InventorySlot = CreateWidget<UInventory_Slot>(GetWorld(), WidgetClassInventorySlot);
 			InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, i, j);
+
+			W_InventorySlot->InitializeSlot(Background_Slot);
+
+			InventorySlotsArray.Add(W_InventorySlot);
 		}
 	}
 	
 	UE_LOG (LogTemp, Warning, TEXT ("Initialization terminated with Inventory Slots!"));
+}
+
+void UInventoryLayout::RefreshInventorySlots()
+{
+	const uint8 InventoryLimit = PlayerController->InventoryComponent->NumberOfSlots;
+
+	for(int i = 0; i < InventoryLimit; i++)
+	{
+		AItem* TempItem = PlayerController->InventoryComponent->Inventory[i];
+		if (TempItem != nullptr)
+		{
+			InventorySlotsArray[i]->UpdateSlot(TempItem->ItemStructure, TempItem->Amount);
+		}else
+		{
+			InventorySlotsArray[i]->UpdateSlot(TempItem->ItemStructure, 0);
+		}
+	}
 }
 
 void UInventoryLayout::OnButtonQuitClicked()

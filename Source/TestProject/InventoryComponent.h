@@ -21,9 +21,9 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
-	UFUNCTION()
+	//UFUNCTION()
 	//void InitInventory(int32 numberSlots);
-	void RefreshInventorySlots();
+	//void RefreshInventorySlots();
 	
 public:	
 	// Called every frame
@@ -34,13 +34,29 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 NumberOfSlots;
-
-	FItemDataTable* ItemDB_Reference;
-	UDataTable* ItemData;
 	
-	void InitInventory(int32 numberSlots = 32);
+	FItemDataTable* ItemDB_Reference;
+	
+	void InitInventory(int32 NumberSlots = 32);
+	
 	UFUNCTION()
-	static void ANewTestingMethod();
+	bool AddItem(FName ID, uint8 Amount);
+	
+	FItemDataTable* GetItemDB() const;
+
+protected:
+	
+private:
+	UPROPERTY()
+	UDataTable* ItemDB;
+
 	UFUNCTION()
-	void ANewTextingMethodNonStatic();
+	bool HasEmptySlots();
+	UFUNCTION()
+	bool CreateStack();
+	UFUNCTION()
+	bool AddToStack();
+	UFUNCTION()
+	int8 HasPartialStack(AItem* SlotStructure);
+	
 };

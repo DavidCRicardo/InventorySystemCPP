@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Item.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/TextBlock.h"
 #include "Inventory_Slot.generated.h"
 
 /**
@@ -19,10 +18,17 @@ class TESTPROJECT_API UInventory_Slot : public UUserWidget
 public:
 	UInventory_Slot(const FObjectInitializer& ObjectInitializer);
 	
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
-	class UImage* Background;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText ItemID;
 
+	UFUNCTION()
+	void UpdateSlot(FItemDataTable ItemData, uint8 Amount);
+
+	UFUNCTION()
+	void InitializeSlot(UTexture2D* BackgroundRef);
+	
 protected:
+
 	
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Slot_Icon;
@@ -33,7 +39,7 @@ protected:
 	class UBorder* Slot_Border;
 	
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* Amount;
+	class UTextBlock* TextBlockAmount;
 	
 	UFUNCTION(BlueprintSetter, BlueprintCallable)
 	void SetAmountText(const FText& _newAmount);
@@ -41,16 +47,15 @@ protected:
 	UFUNCTION(BlueprintGetter, BlueprintCallable)
 	FText GetAmountText();
 
-	UPROPERTY(BlueprintReadOnly)
-	AItem* ItemInfo;
-
 	virtual void NativeConstruct() override;
-
-	void InitializeVariables();
-
+	
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<class UTexture2D> WidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UTexture2D* Background_Slot;
+	UTexture2D* Background_Slot;
+
+private:
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
+	UImage* Background;
 };

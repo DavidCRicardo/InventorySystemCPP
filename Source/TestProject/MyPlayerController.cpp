@@ -2,11 +2,12 @@
 
 
 #include "MyPlayerController.h"
+#include "InventoryLayout.h"
 #include "Blueprint/UserWidget.h"
 
 AMyPlayerController::AMyPlayerController()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryObj(TEXT("/Game/UI/BP_InventoryLayout"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryObj(TEXT("/Game/UI/WBP_InventoryLayout"));
 	WidgetClass = InventoryObj.Class;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
@@ -25,9 +26,12 @@ void AMyPlayerController::SetupInputComponent()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	UE_LOG (LogTemp, Warning, TEXT ("MyPlayerController Initialized!!"))
 
+	InventoryComponent->InitInventory();
+
+	InitializeInventoryLayout();
+
+	UE_LOG (LogTemp, Warning, TEXT ("MyPlayerController Initialized!!"))
 }
 
 void AMyPlayerController::SetPawn(APawn* InPawn)
@@ -45,19 +49,8 @@ void AMyPlayerController::ToggleInventory()
 {
 	if (WidgetClass != nullptr)
 	{
-		if (W_InventoryLayout == nullptr)
-		{
-			W_InventoryLayout = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
-			W_InventoryLayout->AddToViewport();
-			FAnchors Anchors = {0.7f, 0.3f};
-			W_InventoryLayout->SetAnchorsInViewport(Anchors);
-
-			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-		}
-
 		if (W_InventoryLayout->GetVisibility() == ESlateVisibility::Hidden)
 		{
-			InventoryComponent->InitInventory();
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Visible);
 			
 			SetInputMode(FInputModeGameAndUI());
@@ -66,8 +59,6 @@ void AMyPlayerController::ToggleInventory()
 		else
 		{
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-			// W_InventoryLayout->RemoveFromParent();
-			// W_InventoryLayout = nullptr;
 			
 			SetInputMode(FInputModeGameOnly());
 			bShowMouseCursor = false;
@@ -78,7 +69,51 @@ void AMyPlayerController::ToggleInventory()
 void AMyPlayerController::Interact()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Interact!"));
+	
+	if(
+		InventoryComponent->AddItem(TEXT("Apple"), 2))
+	{
+		W_InventoryLayout->RefreshInventorySlots(); //Needs Debug
+	}
 
-	InventoryComponent->ANewTestingMethod();
-	InventoryComponent->ANewTextingMethodNonStatic();
+	if (HasEmptySlots)
+	{
+		
+	}
+	
+	AItem* ItemExists;
+	if (ItemExists)
+	{
+		
+	}else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item doesn't exists on Inventory"));
+		UE_LOG(LogTemp, Warning, TEXT("Add or Create Stack"));
+	}
+	// Error: Item doesn't exists
+	// Error: Not enough space on Inventory
+	// Warning: Update InventoryLayout (InventorySlots) if occurs any changes
+
+	// Warning: If Item reaches limit stack if needs to accumulate on another slot
+	// Error: Not enough space on Inventory
+}
+
+void AMyPlayerController::InitializeInventoryLayout()
+{
+	if (WidgetClass != nullptr)
+	{
+		if (W_InventoryLayout == nullptr)
+		{
+			W_InventoryLayout = CreateWidget<UInventoryLayout>(GetWorld(), WidgetClass);
+			W_InventoryLayout->AddToViewport();
+			
+			//W_InventoryLayout->SetAlignmentInViewport(FVector2D{0.5,0.5});
+			W_InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.3f});
+
+			//FVector2D Position = FVector2D{0,0};
+			//W_InventoryLayout->SetPositionInViewport(Position);
+			
+			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }

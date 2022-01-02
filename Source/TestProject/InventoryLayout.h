@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "WindowLayout.h"
+#include "Inventory_Slot.h"
 #include "InventoryLayout.generated.h"
 
 /**
@@ -17,15 +18,17 @@ class TESTPROJECT_API UInventoryLayout : public UWindowLayout
 public:
 	UInventoryLayout();
 	
-	UPROPERTY()
-	class UInventoryComponent* Inventory;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* InventoryGridPanel;
 	
 	UPROPERTY(meta = (BindWidget))
-	class UButton* SortButton;
+	UButton* SortButton;
+	UPROPERTY()
+	UTexture2D* Background_Slot;
 
+	UFUNCTION()
+	void RefreshInventorySlots();
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -33,10 +36,13 @@ protected:
 	
 	void InitializeInventorySlots();
 
+	UPROPERTY()
+	TArray<UInventory_Slot*>InventorySlotsArray;
+	
 private:
 	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<class UUserWidget> WidgetClassInventory;
+	TSubclassOf<UInventory_Slot> WidgetClassInventorySlot;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UUserWidget* W_InventorySlot;
+	UInventory_Slot* W_InventorySlot;
 };

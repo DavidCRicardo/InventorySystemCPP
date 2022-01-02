@@ -19,18 +19,18 @@ public:
 	
 	virtual void SetPawn(APawn* InPawn) override;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
+	UInventoryComponent* InventoryComponent;
+	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class TSubclassOf<class UUserWidget> WidgetClass;
+	TSubclassOf<UUserWidget> WidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UUserWidget* W_InventoryLayout;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
-	class UInventoryComponent* InventoryComponent;
+	class UInventoryLayout* W_InventoryLayout;
 	
 	virtual void BeginPlay() override;
 	
@@ -38,6 +38,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
-	
-	
+
+	void InitializeInventoryLayout();
 };

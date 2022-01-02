@@ -3,46 +3,52 @@
 
 #include "Inventory_Slot.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 
 UInventory_Slot::UInventory_Slot(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/Textures/T_UI_Slot"));
-	Background_Slot = ObjectFind.Object;
 }
 
 void UInventory_Slot::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	UE_LOG (LogTemp, Warning, TEXT ("InventorySlot Initialized!! (1/2)"));
-	
-	InitializeVariables();
+	UE_LOG (LogTemp, Warning, TEXT ("Native InventorySlot!!"));
 }
 
-void UInventory_Slot::InitializeVariables()
+void UInventory_Slot::InitializeSlot(UTexture2D* BackgroundRef)
 {
-	if (ItemInfo == nullptr)
-	{
-		Amount->SetText(FText::FromString(""));
-		Background->SetBrushFromTexture(Background_Slot);
+	TextBlockAmount->SetText(FText::FromString(""));
+	Background->SetBrushFromTexture(BackgroundRef);
+	Slot_Icon = nullptr;
+	
+	UE_LOG (LogTemp, Warning, TEXT ("InventorySlot Initialized!!"));
+}
 
-		UE_LOG (LogTemp, Warning, TEXT ("InventorySlot Defining Default Values"));
+
+
+void UInventory_Slot::UpdateSlot(FItemDataTable ItemData, uint8 Amount)
+{
+	if (Amount == 0)
+	{
+		ItemID = FText::FromString("Empty");
+		TextBlockAmount->SetText(FText::FromString(""));
+		Slot_Icon = nullptr;
 	}
 	else
 	{
-		UE_LOG (LogTemp, Warning, TEXT ("InventorySlot Defining Item Values"));
+		ItemID = ItemData.ID;
+		TextBlockAmount->SetText(FText::AsNumber(Amount));
+		Slot_Icon->SetBrushFromTexture(ItemData.Icon);
 	}
-	
-	
-	UE_LOG (LogTemp, Warning, TEXT ("InventorySlot Initialized!! (2/2)"));
 }
 
 void UInventory_Slot::SetAmountText(const FText& _newAmount)
 {
-	Amount->SetText(_newAmount);
+	TextBlockAmount->SetText(_newAmount);
 }
 
 FText UInventory_Slot::GetAmountText()
 {
-	return Amount->GetText();
+	return TextBlockAmount->GetText();
 }

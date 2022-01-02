@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DragWidget.h"
-#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "WindowLayout.generated.h"
 
@@ -17,9 +15,9 @@ class TESTPROJECT_API UWindowLayout : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	//UWindowLayout();
+
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class TSubclassOf<class UUserWidget> WidgetClass;
+	TSubclassOf<UUserWidget> WidgetClass;
 	
 protected:
 
@@ -33,7 +31,7 @@ protected:
 	class UButton* QuitButton;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	AMyPlayerController* PlayerController;
+	class AMyPlayerController* PlayerController;
 	
 	UFUNCTION()
 	virtual void OnButtonQuitClicked();
@@ -52,7 +50,8 @@ protected:
 	virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	
 private:
-	UDragWidget* DragWidget;
+	UPROPERTY()
+	class UDragWidget* DragWidget;
 	
 	FVector2D DragOffset;
 };
