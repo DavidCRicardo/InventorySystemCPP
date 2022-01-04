@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class TestProject : ModuleRules
 {
@@ -19,5 +20,18 @@ public class TestProject : ModuleRules
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
+		
+		PublicIncludePaths.AddRange(new string[]
+		{
+			Path.Combine(ModuleDirectory, "Public"),
+			Path.Combine(ModuleDirectory, "Classes")
+		});
+		
+		PrivateIncludePaths.AddRange(new string[]
+		{
+			Path.Combine(ModuleDirectory, "Private")
+		});
+		
+		// PrivateIncludePaths.AddRange(new string[] { "TestProject", "TestProject/Item" });
 	}
 }
