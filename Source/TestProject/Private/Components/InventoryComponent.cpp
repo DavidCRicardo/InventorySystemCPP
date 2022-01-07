@@ -61,85 +61,122 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
 {
 	const UDataTable* ItemTable = ItemDB;// = GetItemDB();
-
 	FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(ID), "", true);
-	
-	//const FSlotStructure NewItem = {*NewItemData, Amount};
-	const FSlotStructure* NewItem = nullptr;
-	
-	//FSlotStructure* EmptyItem = NewItem;
 
-	//NewItem->InitItem(FName(ID), Amount, *NewItemData);
-	/*
-	TArray<FSlotStructure>::ElementType NewItem;
-	NewItem.ItemStructure = *NewItemData;
-	NewItem.Amount = Amount;
-	*/
-	if (NewItemData)
+	if (!NewItemData)
 	{
-		/*
-		// Check if there is already an item to Stack
-		if (Inventory.Contains(NewItem))
-		{
-			const uint8 Index = Inventory.Find(NewItem);
-			Inventory.EmplaceAt(Index, NewItem);
-		}else
-		{
-			// Check if there is an empty slot to Add
-			if (Inventory.Contains(nullptr))
-			{
-				const uint8 Index = Inventory.Find(nullptr);
-				Inventory.EmplaceAt(Index, NewItem);
-			}
-		}
-		*/
+		return false;
+	}
 
-		Inventory.Add(*NewItem);
-		//Inventory.AddUnique(NewItem);
+	FSlotStructure NewSlot = {};
+	NewSlot.InitSlot(*NewItemData, Amount);
+	
+	return AddItemToInventory(NewSlot, NewSlot.Amount);
+}
+
+bool UInventoryComponent::AddItemToInventory(FSlotStructure& ContentToAdd, uint8 QuantityToAdd)
+{
+	if (ContentToAdd.ItemStructure.IsStackable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item exists on Inventory and it's stackable"));
+
+		const FReturnTupleBoolInt ReturnValue = HasPartialStack(ContentToAdd);
+		if (ReturnValue.Success)
+		{
+			return AddToStack(ContentToAdd, ReturnValue.Index);
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Item doesn't exists on Inventory or it's not stackable"));
+	
+	if (CreateStack(ContentToAdd))
+	{
+		return true;
+		
+	}
+	
+	return false;
+}
+
+bool UInventoryComponent::CreateStack(const FSlotStructure& ContentToAdd)
+{
+	bool HasSpace = false;
+	uint8 IdentifiedIndex = 0;
+	
+	for (size_t i = 0; i < NumberOfSlots; i++)
+	{
+		const FSlotStructure& CurrentSlot = Inventory[i];
+		if (CurrentSlot.Amount <= 0)
+		{
+			HasSpace = true;
+			IdentifiedIndex = i;
+			break;
+		}
+	}
+	
+	if (HasSpace)
+	{
+		Inventory[IdentifiedIndex] = ContentToAdd;
 		return true;
 	}
-
-	return false;
 	
-	/*if (ItemToAdd)
+	return false;
+}
+
+bool UInventoryComponent::AddToStack(FSlotStructure& ContentToAdd, const int8& Index)
+{
+	const FSlotStructure& CurrentSlot = Inventory[Index];
+	const uint8 MaxStackSize = CurrentSlot.ItemStructure.MaxStackSize;
+	
+	const uint8 FinalQuantity = CurrentSlot.Amount + ContentToAdd.Amount;
+	
+	if (FinalQuantity > MaxStackSize)
 	{
-		// If you dont want a Slot- or WeightLimit you have to remove it in this line
-		if (Inventory.Num() < InventorySlotLimit && GetInventoryWeight() + ItemToAdd->Weight <= InventoryWeightLimit)
-		{
-			Inventory.Add(*ItemToAdd);
-			ReloadInventory();
-			return true;
-		}
-	}
-	return false;*/
-}
+		Inventory[Index].Amount = MaxStackSize;
 
-bool UInventoryComponent::HasEmptySlots()
-{
-	return true;
-}
+		const uint8 RestAmountToAdd = ContentToAdd.Amount - (FinalQuantity - MaxStackSize);
 
-bool UInventoryComponent::CreateStack()
-{
-	return true;
-}
-
-bool UInventoryComponent::AddToStack()
-{
-	return true;
-}
-
-int8 UInventoryComponent::HasPartialStack(FSlotStructure SlotStructure)
-{
-	int8 StackIndex = -1;
-	if (true)
-	{
-		return StackIndex;
+		ContentToAdd.Amount = RestAmountToAdd;
+		AddItemToInventory(ContentToAdd, RestAmountToAdd);
+		
 	}else
 	{
-		return StackIndex;
+		Inventory[Index].Amount = FinalQuantity;
+	}
+	
+	return true;
+}
+
+FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& ContentToAdd)
+{
+	int8 LocalInteger = -1;
+	bool LocalBoolean = false;
+	
+	for (size_t i = 0; i < NumberOfSlots; i++)
+	{
+		//const bool SameClass = Inventory[i].ItemStructure.Class == ContentToAdd.ItemStructure.Class;
+		
+		const bool SameID = Inventory[i].ItemStructure.ID.EqualTo(ContentToAdd.ItemStructure.ID);
+		
+		const bool InsideStackLimit = Inventory[i].Amount < ContentToAdd.ItemStructure.MaxStackSize;
+		
+		if (SameID && InsideStackLimit)
+		{
+			LocalInteger = i;
+			LocalBoolean = true;
+			break;
+		}
+	}
+
+	if (LocalBoolean)
+	{
+		return {true, LocalInteger};
+	}else
+	{
+		return {false, 0};
 	}
 }
+
 
 	
 /*for (AItem*& CurrentItem : Inventory)

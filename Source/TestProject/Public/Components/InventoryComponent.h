@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryComponent.generated.h"
@@ -35,18 +36,22 @@ public:
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);
 
+	UFUNCTION()
+	bool AddItemToInventory(FSlotStructure& ContentToAdd, uint8 QuantityToAdd);
+	
 protected:
 	
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
+	
+	FReturnTupleBoolInt HasPartialStack(const FSlotStructure& ContentToAdd);
 
+	//UFUNCTION()
+	//void HasPartialStack(const FSlotStructure& ContentToAdd, int8& OutIndex);
+	
 	UFUNCTION()
-	bool HasEmptySlots();
+	bool CreateStack(const FSlotStructure& ContentToAdd);
 	UFUNCTION()
-	bool CreateStack();
-	UFUNCTION()
-	bool AddToStack();
-	UFUNCTION()
-	int8 HasPartialStack(FSlotStructure SlotStructure);
+	bool AddToStack(FSlotStructure& ContentToAdd, const int8& Index);
 };

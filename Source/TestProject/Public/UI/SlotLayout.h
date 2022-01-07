@@ -29,15 +29,13 @@ public:
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
-	class UImage* Slot_Icon;
-
-	/* If Item Data Icon is valid 
-	 * else Default Background */
-	UPROPERTY(meta = (BindWidget))
-	class UBorder* Slot_Border;
+	class UImage* Icon;
 	
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* TextBlockAmount;
+	class UBorder* SlotBorder;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* AmountTextBlock;
 	
 	UFUNCTION(BlueprintSetter, BlueprintCallable)
 	void SetAmountText(const FText& _newAmount);
@@ -50,8 +48,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UTexture2D> WidgetClass;
 
-	UPROPERTY(EditAnywhere, Category = "Default")
-	UTexture2D* Background_Slot;
+	//UPROPERTY(EditAnywhere, Category = "Default")
+	//UTexture2D* Background;
 
 private:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))

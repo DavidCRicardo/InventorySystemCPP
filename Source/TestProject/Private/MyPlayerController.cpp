@@ -29,13 +29,13 @@ void AMyPlayerController::BeginPlay()
 
 	InitializeInventoryLayout();
 
-	UE_LOG (LogTemp, Warning, TEXT ("MyPlayerController Initialized!!"))
+	UE_LOG(LogTemp, Warning, TEXT ("MyPlayerController Initialized!!"))
 }
 
 void AMyPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
- 
+
 	//APawn* Pawn = GetPawn();
 	//HUD_Reference = Cast<AMyHUD>(GetHUD());
 	//Character_Reference = Cast<AMyCharacter>(GetPawn());
@@ -50,14 +50,14 @@ void AMyPlayerController::ToggleInventory()
 		if (W_InventoryLayout->GetVisibility() == ESlateVisibility::Hidden)
 		{
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Visible);
-			
+
 			SetInputMode(FInputModeGameAndUI());
 			bShowMouseCursor = true;
 		}
 		else
 		{
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-			
+
 			SetInputMode(FInputModeGameOnly());
 			bShowMouseCursor = false;
 		}
@@ -66,35 +66,33 @@ void AMyPlayerController::ToggleInventory()
 
 void AMyPlayerController::Interact()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Interact!"));
-	
-	if(
+	if (
 		InventoryComponent->AddItem(TEXT("Apple"), 2))
 	{
 		W_InventoryLayout->RefreshInventorySlots(); //Needs Debug
-	}
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,FString::Printf(TEXT("Added to Inventory")));
 
-	bool HasEmptySlots = false;
-	if (HasEmptySlots)
-	{
-		
-	}
-	
-	FItemStructure* ItemExists{};
-	if (ItemExists)
-	{
-		
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Item doesn't exists on Inventory"));
-		UE_LOG(LogTemp, Warning, TEXT("Add or Create Stack"));
+		UE_LOG(LogTemp, Warning, TEXT("Inventory Full"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,FString::Printf(TEXT("Inventory Full")));
+
 	}
+	
 	// Error: Item doesn't exists
 	// Error: Not enough space on Inventory
 	// Warning: Update InventoryLayout (InventorySlots) if occurs any changes
 
 	// Warning: If Item reaches limit stack if needs to accumulate on another slot
 	// Error: Not enough space on Inventory
+
+	for (int i = 0; i < InventoryComponent->NumberOfSlots; i++)
+    {
+		FText a = InventoryComponent->Inventory[i].ItemStructure.Name;
+		uint8 b = InventoryComponent->Inventory[i].Amount;
+		
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,FString::Printf(TEXT("Item: %s , Amount %i"), *a.ToString(), b));
+    }
 }
 
 void AMyPlayerController::InitializeInventoryLayout()
@@ -105,13 +103,13 @@ void AMyPlayerController::InitializeInventoryLayout()
 		{
 			W_InventoryLayout = CreateWidget<UInventoryLayout>(GetWorld(), WidgetClass);
 			W_InventoryLayout->AddToViewport();
-			
+
 			//W_InventoryLayout->SetAlignmentInViewport(FVector2D{0.5,0.5});
 			W_InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.3f});
 
 			//FVector2D Position = FVector2D{0,0};
 			//W_InventoryLayout->SetPositionInViewport(Position);
-			
+
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}

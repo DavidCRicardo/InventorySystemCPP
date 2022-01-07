@@ -8,7 +8,7 @@
 
 UInventoryLayout::UInventoryLayout()
 {
-	static ConstructorHelpers::FClassFinder<USlotLayout> InventorySlotObj(TEXT("/Game/UI/WBP_InventorySlot"));
+	static ConstructorHelpers::FClassFinder<USlotLayout> InventorySlotObj(TEXT("/Game/UI/WBP_SlotLayout"));
 	WidgetClassInventorySlot = InventorySlotObj.Class;
 
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/Textures/T_UI_Slot"));

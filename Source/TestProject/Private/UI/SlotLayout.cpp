@@ -18,9 +18,10 @@ void USlotLayout::NativeConstruct()
 
 void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
 {
-	TextBlockAmount->SetText(FText::FromString(""));
+	AmountTextBlock->SetText(FText::FromString(""));
 	Background->SetBrushFromTexture(BackgroundRef);
-	Slot_Icon = nullptr;
+	//Icon = nullptr;
+	Icon->Brush.TintColor = FSlateColor( {0,0,0,0} );
 	
 	UE_LOG (LogTemp, Warning, TEXT ("InventorySlot Initialized!!"));
 }
@@ -30,23 +31,25 @@ void USlotLayout::UpdateSlot(FItemStructure ItemStructure, uint8 Amount)
 	if (Amount == 0)
 	{
 		ItemID = FText::FromString("Empty");
-		TextBlockAmount->SetText(FText::FromString(""));
-		Slot_Icon = nullptr;
+		AmountTextBlock->SetText(FText::FromString(""));
+		//Icon = nullptr;
+		Icon->Brush.TintColor = FSlateColor( {0,0,0,0} );
 	}
 	else
 	{
 		ItemID = ItemStructure.ID;
-		TextBlockAmount->SetText(FText::AsNumber(Amount));
-		Slot_Icon->SetBrushFromTexture(ItemStructure.Icon);
+		AmountTextBlock->SetText(FText::AsNumber(Amount));
+		Icon->SetBrushFromTexture(ItemStructure.Icon);
+		Icon->Brush.TintColor = FSlateColor( {0,0,0,1} );
 	}
 }
 
 void USlotLayout::SetAmountText(const FText& _newAmount)
 {
-	TextBlockAmount->SetText(_newAmount);
+	AmountTextBlock->SetText(_newAmount);
 }
 
 FText USlotLayout::GetAmountText()
 {
-	return TextBlockAmount->GetText();
+	return AmountTextBlock->GetText();
 }

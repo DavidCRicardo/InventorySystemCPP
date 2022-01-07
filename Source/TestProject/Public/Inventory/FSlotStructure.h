@@ -12,10 +12,12 @@ struct TESTPROJECT_API FSlotStructure : public FTableRowBase
 	GENERATED_BODY();
 
 	FSlotStructure();
+
+	void InitSlot(const FItemStructure& InItemStructure, const uint8& InAmount);
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Default")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	FItemStructure ItemStructure;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Default")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	uint8 Amount;
 };

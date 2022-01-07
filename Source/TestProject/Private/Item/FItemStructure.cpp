@@ -10,7 +10,9 @@ FItemStructure::FItemStructure()
 	Quality = EItemQuality::Undefined;
 	Amount = 0;
 	PriceValue = 0;
-	IsSackable = false;
+	IsStackable = false;
+	MaxStackSize = 0;
+	Class = nullptr;
 	IsDroppable = false;
 	WorldMesh = nullptr;
 	Health = 0;

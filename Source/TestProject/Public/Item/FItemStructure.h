@@ -38,8 +38,14 @@ struct TESTPROJECT_API FItemStructure : public FTableRowBase
 	uint8 PriceValue;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool IsSackable;
+	bool IsStackable;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 MaxStackSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UClass* Class;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsDroppable;
 
