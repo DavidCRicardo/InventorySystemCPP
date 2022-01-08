@@ -24,6 +24,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();
+
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void ToggleMenu();
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Default")
@@ -40,4 +43,6 @@ protected:
 	void Interact();
 
 	void InitializeInventoryLayout();
+	
+	void PrintInventory();
 };

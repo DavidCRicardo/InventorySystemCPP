@@ -2,7 +2,7 @@
 
 FItemStructure::FItemStructure()
 {
-	ID = FText::FromString("None");
+	ID = FGuid::NewGuid();
 	Icon = nullptr;
 	Name = FText::FromString("None");
 	Description = FText::FromString("None");

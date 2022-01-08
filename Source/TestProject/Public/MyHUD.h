@@ -27,7 +27,7 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<class UUserWidget> WidgetClass;
+	TSubclassOf<UUserWidget> WidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UUserWidget* HUDReference;

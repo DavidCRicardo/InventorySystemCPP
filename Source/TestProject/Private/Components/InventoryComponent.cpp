@@ -3,6 +3,8 @@
 
 #include "Components/InventoryComponent.h"
 
+DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
+
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
 {
@@ -16,7 +18,7 @@ UInventoryComponent::UInventoryComponent()
 	{
 		ItemDB = BP_ItemDB.Object;
 	}else{
-	UE_LOG(LogTemp, Error, TEXT ("ItemDB not found!!"));
+	UE_LOG(LogInventory, Warning, TEXT ("ItemDB DataTable not found!!"));
 	}
 }
 
@@ -26,7 +28,7 @@ void UInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	NumberOfSlots = 32;
+	NumberOfSlots = 28;
 
 	InitInventory(NumberOfSlots);
 }
@@ -52,15 +54,18 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 	
 	FSlotStructure SlotStructure = {};
 	Inventory.Init(SlotStructure, NumberSlots);
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("InventoryComponent Initialized!!"));
 
-	UE_LOG(LogTemp, Warning, TEXT ("InventoryComponent Initialized!!"));
+	const UDataTable* ItemTable = ItemDB;
+	for (FSlotStructure& CurrentSlot : Inventory)
+	{
+		FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName("Empty"), "", true);
+		CurrentSlot.ItemStructure = *NewItemData;
+	}
 }
 
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
 {
-	const UDataTable* ItemTable = ItemDB;// = GetItemDB();
+	const UDataTable* ItemTable = ItemDB;
 	FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(ID), "", true);
 
 	if (!NewItemData)
@@ -71,14 +76,14 @@ bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
 	FSlotStructure NewSlot = {};
 	NewSlot.InitSlot(*NewItemData, Amount);
 	
-	return AddItemToInventory(NewSlot, NewSlot.Amount);
+	return AddItemToInventory(NewSlot);
 }
 
-bool UInventoryComponent::AddItemToInventory(FSlotStructure& ContentToAdd, uint8 QuantityToAdd)
+bool UInventoryComponent::AddItemToInventory(FSlotStructure& ContentToAdd)
 {
 	if (ContentToAdd.ItemStructure.IsStackable)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Item exists on Inventory and it's stackable"));
+		UE_LOG(LogInventory, Log, TEXT("Item exists on Inventory and it's stackable"));
 
 		const FReturnTupleBoolInt ReturnValue = HasPartialStack(ContentToAdd);
 		if (ReturnValue.Success)
@@ -87,12 +92,11 @@ bool UInventoryComponent::AddItemToInventory(FSlotStructure& ContentToAdd, uint8
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Item doesn't exists on Inventory or it's not stackable"));
+	UE_LOG(LogInventory, Display, TEXT("Item doesn't exists on Inventory or it's not stackable"));
 	
 	if (CreateStack(ContentToAdd))
 	{
 		return true;
-		
 	}
 	
 	return false;
@@ -137,8 +141,7 @@ bool UInventoryComponent::AddToStack(FSlotStructure& ContentToAdd, const int8& I
 		const uint8 RestAmountToAdd = ContentToAdd.Amount - (FinalQuantity - MaxStackSize);
 
 		ContentToAdd.Amount = RestAmountToAdd;
-		AddItemToInventory(ContentToAdd, RestAmountToAdd);
-		
+		AddItemToInventory(ContentToAdd);
 	}else
 	{
 		Inventory[Index].Amount = FinalQuantity;
@@ -154,9 +157,7 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 	
 	for (size_t i = 0; i < NumberOfSlots; i++)
 	{
-		//const bool SameClass = Inventory[i].ItemStructure.Class == ContentToAdd.ItemStructure.Class;
-		
-		const bool SameID = Inventory[i].ItemStructure.ID.EqualTo(ContentToAdd.ItemStructure.ID);
+		const bool SameID = Inventory[i].ItemStructure.ID == ContentToAdd.ItemStructure.ID;
 		
 		const bool InsideStackLimit = Inventory[i].Amount < ContentToAdd.ItemStructure.MaxStackSize;
 		
@@ -171,21 +172,6 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 	if (LocalBoolean)
 	{
 		return {true, LocalInteger};
-	}else
-	{
-		return {false, 0};
 	}
+	return {false, 0};
 }
-
-
-	
-/*for (AItem*& CurrentItem : Inventory)
-{
-	Inventory.Add(nullptr);
-}*/
-	
-/*for (size_t i = 0; i < NumberSlots; i++)
-{
-	AItem* EmptyItem = NewObject<AItem>();
-	Inventory[i] = EmptyItem;
-}*/

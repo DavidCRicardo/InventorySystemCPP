@@ -6,6 +6,8 @@
 #include "Components/UniformGridPanel.h"
 #include "MyPlayerController.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Verbose, Verbose)
+
 UInventoryLayout::UInventoryLayout()
 {
 	static ConstructorHelpers::FClassFinder<USlotLayout> InventorySlotObj(TEXT("/Game/UI/WBP_SlotLayout"));
@@ -22,24 +24,12 @@ void UInventoryLayout::NativeConstruct()
 	Super::SetTitleToWindow("INVENTORY");
  
 	InitializeInventorySlots();
-
-	UE_LOG (LogTemp, Warning, TEXT ("Inventory Layout Initialized!!"));
 }
 
 void UInventoryLayout::InitializeInventorySlots()
 {
-	UE_LOG (LogTemp, Warning, TEXT ("Initialization started with Inventory Slots!"));
-	
-	/*for(int i = 0; i < Inventory->NumberOfSlots; i++)
-	{
-		uint8 Collumn = i % 7;
-		uint8 Row = i / 4;
-		
-		W_InventorySlot = CreateWidget<UUserWidget>(GetWorld(), WidgetClassInventory);
-		InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, Row, Collumn);
-	}*/
-
-	for(int i = 0; i < 7; i++)
+	uint8 InventoryIndex = 0;
+	for(int i = 0; i < 8; i++)
 	{
 		for(int j = 0; j < 4; j++)
 		{
@@ -47,29 +37,26 @@ void UInventoryLayout::InitializeInventorySlots()
 			InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, i, j);
 
 			W_InventorySlot->InitializeSlot(Background_Slot);
-
+			W_InventorySlot->InventorySlot = InventoryIndex;
+			
 			InventorySlotsArray.Add(W_InventorySlot);
+
+			InventoryIndex++;
 		}
 	}
-	
-	UE_LOG (LogTemp, Warning, TEXT ("Initialization terminated with Inventory Slots!"));
 }
 
 void UInventoryLayout::RefreshInventorySlots()
 {
 	const uint8 InventoryLimit = PlayerController->InventoryComponent->NumberOfSlots;
 
-	/*for(int i = 0; i < InventoryLimit; i++)
+	FSlotStructure CurrentSlot = {};
+	for(int i = 0; i < InventoryLimit; i++)
 	{
-		FItemStructure* TempItem = PlayerController->InventoryComponent->Inventory[i];
-		if (TempItem != nullptr)
-		{
-			InventorySlotsArray[i]->UpdateSlot(TempItem->ItemStructure, TempItem->Amount);
-		}else
-		{
-			InventorySlotsArray[i]->UpdateSlot(TempItem->ItemStructure, 0);
-		}
-	}*/
+		CurrentSlot = PlayerController->InventoryComponent->Inventory[i];
+		
+		InventorySlotsArray[i]->UpdateSlot(CurrentSlot);
+	}
 }
 
 void UInventoryLayout::OnButtonQuitClicked()

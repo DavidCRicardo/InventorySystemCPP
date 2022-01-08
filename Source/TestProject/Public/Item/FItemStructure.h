@@ -14,7 +14,7 @@ struct TESTPROJECT_API FItemStructure : public FTableRowBase
 	FItemStructure();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText ID;
+	FGuid ID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Icon;
@@ -57,7 +57,5 @@ struct TESTPROJECT_API FItemStructure : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration;
-	
-	FItemStructure Init();
 };
 

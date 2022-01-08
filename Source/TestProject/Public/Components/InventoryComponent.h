@@ -37,7 +37,7 @@ public:
 	bool AddItem(FName ID, uint8 Amount);
 
 	UFUNCTION()
-	bool AddItemToInventory(FSlotStructure& ContentToAdd, uint8 QuantityToAdd);
+	bool AddItemToInventory(FSlotStructure& ContentToAdd);
 	
 protected:
 	

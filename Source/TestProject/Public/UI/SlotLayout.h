@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Item/FItemStructure.h"
 #include "Blueprint/UserWidget.h"
+#include "Inventory/FSlotStructure.h"
 #include "SlotLayout.generated.h"
 
 /**
@@ -19,10 +20,14 @@ public:
 	USlotLayout(const FObjectInitializer& ObjectInitializer);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText ItemID;
+	FGuid ItemID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 InventorySlot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FSlotStructure SlotStructure;
 
 	UFUNCTION()
-	void UpdateSlot(FItemStructure ItemStructure, uint8 Amount);
+	void UpdateSlot(const FSlotStructure& NewSlotStructure);
 
 	UFUNCTION()
 	void InitializeSlot(UTexture2D* BackgroundRef);
@@ -33,12 +38,12 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* SlotBorder;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* SlotButton;
 	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* AmountTextBlock;
-	
-	UFUNCTION(BlueprintSetter, BlueprintCallable)
-	void SetAmountText(const FText& _newAmount);
 
 	UFUNCTION(BlueprintGetter, BlueprintCallable)
 	FText GetAmountText();
@@ -48,9 +53,27 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UTexture2D> WidgetClass;
 
-	//UPROPERTY(EditAnywhere, Category = "Default")
-	//UTexture2D* Background;
+protected:
+	UFUNCTION()
+	void OnGenerateButtonClicked();
+	UFUNCTION()
+	void OnGenerateButtonHovered();
+	UFUNCTION()
+	void OnGenerateButtonOnPressed();
+	UFUNCTION()
+	void OnGenerateButtonOnReleased();
+	
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
+
+
+	UFUNCTION()
+	bool HasItem();
+	
 private:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
 	UImage* Background;

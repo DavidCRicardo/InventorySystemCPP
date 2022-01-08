@@ -19,6 +19,7 @@ void AMyPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("Interact", IE_Pressed, this, &AMyPlayerController::Interact);
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &AMyPlayerController::ToggleInventory);
+	InputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AMyPlayerController::ToggleMenu);
 }
 
 void AMyPlayerController::BeginPlay()
@@ -64,12 +65,19 @@ void AMyPlayerController::ToggleInventory()
 	}
 }
 
+void AMyPlayerController::ToggleMenu()
+{
+	InventoryComponent->AddItem(TEXT("G_Apple"), 1);
+	W_InventoryLayout->RefreshInventorySlots();
+	
+	//PrintInventory();
+}
+
 void AMyPlayerController::Interact()
 {
-	if (
-		InventoryComponent->AddItem(TEXT("Apple"), 2))
+	if (InventoryComponent->AddItem(TEXT("Apple"), 3))
 	{
-		W_InventoryLayout->RefreshInventorySlots(); //Needs Debug
+		W_InventoryLayout->RefreshInventorySlots();
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,FString::Printf(TEXT("Added to Inventory")));
 
 	}else
@@ -86,13 +94,7 @@ void AMyPlayerController::Interact()
 	// Warning: If Item reaches limit stack if needs to accumulate on another slot
 	// Error: Not enough space on Inventory
 
-	for (int i = 0; i < InventoryComponent->NumberOfSlots; i++)
-    {
-		FText a = InventoryComponent->Inventory[i].ItemStructure.Name;
-		uint8 b = InventoryComponent->Inventory[i].Amount;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,FString::Printf(TEXT("Item: %s , Amount %i"), *a.ToString(), b));
-    }
+	//PrintInventory();
 }
 
 void AMyPlayerController::InitializeInventoryLayout()
@@ -112,5 +114,16 @@ void AMyPlayerController::InitializeInventoryLayout()
 
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
 		}
+	}
+}
+
+void AMyPlayerController::PrintInventory()
+{
+	for (int i = 0; i < InventoryComponent->NumberOfSlots; i++)
+	{
+		FText a = InventoryComponent->Inventory[i].ItemStructure.Name;
+		uint8 b = InventoryComponent->Inventory[i].Amount;
+		
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,FString::Printf(TEXT("Item: %s , Amount %i"), *a.ToString(), b));
 	}
 }
