@@ -28,7 +28,10 @@ public:
 
 	UFUNCTION()
 	void RefreshInventorySlots();
-	
+
+	UPROPERTY()
+	TArray<USlotLayout*>InventorySlotsArray;
+
 protected:
 	virtual void NativeConstruct() override;
 
@@ -36,9 +39,6 @@ protected:
 	
 	void InitializeInventorySlots();
 
-	UPROPERTY()
-	TArray<USlotLayout*>InventorySlotsArray;
-	
 private:
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<USlotLayout> WidgetClassInventorySlot;

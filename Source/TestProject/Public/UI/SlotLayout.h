@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Item/FItemStructure.h"
+#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Inventory/FSlotStructure.h"
 #include "SlotLayout.generated.h"
+
+DECLARE_LOG_CATEGORY_CLASS(LogSlotLayout, Verbose, Verbose);
 
 /**
  * 
@@ -20,9 +22,8 @@ public:
 	USlotLayout(const FObjectInitializer& ObjectInitializer);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGuid ItemID;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 InventorySlot;
+	uint8 InventorySlotIndex;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlotStructure SlotStructure;
 
@@ -30,7 +31,10 @@ public:
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
 
 	UFUNCTION()
-	void InitializeSlot(UTexture2D* BackgroundRef);
+	void InitializeSlot(UTexture2D* BackgroundRef, APlayerController* PlayerControllerReference);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	AMyPlayerController* PlayerController;
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -68,6 +72,9 @@ protected:
 
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+	virtual void NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
 
 

@@ -67,12 +67,15 @@ void UWindowLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoi
 
 void UWindowLayout::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	RemoveFromParent();
+	if ( Cast<UDragWidget>(InOperation) )
+	{
+		RemoveFromParent();
+	}
 }
 
 FReply UWindowLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey)
 {
-	if ( InMouseEvent.GetEffectingButton() == DragKey /*|| PointerEvent.IsTouchEvent()*/ )
+	if ( InMouseEvent.GetEffectingButton() == DragKey /*|| PointerEvent.IsTouchEvent()*/ && TopBorder->IsHovered())
 	{
 		FEventReply Reply;
 		Reply.NativeReply = FReply::Handled();

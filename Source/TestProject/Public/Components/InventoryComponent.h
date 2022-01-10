@@ -38,7 +38,16 @@ public:
 
 	UFUNCTION()
 	bool AddItemToInventory(FSlotStructure& ContentToAdd);
+
+	UFUNCTION()
+	FSlotStructure GetInventoryItem(uint8 InventorySlot);
+
 	
+	UFUNCTION()
+	bool MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot); 
+	UFUNCTION()
+	void AddItemToIndex(FSlotStructure& ContentToAdd, uint8 InventorySlot);
+
 protected:
 	
 private:
@@ -51,7 +60,7 @@ private:
 	//void HasPartialStack(const FSlotStructure& ContentToAdd, int8& OutIndex);
 	
 	UFUNCTION()
-	bool CreateStack(const FSlotStructure& ContentToAdd);
+	bool CreateStack(FSlotStructure& ContentToAdd);
 	UFUNCTION()
 	bool AddToStack(FSlotStructure& ContentToAdd, const int8& Index);
 };

@@ -26,8 +26,7 @@ UInventoryComponent::UInventoryComponent()
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
+	
 	NumberOfSlots = 28;
 
 	InitInventory(NumberOfSlots);
@@ -45,22 +44,22 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 /* Initializes the Inventory Array to a Specified Size */
 void UInventoryComponent::InitInventory(const int32 NumberSlots)
 {
-	/* Clear Inventory */
-	//Inventory.Empty(NumberSlots);
-	//Inventory.Reset(NumberSlots);
-	
-	/* Resize Inventory */
 	Inventory.Reserve(NumberSlots);
 	
 	FSlotStructure SlotStructure = {};
 	Inventory.Init(SlotStructure, NumberSlots);
 
-	const UDataTable* ItemTable = ItemDB;
+	for (FSlotStructure& CurrentSlot : Inventory)
+	{
+		CurrentSlot = SlotStructure;
+	}
+	
+	/*const UDataTable* ItemTable = ItemDB;
 	for (FSlotStructure& CurrentSlot : Inventory)
 	{
 		FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName("Empty"), "", true);
 		CurrentSlot.ItemStructure = *NewItemData;
-	}
+	}*/
 }
 
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
@@ -102,7 +101,7 @@ bool UInventoryComponent::AddItemToInventory(FSlotStructure& ContentToAdd)
 	return false;
 }
 
-bool UInventoryComponent::CreateStack(const FSlotStructure& ContentToAdd)
+bool UInventoryComponent::CreateStack(FSlotStructure& ContentToAdd)
 {
 	bool HasSpace = false;
 	uint8 IdentifiedIndex = 0;
@@ -121,6 +120,24 @@ bool UInventoryComponent::CreateStack(const FSlotStructure& ContentToAdd)
 	if (HasSpace)
 	{
 		Inventory[IdentifiedIndex] = ContentToAdd;
+		/*Inventory[IdentifiedIndex].ItemStructure = ContentToAdd.ItemStructure;
+		const uint8 MaxStackSize = ContentToAdd.ItemStructure.MaxStackSize;
+	
+		const uint8 FinalQuantity = ContentToAdd.Amount - MaxStackSize;
+	
+		if (FinalQuantity > MaxStackSize)
+		{
+			Inventory[IdentifiedIndex].Amount = MaxStackSize;
+
+			const uint8 RestAmountToAdd = ContentToAdd.Amount - (FinalQuantity - MaxStackSize);
+
+			ContentToAdd.Amount = RestAmountToAdd;
+			AddItemToInventory(ContentToAdd);
+		}else
+		{
+			Inventory[IdentifiedIndex].Amount = FinalQuantity;
+		}*/
+		
 		return true;
 	}
 	
@@ -174,4 +191,36 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 		return {true, LocalInteger};
 	}
 	return {false, 0};
+}
+
+bool UInventoryComponent::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
+{
+	// Trying to Move to Different Spot
+	if (FromInventorySlot != ToInventorySlot)
+	{
+		FSlotStructure LocalSlot = GetInventoryItem(FromInventorySlot);
+		
+		FSlotStructure SwapSlot = GetInventoryItem(ToInventorySlot);
+
+		AddItemToIndex(LocalSlot, ToInventorySlot);
+		AddItemToIndex(SwapSlot, FromInventorySlot);
+
+		return true;
+	}
+	return false;
+}
+
+void UInventoryComponent::AddItemToIndex(FSlotStructure& ContentToAdd, uint8 InventorySlot)
+{
+	Inventory[InventorySlot] = ContentToAdd;
+}
+
+FSlotStructure UInventoryComponent::GetInventoryItem(uint8 InventorySlot)
+{
+	FSlotStructure Slot = Inventory[InventorySlot];
+	if (Slot.Amount > 0)
+	{
+		return Slot;
+	}
+	return {};
 }

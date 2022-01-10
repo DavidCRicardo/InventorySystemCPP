@@ -27,6 +27,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleMenu();
+
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	void MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
+
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Default")

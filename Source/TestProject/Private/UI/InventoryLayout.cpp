@@ -29,15 +29,15 @@ void UInventoryLayout::NativeConstruct()
 void UInventoryLayout::InitializeInventorySlots()
 {
 	uint8 InventoryIndex = 0;
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < 7; i++)
 	{
 		for(int j = 0; j < 4; j++)
 		{
 			W_InventorySlot = CreateWidget<USlotLayout>(GetWorld(), WidgetClassInventorySlot);
 			InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, i, j);
 
-			W_InventorySlot->InitializeSlot(Background_Slot);
-			W_InventorySlot->InventorySlot = InventoryIndex;
+			W_InventorySlot->InitializeSlot(Background_Slot, GetOwningPlayer());
+			W_InventorySlot->InventorySlotIndex = InventoryIndex;
 			
 			InventorySlotsArray.Add(W_InventorySlot);
 

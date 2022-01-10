@@ -69,7 +69,7 @@ void AMyPlayerController::ToggleMenu()
 {
 	InventoryComponent->AddItem(TEXT("G_Apple"), 1);
 	W_InventoryLayout->RefreshInventorySlots();
-	
+
 	//PrintInventory();
 }
 
@@ -78,15 +78,14 @@ void AMyPlayerController::Interact()
 	if (InventoryComponent->AddItem(TEXT("Apple"), 3))
 	{
 		W_InventoryLayout->RefreshInventorySlots();
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,FString::Printf(TEXT("Added to Inventory")));
-
-	}else
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Added to Inventory")));
+	}
+	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Inventory Full"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,FString::Printf(TEXT("Inventory Full")));
-
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Inventory Full")));
 	}
-	
+
 	// Error: Item doesn't exists
 	// Error: Not enough space on Inventory
 	// Warning: Update InventoryLayout (InventorySlots) if occurs any changes
@@ -123,7 +122,19 @@ void AMyPlayerController::PrintInventory()
 	{
 		FText a = InventoryComponent->Inventory[i].ItemStructure.Name;
 		uint8 b = InventoryComponent->Inventory[i].Amount;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,FString::Printf(TEXT("Item: %s , Amount %i"), *a.ToString(), b));
+		uint8 c = W_InventoryLayout->InventorySlotsArray[i]->InventorySlotIndex;
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"),
+			                                 *a.ToString(), b, c));
+	}
+}
+
+void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
+{
+	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+	{
+		W_InventoryLayout->RefreshInventorySlots();
+
+		PrintInventory();
 	}
 }
