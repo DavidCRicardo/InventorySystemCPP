@@ -45,21 +45,14 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UInventoryComponent::InitInventory(const int32 NumberSlots)
 {
 	Inventory.Reserve(NumberSlots);
-	
-	FSlotStructure SlotStructure = {};
+
+	const FSlotStructure SlotStructure = GetEmptySlot();
 	Inventory.Init(SlotStructure, NumberSlots);
 
 	for (FSlotStructure& CurrentSlot : Inventory)
 	{
 		CurrentSlot = SlotStructure;
-	}
-	
-	/*const UDataTable* ItemTable = ItemDB;
-	for (FSlotStructure& CurrentSlot : Inventory)
-	{
-		FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName("Empty"), "", true);
-		CurrentSlot.ItemStructure = *NewItemData;
-	}*/
+	}	
 }
 
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
@@ -222,5 +215,17 @@ FSlotStructure UInventoryComponent::GetInventoryItem(uint8 InventorySlot)
 	{
 		return Slot;
 	}
-	return {};
+	return GetEmptySlot();
+}
+
+FSlotStructure UInventoryComponent::GetEmptySlot()
+{
+	FSlotStructure EmptySlot = {};
+	
+	const UDataTable* ItemTable = ItemDB;
+	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName("Empty"), "", true);
+
+	EmptySlot.InitSlot(*NewItemData, 0);
+
+	return EmptySlot;
 }

@@ -44,6 +44,9 @@ protected:
 	class UBorder* SlotBorder;
 
 	UPROPERTY(meta = (BindWidget))
+	UBorder* ItemBorder;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* SlotButton;
 	
 	UPROPERTY(meta = (BindWidget))
@@ -52,31 +55,26 @@ protected:
 	UFUNCTION(BlueprintGetter, BlueprintCallable)
 	FText GetAmountText();
 
-	virtual void NativeConstruct() override;
+	UFUNCTION()
+	FLinearColor GetBorderColor();
 	
+	virtual void NativeConstruct() override;
+
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UTexture2D> WidgetClass;
 
 protected:
 	UFUNCTION()
-	void OnGenerateButtonClicked();
-	UFUNCTION()
 	void OnGenerateButtonHovered();
 	UFUNCTION()
-	void OnGenerateButtonOnPressed();
-	UFUNCTION()
-	void OnGenerateButtonOnReleased();
+	void OnGenerateButtonOnUnHovered();
 	
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-
+	
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-
-	virtual void NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
-
 
 	UFUNCTION()
 	bool HasItem();

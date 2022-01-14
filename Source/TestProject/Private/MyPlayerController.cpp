@@ -131,10 +131,10 @@ void AMyPlayerController::PrintInventory()
 
 void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
 {
+
 	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
 		W_InventoryLayout->RefreshInventorySlots();
-
 		PrintInventory();
 	}
 }

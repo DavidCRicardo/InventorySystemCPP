@@ -25,6 +25,13 @@ protected:
 
 	UFUNCTION()
 	void OnGenerateButtonClicked();
+
+	UFUNCTION()
+	void OnGenerateButtonOnReleased();
+	UFUNCTION()
+	void OnGenerateButtonOnHovered();
+	UFUNCTION()
+	void OnGenerateButtonOnPressed();
 	
 	void NativeConstruct() override;
 };

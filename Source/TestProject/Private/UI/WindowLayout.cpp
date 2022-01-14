@@ -34,7 +34,6 @@ void UWindowLayout::SetTitleToWindow(FString title)
 
 void UWindowLayout::OnButtonQuitClicked()
 {
-	
 }
 
 FReply UWindowLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/Blueprint.h"
 #include "EItemQuality.generated.h"
 
 UENUM(BlueprintType)

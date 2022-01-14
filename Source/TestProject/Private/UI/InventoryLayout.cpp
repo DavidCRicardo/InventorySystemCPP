@@ -10,11 +10,14 @@ DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Verbose, Verbose)
 
 UInventoryLayout::UInventoryLayout()
 {
-	static ConstructorHelpers::FClassFinder<USlotLayout> InventorySlotObj(TEXT("/Game/UI/WBP_SlotLayout"));
+	static ConstructorHelpers::FClassFinder<USlotLayout> InventorySlotObj(TEXT("/Game/UI/WBP_SlotLayout.WBP_SlotLayout_C"));
 	WidgetClassInventorySlot = InventorySlotObj.Class;
 
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/Textures/T_UI_Slot"));
 	Background_Slot = ObjectFind.Object;
+	
+	/*static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectItemBorder(TEXT("/Game/Textures/T_UI_Item_Border"));
+	DefaultBorder = ObjectItemBorder.Object;*/
 }
 
 void UInventoryLayout::NativeConstruct()
@@ -54,6 +57,11 @@ void UInventoryLayout::RefreshInventorySlots()
 	for(int i = 0; i < InventoryLimit; i++)
 	{
 		CurrentSlot = PlayerController->InventoryComponent->Inventory[i];
+
+		/* Update Empty Slot */
+		if(CurrentSlot.Amount <= 0){
+			CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot();
+		}
 		
 		InventorySlotsArray[i]->UpdateSlot(CurrentSlot);
 	}

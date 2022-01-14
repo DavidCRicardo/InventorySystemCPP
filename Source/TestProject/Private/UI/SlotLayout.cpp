@@ -3,9 +3,11 @@
 
 #include "UI/SlotLayout.h"
 #include "DragItem.h"
+#include "Components/Border.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Item/FSItemQuality.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -15,38 +17,25 @@ void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	/*SlotButton->OnClicked.AddUniqueDynamic(this, &USlotLayout::OnGenerateButtonClicked);
 	SlotButton->OnHovered.AddUniqueDynamic(this, &USlotLayout::OnGenerateButtonHovered);
-	SlotButton->OnPressed.AddUniqueDynamic(this, &USlotLayout::OnGenerateButtonOnPressed);
-	SlotButton->OnReleased.AddUniqueDynamic(this, &USlotLayout::OnGenerateButtonOnReleased);*/
-}
-
-void USlotLayout::OnGenerateButtonClicked()
-{
-	UE_LOG(LogSlotLayout, Warning, TEXT("OnGenerateButtonClicked"))
+	SlotButton->OnUnhovered.AddUniqueDynamic(this, &USlotLayout::OnGenerateButtonOnUnHovered);
 }
 
 void USlotLayout::OnGenerateButtonHovered()
 {
-	UE_LOG(LogSlotLayout, Warning, TEXT("OnGenerateButtonHovered"))
+	UE_LOG(LogSlotLayout, Warning, TEXT("Hovered"))
+	ItemBorder->SetBrushColor(FLinearColor {0,0,0,1});
 }
-void USlotLayout::OnGenerateButtonOnPressed()
+
+void USlotLayout::OnGenerateButtonOnUnHovered()
 {
-	UE_LOG(LogSlotLayout, Warning, TEXT("OnGenerateButtonOnPressed"))
+	UE_LOG(LogSlotLayout, Warning, TEXT("UnHovered"))
+	ItemBorder->SetBrushColor(GetBorderColor());
 }
-void USlotLayout::OnGenerateButtonOnReleased()
-{
-	UE_LOG(LogSlotLayout, Warning, TEXT("OnGenerateButtonOnReleased"))
-}
+
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
-}
-
-FReply USlotLayout::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	UE_LOG(LogSlotLayout, Warning, TEXT("UP DraggedSlotIndex: %i"), InventorySlotIndex)
-	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
 }
 
 /* Only Create Drag Visual and initialize a DragDropOperation if Slot has an item and is not empty */
@@ -55,17 +44,21 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 {
 	if (HasItem())
 	{
+		//SlotButton->SetVisibility(ESlateVisibility::HitTestInvisible);
+		ItemBorder->SetVisibility(ESlateVisibility::HitTestInvisible);
+		
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 		DragDropOperation->DefaultDragVisual = this;
-		DragDropOperation->Pivot = EDragPivot::CenterCenter;
+		DragDropOperation->Pivot = EDragPivot::MouseDown; // TopCenter;
 		
 		DragDropOperation->DraggedSlotInformation = SlotStructure;
 		DragDropOperation->DraggedSlotIndex = InventorySlotIndex;
 		DragDropOperation->IsDraggedFromInventory = true;
-
-		UE_LOG(LogSlotLayout, Warning, TEXT("DraggedSlotIndex: %i"), InventorySlotIndex)
 		
 		OutOperation = DragDropOperation;
+	}else
+	{
+		OutOperation = nullptr;
 	}
 }
 
@@ -73,8 +66,6 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
 	UDragDropOperation* InOperation)
 {
-	UE_LOG(LogSlotLayout, Warning, TEXT("This Slot has index: %i"), InventorySlotIndex)
-	
 	UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
 	if (!IsValid(DragDropOperation))
 	{
@@ -85,31 +76,24 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 
 	if (DragDropOperation->IsDraggedFromInventory)
 	{
-		UE_LOG(LogSlotLayout, Warning, TEXT("InventorySlotIndex: %i , DraggedSlotIndex: %i"), InventorySlotIndex, LocalDraggedSlot)
-
 		PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
 		
 		return true;
 	}
 	
-	return false; 
-}
-
-void USlotLayout::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
-	UDragDropOperation* InOperation)
-{
-	Super::NativeOnDragEnter(InGeometry, InDragDropEvent, InOperation);
-
-	UE_LOG(LogSlotLayout, Verbose, TEXT("OnEnter: %i" ),InventorySlotIndex)
+	return false;
 }
 
 void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef, APlayerController* PlayerControllerReference)
 {
 	PlayerController = Cast<AMyPlayerController>(PlayerControllerReference);
-	
-	AmountTextBlock->SetText(FText::FromString(""));
-	Background->SetBrushFromTexture(BackgroundRef);
-	Icon->SetRenderOpacity(0.f);
+	if (PlayerController)
+	{
+		Background->SetBrushFromTexture(BackgroundRef);
+
+		AmountTextBlock->SetText(FText::FromString(""));
+		ItemBorder->SetBrushColor(GetBorderColor());
+	}
 }
 
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
@@ -118,14 +102,17 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	if (HasItem())
 	{
 		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
-		Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
-		Icon->SetRenderOpacity(1.f);
 	}
 	else
 	{
 		AmountTextBlock->SetText(FText::FromString(""));
-		Icon->SetRenderOpacity(0.f);
 	}
+	
+	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
+	ItemBorder->SetBrushColor(GetBorderColor());
+	
+	//SlotButton->SetVisibility(ESlateVisibility::Visible);
+	ItemBorder->SetVisibility(ESlateVisibility::Visible);
 }
 
 FText USlotLayout::GetAmountText()
@@ -138,6 +125,28 @@ bool USlotLayout::HasItem()
 	return SlotStructure.Amount > 0 ? true : false;
 }
 
+/* Color Based on the Item Quality */ 
+FLinearColor USlotLayout::GetBorderColor()
+{
+	const EItemQuality ItemQuality = SlotStructure.ItemStructure.Quality;
+
+	switch (ItemQuality)
+	{
+	case EItemQuality::Common:
+		return FSItemQuality::Common;
+	case EItemQuality::UnCommon:
+		return FSItemQuality::UnCommon;
+	case EItemQuality::Rare:
+		return FSItemQuality::Rare;
+	case EItemQuality::Epic:
+		return FSItemQuality::Epic;
+	case EItemQuality::Legendary:
+		return FSItemQuality::Legendary;
+	case EItemQuality::Undefined:
+	default:
+		return FSItemQuality::Undefined;
+	}
+}
 
 FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey)
 {

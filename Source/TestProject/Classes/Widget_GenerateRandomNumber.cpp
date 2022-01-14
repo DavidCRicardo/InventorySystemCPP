@@ -12,6 +12,9 @@ void UWidget_GenerateRandomNumber::NativeConstruct()
 	GenerateRandom();
 
 	GenerateButton->OnClicked.AddUniqueDynamic(this, &UWidget_GenerateRandomNumber::OnGenerateButtonClicked);
+	GenerateButton->OnHovered.AddUniqueDynamic(this, &UWidget_GenerateRandomNumber::OnGenerateButtonOnHovered);
+	GenerateButton->OnPressed.AddUniqueDynamic(this, &UWidget_GenerateRandomNumber::OnGenerateButtonOnPressed);
+	GenerateButton->OnReleased.AddUniqueDynamic(this, &UWidget_GenerateRandomNumber::OnGenerateButtonOnReleased);
 }
 
 void UWidget_GenerateRandomNumber::GenerateRandom() 
@@ -23,4 +26,19 @@ void UWidget_GenerateRandomNumber::GenerateRandom()
 void UWidget_GenerateRandomNumber::OnGenerateButtonClicked()
 {
 	GenerateRandom();
+}
+
+void UWidget_GenerateRandomNumber::OnGenerateButtonOnReleased()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnGenerateButtonReleased"))
+}
+
+void UWidget_GenerateRandomNumber::OnGenerateButtonOnHovered()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnGenerateButtonHovered"))
+}
+
+void UWidget_GenerateRandomNumber::OnGenerateButtonOnPressed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnGenerateButtonPressed"))
 }

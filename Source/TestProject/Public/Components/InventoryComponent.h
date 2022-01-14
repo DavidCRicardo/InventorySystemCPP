@@ -48,6 +48,8 @@ public:
 	UFUNCTION()
 	void AddItemToIndex(FSlotStructure& ContentToAdd, uint8 InventorySlot);
 
+	UFUNCTION()
+	FSlotStructure GetEmptySlot();
 protected:
 	
 private:
