@@ -10,8 +10,8 @@ DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Verbose, Verbose)
 
 UInventoryLayout::UInventoryLayout()
 {
-	static ConstructorHelpers::FClassFinder<USlotLayout> InventorySlotObj(TEXT("/Game/UI/WBP_SlotLayout.WBP_SlotLayout_C"));
-	WidgetClassInventorySlot = InventorySlotObj.Class;
+	static ConstructorHelpers::FClassFinder<USlotLayout> SlotLayoutObj(TEXT("/Game/UI/WBP_SlotLayout.WBP_SlotLayout_C"));
+	WidgetClassSlotLayout = SlotLayoutObj.Class;
 
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/Textures/T_UI_Slot"));
 	Background_Slot = ObjectFind.Object;
@@ -36,7 +36,7 @@ void UInventoryLayout::InitializeInventorySlots()
 	{
 		for(int j = 0; j < 4; j++)
 		{
-			W_InventorySlot = CreateWidget<USlotLayout>(GetWorld(), WidgetClassInventorySlot);
+			W_InventorySlot = CreateWidget<USlotLayout>(GetWorld(), WidgetClassSlotLayout);
 			InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, i, j);
 
 			W_InventorySlot->InitializeSlot(Background_Slot, GetOwningPlayer());

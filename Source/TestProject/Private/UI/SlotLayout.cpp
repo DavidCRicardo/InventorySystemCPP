@@ -16,26 +16,32 @@ USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(Ob
 void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
-	SlotButton->OnHovered.AddUniqueDynamic(this, &USlotLayout::OnGenerateButtonHovered);
-	SlotButton->OnUnhovered.AddUniqueDynamic(this, &USlotLayout::OnGenerateButtonOnUnHovered);
-}
-
-void USlotLayout::OnGenerateButtonHovered()
-{
-	UE_LOG(LogSlotLayout, Warning, TEXT("Hovered"))
-	ItemBorder->SetBrushColor(FLinearColor {0,0,0,1});
-}
-
-void USlotLayout::OnGenerateButtonOnUnHovered()
-{
-	UE_LOG(LogSlotLayout, Warning, TEXT("UnHovered"))
-	ItemBorder->SetBrushColor(GetBorderColor());
 }
 
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
+}
+
+FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (HasItem())
+	{
+		SlotStructure.Amount -= 1;
+		
+		UpdateSlot(SlotStructure);
+	}
+	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
+}
+
+void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	ItemBorder->SetBrushColor(FSItemQuality::Common);
+}
+
+void USlotLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+	ItemBorder->SetBrushColor(GetBorderColor());
 }
 
 /* Only Create Drag Visual and initialize a DragDropOperation if Slot has an item and is not empty */
@@ -49,7 +55,7 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 		DragDropOperation->DefaultDragVisual = this;
-		DragDropOperation->Pivot = EDragPivot::MouseDown; // TopCenter;
+		DragDropOperation->Pivot = EDragPivot::MouseDown;
 		
 		DragDropOperation->DraggedSlotInformation = SlotStructure;
 		DragDropOperation->DraggedSlotIndex = InventorySlotIndex;
@@ -67,7 +73,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	UDragDropOperation* InOperation)
 {
 	UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
-	if (!IsValid(DragDropOperation))
+	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
 	{
 		return false;
 	}

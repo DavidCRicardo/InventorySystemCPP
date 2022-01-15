@@ -29,7 +29,7 @@ public:
 
 	UFUNCTION()
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
-
+	
 	UFUNCTION()
 	void InitializeSlot(UTexture2D* BackgroundRef, APlayerController* PlayerControllerReference);
 
@@ -64,18 +64,17 @@ protected:
 	TSubclassOf<UTexture2D> WidgetClass;
 
 protected:
-	UFUNCTION()
-	void OnGenerateButtonHovered();
-	UFUNCTION()
-	void OnGenerateButtonOnUnHovered();
-	
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 	
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
-
+	
 	UFUNCTION()
 	bool HasItem();
 	

@@ -42,6 +42,8 @@ public:
 	UFUNCTION()
 	FSlotStructure GetInventoryItem(uint8 InventorySlot);
 
+	UFUNCTION()
+	FSlotStructure GetEmptySlot();
 	
 	UFUNCTION()
 	bool MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot); 
@@ -49,7 +51,7 @@ public:
 	void AddItemToIndex(FSlotStructure& ContentToAdd, uint8 InventorySlot);
 
 	UFUNCTION()
-	FSlotStructure GetEmptySlot();
+	bool UseItem();
 protected:
 	
 private:

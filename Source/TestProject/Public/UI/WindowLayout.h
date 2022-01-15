@@ -45,7 +45,7 @@ protected:
 	virtual void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
     	
     FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
-
+	
 	UFUNCTION()
 	virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	

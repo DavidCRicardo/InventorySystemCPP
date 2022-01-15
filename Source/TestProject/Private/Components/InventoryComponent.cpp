@@ -229,3 +229,8 @@ FSlotStructure UInventoryComponent::GetEmptySlot()
 
 	return EmptySlot;
 }
+
+bool UInventoryComponent::UseItem()
+{
+	return false;
+}

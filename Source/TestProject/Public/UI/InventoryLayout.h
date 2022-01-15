@@ -41,7 +41,7 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<USlotLayout> WidgetClassInventorySlot;
+	TSubclassOf<USlotLayout> WidgetClassSlotLayout;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
 	USlotLayout* W_InventorySlot;

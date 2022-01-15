@@ -92,4 +92,3 @@ FReply UWindowLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidge
 
 	return FReply::Unhandled();
 }
-
