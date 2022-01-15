@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryInterface.h"
 #include "Components/InventoryComponent.h"
 #include "MyPlayerController.generated.h"
 
@@ -10,12 +11,14 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API AMyPlayerController : public APlayerController
+class TESTPROJECT_API AMyPlayerController : public APlayerController, public IInventoryInterface
 {
 	GENERATED_BODY()
 	
 public:
 	AMyPlayerController();
+
+	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
 	
 	virtual void SetPawn(APawn* InPawn) override;
 	
@@ -33,11 +36,7 @@ public:
 
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<UUserWidget> WidgetClass;
-
-	UPROPERTY(EditAnywhere, Category = "Default")
-	class UInventoryLayout* W_InventoryLayout;
+	
 	
 	virtual void BeginPlay() override;
 	

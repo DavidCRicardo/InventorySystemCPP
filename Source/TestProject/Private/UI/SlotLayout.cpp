@@ -27,9 +27,10 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 {
 	if (HasItem())
 	{
-		SlotStructure.Amount -= 1;
+		PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
+		//SlotStructure.Amount -= 1;
 		
-		UpdateSlot(SlotStructure);
+		//UpdateSlot(SlotStructure);
 	}
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }

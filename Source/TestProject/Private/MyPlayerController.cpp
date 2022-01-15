@@ -2,15 +2,16 @@
 
 
 #include "MyPlayerController.h"
-#include "UI/InventoryLayout.h"
 #include "Blueprint/UserWidget.h"
 
 AMyPlayerController::AMyPlayerController()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryObj(TEXT("/Game/UI/WBP_InventoryLayout"));
-	WidgetClass = InventoryObj.Class;
-
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+}
+
+void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
+{
+	InventoryComponent->UseInventoryItem(InventorySlot);
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -28,7 +29,7 @@ void AMyPlayerController::BeginPlay()
 
 	InventoryComponent->InitInventory();
 
-	InitializeInventoryLayout();
+	InventoryComponent->InitializeInventoryLayout();
 
 	UE_LOG(LogTemp, Warning, TEXT ("MyPlayerController Initialized!!"))
 }
@@ -46,29 +47,24 @@ void AMyPlayerController::SetPawn(APawn* InPawn)
 
 void AMyPlayerController::ToggleInventory()
 {
-	if (WidgetClass != nullptr)
+	InventoryComponent->ToggleInventory();
+
+	if (bShowMouseCursor)
 	{
-		if (W_InventoryLayout->GetVisibility() == ESlateVisibility::Hidden)
-		{
-			W_InventoryLayout->SetVisibility(ESlateVisibility::Visible);
-
-			SetInputMode(FInputModeGameAndUI());
-			bShowMouseCursor = true;
-		}
-		else
-		{
-			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-
-			SetInputMode(FInputModeGameOnly());
-			bShowMouseCursor = false;
-		}
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+	}else
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
 	}
 }
 
 void AMyPlayerController::ToggleMenu()
 {
 	InventoryComponent->AddItem(TEXT("G_Apple"), 1);
-	W_InventoryLayout->RefreshInventorySlots();
+	InventoryComponent->RefreshInventoryUI();
+	//W_InventoryLayout->RefreshInventorySlots();
 
 	//PrintInventory();
 }
@@ -77,8 +73,9 @@ void AMyPlayerController::Interact()
 {
 	if (InventoryComponent->AddItem(TEXT("Apple"), 3))
 	{
-		W_InventoryLayout->RefreshInventorySlots();
+		//W_InventoryLayout->RefreshInventorySlots();
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Added to Inventory")));
+		InventoryComponent->RefreshInventoryUI();
 	}
 	else
 	{
@@ -98,7 +95,7 @@ void AMyPlayerController::Interact()
 
 void AMyPlayerController::InitializeInventoryLayout()
 {
-	if (WidgetClass != nullptr)
+	/*if (WidgetClass != nullptr)
 	{
 		if (W_InventoryLayout == nullptr)
 		{
@@ -113,7 +110,7 @@ void AMyPlayerController::InitializeInventoryLayout()
 
 			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
 		}
-	}
+	}*/
 }
 
 void AMyPlayerController::PrintInventory()
@@ -122,10 +119,10 @@ void AMyPlayerController::PrintInventory()
 	{
 		FText a = InventoryComponent->Inventory[i].ItemStructure.Name;
 		uint8 b = InventoryComponent->Inventory[i].Amount;
-		uint8 c = W_InventoryLayout->InventorySlotsArray[i]->InventorySlotIndex;
+		//uint8 c = W_InventoryLayout->InventorySlotsArray[i]->InventorySlotIndex;
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"),
-			                                 *a.ToString(), b, c));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"),
+		//	                                 *a.ToString(), b, c));
 	}
 }
 
@@ -134,7 +131,8 @@ void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const
 
 	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
-		W_InventoryLayout->RefreshInventorySlots();
-		PrintInventory();
+		InventoryComponent->RefreshInventoryUI();
+		//W_InventoryLayout->RefreshInventorySlots();
+		//PrintInventory();
 	}
 }

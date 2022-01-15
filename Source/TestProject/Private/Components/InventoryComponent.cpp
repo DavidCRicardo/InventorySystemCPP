@@ -3,6 +3,8 @@
 
 #include "Components/InventoryComponent.h"
 
+#include "UI/InventoryLayout.h"
+
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
 
 // Sets default values for this component's properties
@@ -12,6 +14,9 @@ UInventoryComponent::UInventoryComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
+	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryObj(TEXT("/Game/UI/WBP_InventoryLayout"));
+	WidgetClass = InventoryObj.Class;
+	
 	// Get ItemDB 
 	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 	if (BP_ItemDB.Succeeded())
@@ -53,6 +58,41 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 	{
 		CurrentSlot = SlotStructure;
 	}	
+}
+
+void UInventoryComponent::InitializeInventoryLayout()
+{
+	if (WidgetClass != nullptr)
+	{
+		if (W_InventoryLayout == nullptr)
+		{
+			W_InventoryLayout = CreateWidget<UInventoryLayout>(GetWorld(), WidgetClass);
+			W_InventoryLayout->AddToViewport();
+
+			//W_InventoryLayout->SetAlignmentInViewport(FVector2D{0.5,0.5});
+			W_InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.3f});
+
+			//FVector2D Position = FVector2D{0,0};
+			//W_InventoryLayout->SetPositionInViewport(Position);
+
+			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void UInventoryComponent::ToggleInventory()
+{
+	if (WidgetClass != nullptr)
+	{
+		if (W_InventoryLayout->GetVisibility() == ESlateVisibility::Hidden)
+		{
+			W_InventoryLayout->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
@@ -230,7 +270,76 @@ FSlotStructure UInventoryComponent::GetEmptySlot()
 	return EmptySlot;
 }
 
-bool UInventoryComponent::UseItem()
+void UInventoryComponent::UseInventoryItem(const uint8& InventorySlot)
 {
-	return false;
+	FSlotStructure LocalInventorySlot = GetInventoryItem(InventorySlot);
+
+	switch (LocalInventorySlot.ItemStructure.ItemType)
+	{
+	case EItemType::Consumable:
+		UseConsumableItem(InventorySlot, LocalInventorySlot);
+		break;
+	default:
+		break;
+	}
 }
+
+void UInventoryComponent::UseConsumableItem(const uint8& InventorySlot, FSlotStructure& InventoryItem)
+{
+	// Do something depending on the item properties if needed
+	// ...
+
+	// Remove from Item Amount
+	uint8 AmountToRemove = 1;
+	bool WasFullAmountRemoved = false;
+	uint8 AmountRemoved = 0;
+	
+	RemoveFromItemAmount(InventoryItem, AmountToRemove, WasFullAmountRemoved, AmountRemoved);
+
+	if (WasFullAmountRemoved)
+	{
+		InventoryItem = GetEmptySlot();
+
+		RemoveItem(Inventory, InventorySlot);
+	}else
+	{
+		Inventory[InventorySlot] = InventoryItem;
+	}
+	RefreshInventoryUI();
+}
+
+void UInventoryComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove,
+	bool& WasFullAmountRemoved, uint8& AmountRemoved)
+{
+	if (AmountToRemove >= InventoryItem.Amount)
+	{
+		AmountRemoved = InventoryItem.Amount;
+		
+		WasFullAmountRemoved = true;
+	}else
+	{
+		const uint8 UpdatedAmount = InventoryItem.Amount - AmountToRemove;
+		InventoryItem.Amount = UpdatedAmount;
+
+		WasFullAmountRemoved = false;
+	}
+}
+
+void UInventoryComponent::RemoveItem(TArray<FSlotStructure> OutInventory, const uint8& InventorySlot)
+{
+	// Clear Inventory Item
+	Inventory[InventorySlot] = GetEmptySlot();
+	
+	// Clear Inventory Slot Item UI
+	//RefreshInventoryUI();
+	//Inventory UI  - Inventory Slots .get(InventorySlot) = GetEmptySlot();
+}
+
+void UInventoryComponent::RefreshInventoryUI()
+{
+	W_InventoryLayout->RefreshInventorySlots();
+}
+
+
+
+
