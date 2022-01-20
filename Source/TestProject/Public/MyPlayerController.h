@@ -33,11 +33,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	void MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
-
 	
 protected:
-	
-	
 	virtual void BeginPlay() override;
 	
 	virtual void SetupInputComponent() override;

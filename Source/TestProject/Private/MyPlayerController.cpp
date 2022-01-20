@@ -64,16 +64,12 @@ void AMyPlayerController::ToggleMenu()
 {
 	InventoryComponent->AddItem(TEXT("G_Apple"), 1);
 	InventoryComponent->RefreshInventoryUI();
-	//W_InventoryLayout->RefreshInventorySlots();
-
-	//PrintInventory();
 }
 
 void AMyPlayerController::Interact()
 {
 	if (InventoryComponent->AddItem(TEXT("Apple"), 3))
 	{
-		//W_InventoryLayout->RefreshInventorySlots();
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Added to Inventory")));
 		InventoryComponent->RefreshInventoryUI();
 	}

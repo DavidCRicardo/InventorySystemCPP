@@ -124,7 +124,7 @@ bool UInventoryComponent::AddItemToInventory(FSlotStructure& ContentToAdd)
 		}
 	}
 
-	UE_LOG(LogInventory, Display, TEXT("Item doesn't exists on Inventory or it's not stackable"));
+	// UE_LOG(LogInventory, Display, TEXT("Item doesn't exists on Inventory or it's not stackable"));
 	
 	if (CreateStack(ContentToAdd))
 	{
@@ -153,24 +153,25 @@ bool UInventoryComponent::CreateStack(FSlotStructure& ContentToAdd)
 	if (HasSpace)
 	{
 		Inventory[IdentifiedIndex] = ContentToAdd;
-		/*Inventory[IdentifiedIndex].ItemStructure = ContentToAdd.ItemStructure;
+
+		/**/
 		const uint8 MaxStackSize = ContentToAdd.ItemStructure.MaxStackSize;
-	
-		const uint8 FinalQuantity = ContentToAdd.Amount - MaxStackSize;
+		const uint8 FinalQuantity = ContentToAdd.Amount;
 	
 		if (FinalQuantity > MaxStackSize)
 		{
 			Inventory[IdentifiedIndex].Amount = MaxStackSize;
-
-			const uint8 RestAmountToAdd = ContentToAdd.Amount - (FinalQuantity - MaxStackSize);
+		
+			const uint8 RestAmountToAdd = (FinalQuantity - MaxStackSize);
 
 			ContentToAdd.Amount = RestAmountToAdd;
+		
 			AddItemToInventory(ContentToAdd);
 		}else
 		{
 			Inventory[IdentifiedIndex].Amount = FinalQuantity;
-		}*/
-		
+		}
+		/**/
 		return true;
 	}
 	
@@ -187,10 +188,11 @@ bool UInventoryComponent::AddToStack(FSlotStructure& ContentToAdd, const int8& I
 	if (FinalQuantity > MaxStackSize)
 	{
 		Inventory[Index].Amount = MaxStackSize;
-
-		const uint8 RestAmountToAdd = ContentToAdd.Amount - (FinalQuantity - MaxStackSize);
+		
+		const uint8 RestAmountToAdd = (FinalQuantity - MaxStackSize);
 
 		ContentToAdd.Amount = RestAmountToAdd;
+		
 		AddItemToInventory(ContentToAdd);
 	}else
 	{
@@ -339,7 +341,3 @@ void UInventoryComponent::RefreshInventoryUI()
 {
 	W_InventoryLayout->RefreshInventorySlots();
 }
-
-
-
-

@@ -20,7 +20,6 @@ public:
 	TSubclassOf<UUserWidget> WidgetClass;
 	
 protected:
-
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* WindowTitle;
 	
