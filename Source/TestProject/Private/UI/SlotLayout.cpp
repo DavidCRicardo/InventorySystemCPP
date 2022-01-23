@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Item/FSItemQuality.h"
+#include "UI/W_ItemTooltip.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -28,16 +29,51 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 	if (HasItem())
 	{
 		PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
-		//SlotStructure.Amount -= 1;
-		
-		//UpdateSlot(SlotStructure);
 	}
+
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
+}
+
+void USlotLayout::ToggleTooltip()
+{
+	if (HasItem())
+	{
+		DisplayTooltip();
+	}else
+	{
+		HideTooltip();
+	}
+}
+void USlotLayout::DisplayTooltip()
+{
+	if (ItemBorder->ToolTipWidget)
+	{
+		return;
+	}
+	
+	const FStringClassReference MyWidgetClassRef(TEXT("/Game/UI/WBP_ItemTooltip.WBP_ItemTooltip_C"));
+	
+	if (UClass* MyWidgetClass = MyWidgetClassRef.TryLoadClass<UW_ItemTooltip>())
+	{
+		UW_ItemTooltip* Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), MyWidgetClass);
+	
+		ItemBorder->SetToolTip(Tooltip);
+	}
+}
+
+void USlotLayout::HideTooltip()
+{
+	if (ItemBorder->ToolTipWidget)
+	{
+		ItemBorder->SetToolTip(nullptr);
+	}
 }
 
 void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	ItemBorder->SetBrushColor(FSItemQuality::Common);
+
+	ToggleTooltip();
 }
 
 void USlotLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -120,11 +156,8 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	
 	//SlotButton->SetVisibility(ESlateVisibility::Visible);
 	ItemBorder->SetVisibility(ESlateVisibility::Visible);
-}
-
-FText USlotLayout::GetAmountText()
-{
-	return AmountTextBlock->GetText();
+	
+	ToggleTooltip();
 }
 
 bool USlotLayout::HasItem()

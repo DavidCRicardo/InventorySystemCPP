@@ -7,10 +7,6 @@
 
 AMyHUD::AMyHUD()
 {
-	UE_LOG (LogTemp, Warning, TEXT ("MyHUD Initialized!!"));
-
-	//static ConstructorHelpers::FClassFinder<UUserWidget> HUDWidgetClass(TEXT("/Game/UI/BP_HUDLayout"));
-	//WidgetClass = HUDWidgetClass.Class;
 }
 
 void AMyHUD::DrawHUD()
@@ -40,37 +36,6 @@ void AMyHUD::BeginPlay()
 	}else
 	{
 		UE_LOG (LogTemp, Warning, TEXT ("MyHUD Cannot Load Class!!"));
-	}*/
-		
-	/*if (WidgetClass != nullptr)
-	{
-		HUDReference = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("HUD Create Widget!"));
-
-		if (HUDReference)
-		{
-			HUDReference->AddToViewport();
-
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("HUD Added to Viewport!"));
-		}
-	}else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("MyHUD Cannot Load Class!!"));
-		UE_LOG (LogTemp, Warning, TEXT ("MyHUD Cannot Load Class!!"));
-	}*/
-
-	/*FStringClassReference MyWidgetClassRef(TEXT("/Game/UI/BP_HUDLayout.BP_HUDLayout_C"));
-	if ( UClass* MyWidgetClass = MyWidgetClassRef.TryLoadClass<UUserWidget>() )
-	{
-		UUserWidget* MyWidget = CreateWidget<UUserWidget>(GetWorld(), MyWidgetClass);
-		
-		if (MyWidget)
-		{
-			MyWidget->AddToViewport();
-
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("HUD Added to Viewport!"));
-		}
 	}*/
 }
 

@@ -2,25 +2,42 @@
 
 
 #include "UI/W_ItemTooltip.h"
+#include "Item/FSItemType.h"
 
-void UW_ItemTooltip::InitializeTooltip(FItemStructure& Item)
+void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 {
 	Name->SetText(Item.Name);
 	Icon = Item.Icon;
 
-	/*FText TempText;
-	switch (Item.ItemType)
+	FText InText;
+	/*switch (Item.ItemType)
 	{
 	case EItemType::Consumable:
-		TempText = TEXT('');
+		InText = FText::FromString("Consumable");
 		break;
 	case EItemType::Undefined:
 	default:
-		TempText = TEXT('');
+		InText = FText::FromString("Undefined");
+		break;
+	}*/
+	
+	switch (Item.ItemType)
+	{
+	case EItemType::Consumable:
+		InText = FSItemType::Consumable;
+		break;
+	case EItemType::Equipment:
+		InText = FSItemType::Equipment;
+		break;
+	case EItemType::Miscellaneous:
+		InText = FSItemType::Miscellanious;
+		break;
+	case EItemType::Undefined:
+	default:
+		InText = FSItemType::Undefined;
 		break;
 	}
-	
-	Type->SetText(TempText);*/
-	
+	Type->SetText(InText);
+
 	Description->SetText(Item.Description);
 }

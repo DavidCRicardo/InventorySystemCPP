@@ -89,26 +89,6 @@ void AMyPlayerController::Interact()
 	//PrintInventory();
 }
 
-void AMyPlayerController::InitializeInventoryLayout()
-{
-	/*if (WidgetClass != nullptr)
-	{
-		if (W_InventoryLayout == nullptr)
-		{
-			W_InventoryLayout = CreateWidget<UInventoryLayout>(GetWorld(), WidgetClass);
-			W_InventoryLayout->AddToViewport();
-
-			//W_InventoryLayout->SetAlignmentInViewport(FVector2D{0.5,0.5});
-			W_InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.3f});
-
-			//FVector2D Position = FVector2D{0,0};
-			//W_InventoryLayout->SetPositionInViewport(Position);
-
-			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}*/
-}
-
 void AMyPlayerController::PrintInventory()
 {
 	for (int i = 0; i < InventoryComponent->NumberOfSlots; i++)

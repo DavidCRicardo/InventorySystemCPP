@@ -6,8 +6,6 @@
 #include "Components/UniformGridPanel.h"
 #include "MyPlayerController.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogInventory, Verbose, Verbose)
-
 UInventoryLayout::UInventoryLayout()
 {
 	static ConstructorHelpers::FClassFinder<USlotLayout> SlotLayoutObj(TEXT("/Game/UI/WBP_SlotLayout.WBP_SlotLayout_C"));
@@ -47,6 +45,16 @@ void UInventoryLayout::InitializeInventorySlots()
 			InventoryIndex++;
 		}
 	}
+}
+
+void UInventoryLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+}
+
+void UInventoryLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseLeave(InMouseEvent);
 }
 
 void UInventoryLayout::RefreshInventorySlots()

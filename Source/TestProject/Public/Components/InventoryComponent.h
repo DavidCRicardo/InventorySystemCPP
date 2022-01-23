@@ -68,6 +68,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Default")
 	class UInventoryLayout* W_InventoryLayout;
+
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;

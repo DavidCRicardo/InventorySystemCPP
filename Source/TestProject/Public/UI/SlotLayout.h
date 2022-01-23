@@ -52,9 +52,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* AmountTextBlock;
 
-	UFUNCTION(BlueprintGetter, BlueprintCallable)
-	FText GetAmountText();
-
 	UFUNCTION()
 	FLinearColor GetBorderColor();
 	
@@ -66,8 +63,16 @@ protected:
 protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-
+	
+	UFUNCTION()
+	void ToggleTooltip();
+	UFUNCTION()
+	void DisplayTooltip();
+	UFUNCTION()
+	void HideTooltip();
+	
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 	
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;

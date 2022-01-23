@@ -18,8 +18,11 @@ class TESTPROJECT_API UW_ItemTooltip : public UUserWidget
 
 public:
 	UFUNCTION()
-	void InitializeTooltip(FItemStructure& Item);
+	void InitializeTooltip(const FItemStructure& Item);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 Index;
+	
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Name;

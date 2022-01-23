@@ -41,8 +41,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
-
-	void InitializeInventoryLayout();
 	
 	void PrintInventory();
 };

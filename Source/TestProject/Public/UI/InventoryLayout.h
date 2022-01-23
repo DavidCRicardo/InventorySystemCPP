@@ -39,6 +39,9 @@ protected:
 	
 	void InitializeInventorySlots();
 
+	void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<USlotLayout> WidgetClassSlotLayout;
