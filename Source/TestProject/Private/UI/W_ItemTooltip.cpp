@@ -7,20 +7,9 @@
 void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 {
 	Name->SetText(Item.Name);
-	Icon = Item.Icon;
+	Icon->SetBrushFromTexture(Item.Icon);
 
 	FText InText;
-	/*switch (Item.ItemType)
-	{
-	case EItemType::Consumable:
-		InText = FText::FromString("Consumable");
-		break;
-	case EItemType::Undefined:
-	default:
-		InText = FText::FromString("Undefined");
-		break;
-	}*/
-	
 	switch (Item.ItemType)
 	{
 	case EItemType::Consumable:
@@ -37,6 +26,7 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 		InText = FSItemType::Undefined;
 		break;
 	}
+	
 	Type->SetText(InText);
 
 	Description->SetText(Item.Description);

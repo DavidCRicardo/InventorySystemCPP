@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Item/FItemStructure.h"
 #include "W_ItemTooltip.generated.h"
@@ -28,7 +29,7 @@ protected:
 	UTextBlock* Name;
 	
 	UPROPERTY()
-	UTexture2D* Icon;
+	UImage* Icon;
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Description;

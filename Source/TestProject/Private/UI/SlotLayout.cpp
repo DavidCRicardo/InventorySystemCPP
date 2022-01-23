@@ -56,7 +56,8 @@ void USlotLayout::DisplayTooltip()
 	if (UClass* MyWidgetClass = MyWidgetClassRef.TryLoadClass<UW_ItemTooltip>())
 	{
 		UW_ItemTooltip* Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), MyWidgetClass);
-	
+		Tooltip->InitializeTooltip(SlotStructure.ItemStructure);
+
 		ItemBorder->SetToolTip(Tooltip);
 	}
 }
@@ -99,6 +100,8 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		DragDropOperation->IsDraggedFromInventory = true;
 		
 		OutOperation = DragDropOperation;
+
+		ItemBorder->SetToolTip(nullptr);
 	}else
 	{
 		OutOperation = nullptr;
@@ -120,6 +123,8 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	if (DragDropOperation->IsDraggedFromInventory)
 	{
 		PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
+
+		ItemBorder->SetToolTip(nullptr);
 		
 		return true;
 	}
