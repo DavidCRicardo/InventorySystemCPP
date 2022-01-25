@@ -24,10 +24,10 @@ void UInventoryLayout::NativeConstruct()
 
 	Super::SetTitleToWindow("INVENTORY");
  
-	InitializeInventorySlots();
+	InitializeSlots();
 }
 
-void UInventoryLayout::InitializeInventorySlots()
+void UInventoryLayout::InitializeSlots()
 {
 	uint8 InventoryIndex = 0;
 	for(int i = 0; i < 7; i++)
@@ -57,7 +57,7 @@ void UInventoryLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 	Super::NativeOnMouseLeave(InMouseEvent);
 }
 
-void UInventoryLayout::RefreshInventorySlots()
+void UInventoryLayout::RefreshWindow()
 {
 	const uint8 InventoryLimit = PlayerController->InventoryComponent->NumberOfSlots;
 

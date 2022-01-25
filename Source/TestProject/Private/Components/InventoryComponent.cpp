@@ -2,7 +2,6 @@
 
 
 #include "Components/InventoryComponent.h"
-
 #include "UI/InventoryLayout.h"
 
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
@@ -60,37 +59,33 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 	}	
 }
 
-void UInventoryComponent::InitializeInventoryLayout()
+void UInventoryComponent::InitializeLayout()
 {
 	if (WidgetClass != nullptr)
 	{
-		if (W_InventoryLayout == nullptr)
+		if (WindowWidget == nullptr)
 		{
-			W_InventoryLayout = CreateWidget<UInventoryLayout>(GetWorld(), WidgetClass);
-			W_InventoryLayout->AddToViewport();
+			WindowWidget = CreateWidget<UInventoryLayout>(GetWorld(), WidgetClass);
+			WindowWidget->AddToViewport();
 
-			//W_InventoryLayout->SetAlignmentInViewport(FVector2D{0.5,0.5});
-			W_InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.3f});
+			WindowWidget->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
 
-			//FVector2D Position = FVector2D{0,0};
-			//W_InventoryLayout->SetPositionInViewport(Position);
-
-			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
+			WindowWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
 
-void UInventoryComponent::ToggleInventory()
+void UInventoryComponent::ToggleWindow()
 {
 	if (WidgetClass != nullptr)
 	{
-		if (W_InventoryLayout->GetVisibility() == ESlateVisibility::Hidden)
+		if (WindowWidget->GetVisibility() == ESlateVisibility::Hidden)
 		{
-			W_InventoryLayout->SetVisibility(ESlateVisibility::Visible);
+			WindowWidget->SetVisibility(ESlateVisibility::Visible);
 		}
 		else
 		{
-			W_InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
+			WindowWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -307,7 +302,7 @@ void UInventoryComponent::UseConsumableItem(const uint8& InventorySlot, FSlotStr
 	{
 		Inventory[InventorySlot] = InventoryItem;
 	}
-	RefreshInventoryUI();
+	RefreshWidgetUI();
 }
 
 void UInventoryComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove,
@@ -337,7 +332,10 @@ void UInventoryComponent::RemoveItem(TArray<FSlotStructure> OutInventory, const 
 	//Inventory UI  - Inventory Slots .get(InventorySlot) = GetEmptySlot();
 }
 
-void UInventoryComponent::RefreshInventoryUI()
+void UInventoryComponent::RefreshWidgetUI()
 {
-	W_InventoryLayout->RefreshInventorySlots();
+	if (UInventoryLayout* Widget = Cast<UInventoryLayout>(WindowWidget))
+	{
+		Widget->RefreshWindow();
+	}
 }

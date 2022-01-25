@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InventoryInterface.h"
+#include "Components/EquipmentComponent.h"
 #include "Components/InventoryComponent.h"
 #include "MyPlayerController.generated.h"
 
@@ -24,6 +25,13 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
 	UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
+	UEquipmentComponent* EquipmentComponent;
+
+	
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void ToggleProfile();
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();

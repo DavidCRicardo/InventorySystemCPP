@@ -26,19 +26,16 @@ public:
 	UPROPERTY()
 	UTexture2D* Background_Slot;
 
-	UFUNCTION()
-	void RefreshInventorySlots();
-
+	virtual void RefreshWindow() override;
+	virtual void InitializeSlots() override;
+	
 	UPROPERTY()
 	TArray<USlotLayout*>InventorySlotsArray;
 
 protected:
 	virtual void NativeConstruct() override;
-
 	virtual void OnButtonQuitClicked() override;
 	
-	void InitializeInventorySlots();
-
 	void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 

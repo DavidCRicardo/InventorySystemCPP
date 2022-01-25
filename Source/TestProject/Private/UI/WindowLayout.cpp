@@ -32,6 +32,14 @@ void UWindowLayout::SetTitleToWindow(FString title)
 	WindowTitle->SetText(FText::FromString(title));
 }
 
+void UWindowLayout::RefreshWindow()
+{
+}
+
+void UWindowLayout::InitializeSlots()
+{
+}
+
 void UWindowLayout::OnButtonQuitClicked()
 {
 }

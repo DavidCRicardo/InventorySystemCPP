@@ -16,7 +16,7 @@ class TESTPROJECT_API AMyHUD : public AHUD
 
 public:
 	UFUNCTION()
-	void Test();
+	void IsAnyWidgetVisible();
 	
 protected:
 	AMyHUD();

@@ -18,31 +18,22 @@ void AMyHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("HUD Begin Play!"));
-
-	/*FStringClassReference MyWidgetClassRef(TEXT("/Game/UI/BP_HUDLayout.BP_HUDLayout_C"));
+	const FStringClassReference MyWidgetClassRef(TEXT("/Game/UI/BP_HUDLayout.BP_HUDLayout_C"));
 	if ( UClass* MyWidgetClass = MyWidgetClassRef.TryLoadClass<UUserWidget>())
 	{
 		HUDReference = CreateWidget<UUserWidget>(GetWorld(), MyWidgetClass);
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("HUD Create Widget!"));
-
+		
 		if (HUDReference)
 		{
 			HUDReference->AddToViewport();
-
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("HUD Added to Viewport!"));
 		}
 	}else
 	{
-		UE_LOG (LogTemp, Warning, TEXT ("MyHUD Cannot Load Class!!"));
-	}*/
+		UE_LOG (LogTemp, Warning, TEXT ("MyHUD.cpp.BeginPlay():Cannot Load Class!!"));
+	}
 }
 
-void AMyHUD::Test()
+void AMyHUD::IsAnyWidgetVisible()
 {
-	if (GEngine) 
-    {
-    	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Test!"));
-    }
+	
 }

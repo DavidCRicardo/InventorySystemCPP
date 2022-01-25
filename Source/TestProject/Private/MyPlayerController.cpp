@@ -2,11 +2,14 @@
 
 
 #include "MyPlayerController.h"
+
+#include "MyHUD.h"
 #include "Blueprint/UserWidget.h"
 
 AMyPlayerController::AMyPlayerController()
 {
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
@@ -19,6 +22,7 @@ void AMyPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	InputComponent->BindAction("Interact", IE_Pressed, this, &AMyPlayerController::Interact);
+	InputComponent->BindAction("ToggleProfile", IE_Pressed, this, &AMyPlayerController::ToggleProfile);
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &AMyPlayerController::ToggleInventory);
 	InputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AMyPlayerController::ToggleMenu);
 }
@@ -27,11 +31,8 @@ void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InventoryComponent->InitInventory();
-
-	InventoryComponent->InitializeInventoryLayout();
-
-	UE_LOG(LogTemp, Warning, TEXT ("MyPlayerController Initialized!!"))
+	InventoryComponent->InitializeLayout();
+	EquipmentComponent->InitializeLayout();
 }
 
 void AMyPlayerController::SetPawn(APawn* InPawn)
@@ -44,11 +45,35 @@ void AMyPlayerController::SetPawn(APawn* InPawn)
 	//Character_Reference = (InPawn ? Cast<AMyCharacter>(InPawn) : NULL);
 }
 
+void AMyPlayerController::ToggleProfile()
+{
+	EquipmentComponent->ToggleWindow();
+
+	if (bShowMouseCursor)
+	{
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+	}else
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
+	}
+}
+
 
 void AMyPlayerController::ToggleInventory()
 {
-	InventoryComponent->ToggleInventory();
-
+	InventoryComponent->ToggleWindow();
+	
+	if (AMyHUD* HUD_Reference = Cast<AMyHUD>(GetHUD()))
+	{
+		HUD_Reference->IsAnyWidgetVisible();
+	}
+	
+	// Check if there are Widgets Visible
+	// If yes, don't hide mouse
+	// If no, hide mode
+	
 	if (bShowMouseCursor)
 	{
 		SetInputMode(FInputModeGameOnly());
@@ -63,7 +88,7 @@ void AMyPlayerController::ToggleInventory()
 void AMyPlayerController::ToggleMenu()
 {
 	InventoryComponent->AddItem(TEXT("G_Apple"), 1);
-	InventoryComponent->RefreshInventoryUI();
+	InventoryComponent->RefreshWidgetUI();
 }
 
 void AMyPlayerController::Interact()
@@ -71,7 +96,7 @@ void AMyPlayerController::Interact()
 	if (InventoryComponent->AddItem(TEXT("Apple"), 3))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Added to Inventory")));
-		InventoryComponent->RefreshInventoryUI();
+		InventoryComponent->RefreshWidgetUI();
 	}
 	else
 	{
@@ -107,7 +132,7 @@ void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const
 
 	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
-		InventoryComponent->RefreshInventoryUI();
+		InventoryComponent->RefreshWidgetUI();
 		//W_InventoryLayout->RefreshInventorySlots();
 		//PrintInventory();
 	}

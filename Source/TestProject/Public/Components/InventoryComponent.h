@@ -31,14 +31,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSlotStructure> Inventory;
 	
-	void InitInventory(int32 NumberSlots = 32);
-	void InitializeInventoryLayout();
+	virtual void InitInventory(int32 NumberSlots = 32);
 
 	UFUNCTION()
-	void ToggleInventory();
+	virtual void InitializeLayout();
 
 	UFUNCTION()
-	void RefreshInventoryUI();
+	virtual void ToggleWindow();
+	
+	UFUNCTION()
+	virtual void RefreshWidgetUI();
+	
+	UPROPERTY()
+	UUserWidget* WindowWidget;
 	
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);
@@ -61,22 +66,14 @@ public:
 	UFUNCTION()
 	void UseInventoryItem(const uint8& InventorySlot);
 
-	
-protected:
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UUserWidget> WidgetClass;
-
-	UPROPERTY(EditAnywhere, Category = "Default")
-	class UInventoryLayout* W_InventoryLayout;
 
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
 	
 	FReturnTupleBoolInt HasPartialStack(const FSlotStructure& ContentToAdd);
-
-	//UFUNCTION()
-	//void HasPartialStack(const FSlotStructure& ContentToAdd, int8& OutIndex);
 	
 	UFUNCTION()
 	bool CreateStack(FSlotStructure& ContentToAdd);

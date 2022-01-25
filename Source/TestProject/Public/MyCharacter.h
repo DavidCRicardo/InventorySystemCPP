@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/InventoryLayout.h"
 #include "GameFramework/Character.h"
 #include "MyCharacter.generated.h"
 
@@ -20,13 +19,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//Spring Arm Component to follow the camera behind the player
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	class USpringArmComponent* SpringArmComp;
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
 
-	//Player follow camera
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	class UCameraComponent* CameraComp;
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FollowCamera;	
 	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character")
@@ -35,6 +34,9 @@ protected:
 	/** Base lookup rate, in deg/sec. Other scaling may affect final lookup rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character")
 	float BaseLookUpRate;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character")
+	class USphereComponent* InteractionField;
 	
 public:	
 	// Called every frame

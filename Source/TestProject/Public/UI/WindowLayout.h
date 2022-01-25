@@ -15,7 +15,12 @@ class TESTPROJECT_API UWindowLayout : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
+	virtual void RefreshWindow();
 
+	UFUNCTION()
+	virtual void InitializeSlots();
+	
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UUserWidget> WidgetClass;
 	
