@@ -2,7 +2,7 @@
 
 
 #include "UI/W_ItemTooltip.h"
-#include "Item/FSItemType.h"
+#include "Item/FItemType.h"
 
 void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 {
@@ -13,17 +13,17 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 	switch (Item.ItemType)
 	{
 	case EItemType::Consumable:
-		InText = FSItemType::Consumable;
+		InText = FItemType::Consumable;
 		break;
 	case EItemType::Equipment:
-		InText = FSItemType::Equipment;
+		InText = FItemType::Equipment;
 		break;
 	case EItemType::Miscellaneous:
-		InText = FSItemType::Miscellanious;
+		InText = FItemType::Miscellanious;
 		break;
 	case EItemType::Undefined:
 	default:
-		InText = FSItemType::Undefined;
+		InText = FItemType::Undefined;
 		break;
 	}
 	

@@ -2,7 +2,6 @@
 
 
 #include "Components/InventoryComponent.h"
-#include "UI/InventoryLayout.h"
 
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
 
@@ -12,9 +11,6 @@ UInventoryComponent::UInventoryComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryObj(TEXT("/Game/UI/WBP_InventoryLayout"));
-	WidgetClass = InventoryObj.Class;
 	
 	// Get ItemDB 
 	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
@@ -57,37 +53,6 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 	{
 		CurrentSlot = SlotStructure;
 	}	
-}
-
-void UInventoryComponent::InitializeLayout()
-{
-	if (WidgetClass != nullptr)
-	{
-		if (WindowWidget == nullptr)
-		{
-			WindowWidget = CreateWidget<UInventoryLayout>(GetWorld(), WidgetClass);
-			WindowWidget->AddToViewport();
-
-			WindowWidget->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
-
-			WindowWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
-}
-
-void UInventoryComponent::ToggleWindow()
-{
-	if (WidgetClass != nullptr)
-	{
-		if (WindowWidget->GetVisibility() == ESlateVisibility::Hidden)
-		{
-			WindowWidget->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			WindowWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
 }
 
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
@@ -223,14 +188,13 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 	return {false, 0};
 }
 
-bool UInventoryComponent::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
+bool UInventoryComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 	// Trying to Move to Different Spot
 	if (FromInventorySlot != ToInventorySlot)
 	{
-		FSlotStructure LocalSlot = GetInventoryItem(FromInventorySlot);
-		
-		FSlotStructure SwapSlot = GetInventoryItem(ToInventorySlot);
+		FSlotStructure LocalSlot = GetItemFromInventory(FromInventorySlot);
+		FSlotStructure SwapSlot = GetItemFromInventory(ToInventorySlot);
 
 		AddItemToIndex(LocalSlot, ToInventorySlot);
 		AddItemToIndex(SwapSlot, FromInventorySlot);
@@ -240,12 +204,12 @@ bool UInventoryComponent::MoveInventoryItem(const uint8 FromInventorySlot, const
 	return false;
 }
 
-void UInventoryComponent::AddItemToIndex(FSlotStructure& ContentToAdd, uint8 InventorySlot)
+void UInventoryComponent::AddItemToIndex(FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
 	Inventory[InventorySlot] = ContentToAdd;
 }
 
-FSlotStructure UInventoryComponent::GetInventoryItem(uint8 InventorySlot)
+FSlotStructure UInventoryComponent::GetItemFromInventory(const uint8& InventorySlot)
 {
 	FSlotStructure Slot = Inventory[InventorySlot];
 	if (Slot.Amount > 0)
@@ -267,9 +231,21 @@ FSlotStructure UInventoryComponent::GetEmptySlot()
 	return EmptySlot;
 }
 
+FSlotStructure UInventoryComponent::GetItemFromItemDB(FName Name)
+{
+	FSlotStructure Slot = {};
+	
+	const UDataTable* ItemTable = ItemDB;
+	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(Name), "", true);
+
+	Slot.InitSlot(*NewItemData, 0);
+
+	return Slot;
+}
+
 void UInventoryComponent::UseInventoryItem(const uint8& InventorySlot)
 {
-	FSlotStructure LocalInventorySlot = GetInventoryItem(InventorySlot);
+	FSlotStructure LocalInventorySlot = GetItemFromInventory(InventorySlot);
 
 	switch (LocalInventorySlot.ItemStructure.ItemType)
 	{
@@ -302,7 +278,8 @@ void UInventoryComponent::UseConsumableItem(const uint8& InventorySlot, FSlotStr
 	{
 		Inventory[InventorySlot] = InventoryItem;
 	}
-	RefreshWidgetUI();
+	
+	
 }
 
 void UInventoryComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove,
@@ -330,12 +307,4 @@ void UInventoryComponent::RemoveItem(TArray<FSlotStructure> OutInventory, const 
 	// Clear Inventory Slot Item UI
 	//RefreshInventoryUI();
 	//Inventory UI  - Inventory Slots .get(InventorySlot) = GetEmptySlot();
-}
-
-void UInventoryComponent::RefreshWidgetUI()
-{
-	if (UInventoryLayout* Widget = Cast<UInventoryLayout>(WindowWidget))
-	{
-		Widget->RefreshWindow();
-	}
 }

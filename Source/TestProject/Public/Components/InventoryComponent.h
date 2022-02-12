@@ -32,18 +32,6 @@ public:
 	TArray<FSlotStructure> Inventory;
 	
 	virtual void InitInventory(int32 NumberSlots = 32);
-
-	UFUNCTION()
-	virtual void InitializeLayout();
-
-	UFUNCTION()
-	virtual void ToggleWindow();
-	
-	UFUNCTION()
-	virtual void RefreshWidgetUI();
-	
-	UPROPERTY()
-	UUserWidget* WindowWidget;
 	
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);
@@ -52,22 +40,20 @@ public:
 	bool AddItemToInventory(FSlotStructure& ContentToAdd);
 
 	UFUNCTION()
-	FSlotStructure GetInventoryItem(uint8 InventorySlot);
+	FSlotStructure GetItemFromInventory(const uint8& InventorySlot);
 
 	UFUNCTION()
 	FSlotStructure GetEmptySlot();
+	FSlotStructure GetItemFromItemDB(FName Name);
+
+	UFUNCTION()
+	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	
 	UFUNCTION()
-	bool MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
-	
-	UFUNCTION()
-	void AddItemToIndex(FSlotStructure& ContentToAdd, uint8 InventorySlot);
+	void AddItemToIndex(FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UFUNCTION()
 	void UseInventoryItem(const uint8& InventorySlot);
-
-	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<UUserWidget> WidgetClass;
 
 private:
 	UPROPERTY()

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "SlotLayout.h"
 #include "WindowLayout.h"
 #include "ProfileLayout.generated.h"
 
@@ -12,9 +13,19 @@ class TESTPROJECT_API UProfileLayout : public UWindowLayout
 public:
 	UProfileLayout();
 
+	virtual void ToggleWindow() override;
 	virtual void RefreshWindow() override;
-	virtual void InitializeSlots() override;
-
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	class UUniformGridPanel* EquipmentGridPanel;
+	
 protected:
+	UPROPERTY()
+	TArray<USlotLayout*>EquipmentSlotsArray;
+
+private:
 	virtual void NativeConstruct() override;
+	virtual void CreateChildWidgets() override;
+	virtual void InitializeSlots() override;
+	virtual void OnButtonQuitClicked() override;
 };

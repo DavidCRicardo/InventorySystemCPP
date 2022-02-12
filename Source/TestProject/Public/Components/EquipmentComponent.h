@@ -26,15 +26,15 @@ public:
 
 	virtual void InitInventory(int32 NumberSlots) override;
 
-	virtual void ToggleWindow() override;
-	virtual void InitializeLayout() override;
-	virtual void RefreshWidgetUI() override;
-	
-protected:
-	UPROPERTY(EditAnywhere, Category = "Default")
-	class UProfileLayout* W_ProfileLayout;
-	
+	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+
+	UFUNCTION()
+	bool EquipItem(FSlotStructure& SlotStructure);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfEquipmentSlots;
+	
+protected:
+	
 	
 };

@@ -2,29 +2,21 @@
 
 
 #include "UI/HUDLayout.h"
-
 #include "DragItem.h"
 #include "DragWidget.h"
 
 bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-	
-	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
 
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnDrop HUDLayout"));
+
+	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
 	if (!IsValid(DragWidgetResult))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("DragWidget Cast returned null."))
 
 		// Drop Dragged Inventory Item
-		UDragItem* DragItemResult = Cast<UDragItem>(InOperation);
-		if (!IsValid(DragItemResult))
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("DragItem Cast returned null."))
-
-			return false;
-		}
-		
 		//UE_LOG(LogTemp, Warning, TEXT("DragItem Cast returned successfully."))
 		
 		return false;

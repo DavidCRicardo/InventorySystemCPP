@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MyPlayerController.h"
 #include "WindowLayout.generated.h"
 
 /**
@@ -16,15 +17,18 @@ class TESTPROJECT_API UWindowLayout : public UUserWidget
 
 public:
 	UFUNCTION()
-	virtual void RefreshWindow();
-
+	virtual void ToggleWindow();
+	
 	UFUNCTION()
-	virtual void InitializeSlots();
+	virtual void RefreshWindow();
 	
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UUserWidget> WidgetClass;
 	
 protected:
+	UFUNCTION()
+	virtual void NativeConstruct() override;
+	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* WindowTitle;
 	
@@ -35,25 +39,41 @@ protected:
 	class UButton* QuitButton;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class AMyPlayerController* PlayerController;
+	AMyPlayerController* PlayerController;
 	
-	UFUNCTION()
-	virtual void OnButtonQuitClicked();
+	virtual void SetTitleToWindow(FString Title = FString("WINDOW"));
 	
-	virtual void NativeConstruct() override;
-	
-	virtual void SetTitleToWindow(FString title = FString("WINDOW"));
-	
+	virtual FEventReply RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
+	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-    	
-    FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
+
+	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
 	
 	UFUNCTION()
 	virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	
 private:
+	UFUNCTION()
+	virtual void OnButtonQuitClicked();
+	
+	UFUNCTION()
+	virtual void InitializeSlots();
+
+	// Creates the Widgets that will belong to the parent Widget.
+	UFUNCTION()
+	virtual void CreateChildWidgets();
+
+	/**
+	 * Set an index to an array of Child Widgets.
+	 *
+	 * @param IndexStart The first index that it will added to the array.
+	 */
+	UFUNCTION()
+	virtual void SetIndexToChilds(uint8& IndexStart);
+
+	
 	UPROPERTY()
 	class UDragWidget* DragWidget;
 	

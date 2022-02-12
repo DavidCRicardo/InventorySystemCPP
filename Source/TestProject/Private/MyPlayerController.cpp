@@ -2,7 +2,6 @@
 
 
 #include "MyPlayerController.h"
-
 #include "MyHUD.h"
 #include "Blueprint/UserWidget.h"
 
@@ -15,6 +14,7 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
 	InventoryComponent->UseInventoryItem(InventorySlot);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -31,8 +31,7 @@ void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InventoryComponent->InitializeLayout();
-	EquipmentComponent->InitializeLayout();
+	HUD_Reference = Cast<AMyHUD>(GetHUD());
 }
 
 void AMyPlayerController::SetPawn(APawn* InPawn)
@@ -40,78 +39,115 @@ void AMyPlayerController::SetPawn(APawn* InPawn)
 	Super::SetPawn(InPawn);
 
 	//APawn* Pawn = GetPawn();
-	//HUD_Reference = Cast<AMyHUD>(GetHUD());
 	//Character_Reference = Cast<AMyCharacter>(GetPawn());
 	//Character_Reference = (InPawn ? Cast<AMyCharacter>(InPawn) : NULL);
 }
 
 void AMyPlayerController::ToggleProfile()
 {
-	EquipmentComponent->ToggleWindow();
-
-	if (bShowMouseCursor)
-	{
-		SetInputMode(FInputModeGameOnly());
-		bShowMouseCursor = false;
-	}else
+	HUD_Reference->ToggleWindow(ELayout::Equipment);
+	
+	if (HUD_Reference->IsAnyWidgetVisible())
 	{
 		SetInputMode(FInputModeGameAndUI());
 		bShowMouseCursor = true;
+	}else
+	{
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
 	}
 }
 
 
 void AMyPlayerController::ToggleInventory()
 {
-	InventoryComponent->ToggleWindow();
-	
-	if (AMyHUD* HUD_Reference = Cast<AMyHUD>(GetHUD()))
-	{
-		HUD_Reference->IsAnyWidgetVisible();
-	}
-	
-	// Check if there are Widgets Visible
-	// If yes, don't hide mouse
-	// If no, hide mode
-	
-	if (bShowMouseCursor)
-	{
-		SetInputMode(FInputModeGameOnly());
-		bShowMouseCursor = false;
-	}else
+	HUD_Reference->ToggleWindow(ELayout::Inventory);
+
+	if (HUD_Reference->IsAnyWidgetVisible())
 	{
 		SetInputMode(FInputModeGameAndUI());
 		bShowMouseCursor = true;
+	}else
+	{
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
 	}
 }
 
 void AMyPlayerController::ToggleMenu()
 {
-	InventoryComponent->AddItem(TEXT("G_Apple"), 1);
-	InventoryComponent->RefreshWidgetUI();
+	if(InventoryComponent->AddItem(TEXT("G_Apple"), 1))
+	{
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+		PrintInventory();
+	}
 }
 
 void AMyPlayerController::Interact()
 {
-	if (InventoryComponent->AddItem(TEXT("Apple"), 3))
+	if (InventoryComponent->AddItem(TEXT("Simple_Axe"), 1))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Added to Inventory")));
-		InventoryComponent->RefreshWidgetUI();
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+		PrintEquipment();
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Inventory Full"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Inventory Full")));
-	}
-
-	// Error: Item doesn't exists
-	// Error: Not enough space on Inventory
-	// Warning: Update InventoryLayout (InventorySlots) if occurs any changes
-
-	// Warning: If Item reaches limit stack if needs to accumulate on another slot
-	// Error: Not enough space on Inventory
-
+	
+	// Warning: Item doesn't exists
+	// Warning: Not enough space on Inventory
+	
 	//PrintInventory();
+}
+
+void AMyPlayerController::RefreshWidgets()
+{
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
+}
+
+void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
+{
+	/*if (ToInventorySlot > InventoryComponent->Inventory.Num() - 1)
+	{
+		if (FromInventorySlot != ToInventorySlot)
+		{
+			FSlotStructure LocalSlot = GetItemFrom(InventoryComponent->Inventory, FromInventorySlot);
+			FSlotStructure SwapSlot = GetItemFrom(EquipmentComponent->Inventory, ToInventorySlot);
+
+			AddItemToInventoryAndToIndex(EquipmentComponent->Inventory, LocalSlot, ToInventorySlot);
+			AddItemToInventoryAndToIndex(InventoryComponent->Inventory, SwapSlot, FromInventorySlot);
+			
+			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+			HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
+		}
+		if (EquipmentComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+		{
+			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+			HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
+			//HUD_Reference->RefreshWidgetUI(1);
+			//HUD_Reference->RefreshWidgetUI(2);
+		}
+	}*/
+	
+	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+	{
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	}
+	
+	
+	/*if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+	{
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+		// PrintInventory();
+	}*/
+}
+
+void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)
+{
+	Inventory[InventorySlot] = ContentToAdd;
+}
+
+FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
+{
+	return Inventory[SlotIndex];
 }
 
 void AMyPlayerController::PrintInventory()
@@ -122,18 +158,18 @@ void AMyPlayerController::PrintInventory()
 		uint8 b = InventoryComponent->Inventory[i].Amount;
 		//uint8 c = W_InventoryLayout->InventorySlotsArray[i]->InventorySlotIndex;
 
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"),
-		//	                                 *a.ToString(), b, c));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"), *a.ToString(), b, c));
 	}
 }
 
-void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
+void AMyPlayerController::PrintEquipment()
 {
-
-	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+	for (int i = 0; i < EquipmentComponent->NumberOfEquipmentSlots; i++)
 	{
-		InventoryComponent->RefreshWidgetUI();
-		//W_InventoryLayout->RefreshInventorySlots();
-		//PrintInventory();
+		FText a = EquipmentComponent->Inventory[i].ItemStructure.Name;
+		uint8 b = EquipmentComponent->Inventory[i].Amount;
+		
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
 	}
 }

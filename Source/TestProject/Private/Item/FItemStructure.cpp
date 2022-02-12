@@ -2,7 +2,10 @@
 
 FItemStructure::FItemStructure()
 {
+	//ID = FGuid();
+	
 	ID = FGuid::NewGuid();
+	
 	Icon = nullptr;
 	Name = FText::FromString("None");
 	Description = FText::FromString("None");
@@ -17,4 +20,5 @@ FItemStructure::FItemStructure()
 	WorldMesh = nullptr;
 	Health = 0;
 	Duration = 0.f;
+	EquipmentSlot = EEquipmentSlot::Undefined;
 }

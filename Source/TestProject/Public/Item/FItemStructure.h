@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "EEquipmentSlot.h"
 #include "EItemQuality.h"
 #include "EItemType.h"
 #include "Engine/DataTable.h"
@@ -57,5 +58,8 @@ struct TESTPROJECT_API FItemStructure : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EEquipmentSlot EquipmentSlot;
 };
 

@@ -17,6 +17,9 @@ class TESTPROJECT_API UInventoryLayout : public UWindowLayout
 
 public:
 	UInventoryLayout();
+
+	virtual void ToggleWindow() override;
+	virtual void RefreshWindow() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* InventoryGridPanel;
@@ -25,24 +28,16 @@ public:
 	UButton* SortButton;
 	UPROPERTY()
 	UTexture2D* Background_Slot;
-
-	virtual void RefreshWindow() override;
-	virtual void InitializeSlots() override;
 	
 	UPROPERTY()
 	TArray<USlotLayout*>InventorySlotsArray;
 
 protected:
+	
+private:
 	virtual void NativeConstruct() override;
 	virtual void OnButtonQuitClicked() override;
-	
-	void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
-
-private:
-	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<USlotLayout> WidgetClassSlotLayout;
-
-	UPROPERTY(EditAnywhere, Category = "Default")
-	USlotLayout* W_InventorySlot;
+	virtual void InitializeSlots() override;
+	virtual void CreateChildWidgets() override;
+	virtual void SetIndexToChilds(uint8& IndexStart) override;
 };

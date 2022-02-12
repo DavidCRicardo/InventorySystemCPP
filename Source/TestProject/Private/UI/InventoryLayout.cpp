@@ -3,15 +3,12 @@
 
 #include "UI/InventoryLayout.h"
 #include "UI/SlotLayout.h"
+#include "MyHUD.h"
 #include "Components/UniformGridPanel.h"
-#include "MyPlayerController.h"
 
 UInventoryLayout::UInventoryLayout()
 {
-	static ConstructorHelpers::FClassFinder<USlotLayout> SlotLayoutObj(TEXT("/Game/UI/WBP_SlotLayout.WBP_SlotLayout_C"));
-	WidgetClassSlotLayout = SlotLayoutObj.Class;
-
-	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/Textures/T_UI_Slot"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/UI/Textures/T_UI_Slot"));
 	Background_Slot = ObjectFind.Object;
 	
 	/*static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectItemBorder(TEXT("/Game/Textures/T_UI_Item_Border"));
@@ -23,38 +20,67 @@ void UInventoryLayout::NativeConstruct()
 	Super::NativeConstruct();
 
 	Super::SetTitleToWindow("INVENTORY");
- 
+
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+	
 	InitializeSlots();
+	RefreshWindow();
 }
 
 void UInventoryLayout::InitializeSlots()
 {
-	uint8 InventoryIndex = 0;
-	for(int i = 0; i < 7; i++)
+	CreateChildWidgets();
+	uint8 FirstIndex = 0; //(uint8)EEquipmentSlot::Count;
+	SetIndexToChilds(FirstIndex);
+}
+
+void UInventoryLayout::CreateChildWidgets()
+{
+	uint8 NumberOfRows = 7;
+	uint8 NumberOfColumns = 4;
+	
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
 	{
-		for(int j = 0; j < 4; j++)
+		USlotLayout* W_InventorySlot = nullptr;
+		
+		for(int i = 0; i < NumberOfRows; i++)
 		{
-			W_InventorySlot = CreateWidget<USlotLayout>(GetWorld(), WidgetClassSlotLayout);
-			InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, i, j);
-
-			W_InventorySlot->InitializeSlot(Background_Slot, GetOwningPlayer());
-			W_InventorySlot->InventorySlotIndex = InventoryIndex;
+			for(int j = 0; j < NumberOfColumns; j++)
+			{
+				W_InventorySlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+				InventoryGridPanel->AddChildToUniformGrid(W_InventorySlot, i, j);
 			
-			InventorySlotsArray.Add(W_InventorySlot);
-
-			InventoryIndex++;
+				InventorySlotsArray.Add(W_InventorySlot);
+			}
 		}
+	}else
+	{
+		UE_LOG(LogTemp, Error, TEXT("WBP_SlotLayout cannot load class" ))
 	}
 }
 
-void UInventoryLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+void UInventoryLayout::SetIndexToChilds(uint8& IndexStart)
 {
-	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+	FSlotStructure SlotStructure = {};
+	SlotStructure = PlayerController->InventoryComponent->GetEmptySlot();
+	
+	for(int i = 0; i < InventorySlotsArray.Num(); i++)
+	{
+		InventorySlotsArray[i]->UpdateSlot(SlotStructure);
+		InventorySlotsArray[i]->InventorySlotIndex = IndexStart;
+		InventorySlotsArray[i]->NativeFromInventory = true;
+		
+		IndexStart++;
+	}
 }
 
-void UInventoryLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+void UInventoryLayout::ToggleWindow()
 {
-	Super::NativeOnMouseLeave(InMouseEvent);
+	Super::ToggleWindow();
 }
 
 void UInventoryLayout::RefreshWindow()

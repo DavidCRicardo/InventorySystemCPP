@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FWidgetsLayoutBP.h"
 #include "GameFramework/HUD.h"
+#include "UI/ELayout.h"
 #include "MyHUD.generated.h"
 
+class UDataTable;
 /**
  * 
  */
@@ -16,8 +19,16 @@ class TESTPROJECT_API AMyHUD : public AHUD
 
 public:
 	UFUNCTION()
-	void IsAnyWidgetVisible();
+	bool IsAnyWidgetVisible();
+
+	UFUNCTION()
+	void ToggleWindow(const ELayout Layout);
 	
+	UFUNCTION()
+	void RefreshWidgetUILayout(ELayout Layout);
+	
+	FWidgetsLayoutBP* GetWidgetBPClass(FName Name);
+
 protected:
 	AMyHUD();
 	
@@ -27,8 +38,14 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<UUserWidget> WidgetClass;
+	class UHUDLayout* HUDReference;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
-	UUserWidget* HUDReference;
+	class UInventoryLayout* InventoryLayout;
+	
+	UPROPERTY(EditAnywhere, Category = "Default")
+	class UProfileLayout* ProfileLayout;
+	
+	UPROPERTY()
+    UDataTable* WidgetDB;
 };

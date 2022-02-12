@@ -27,16 +27,49 @@ void UWindowLayout::MyFunction(FGeometry& InGeometry, const FPointerEvent& InMou
 	//UE_LOG (LogTemp, Warning, TEXT ("Border1 - Mouse Button Down Event!"))
 }
 
-void UWindowLayout::SetTitleToWindow(FString title)
+void UWindowLayout::SetTitleToWindow(FString Title)
 {
-	WindowTitle->SetText(FText::FromString(title));
+	WindowTitle->SetText(FText::FromString(Title));
 }
 
+FEventReply UWindowLayout::RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FEventReply reply;
+	reply.NativeReply = NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	return reply;
+}
+
+FReply UWindowLayout::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	return Super::NativeOnPreviewMouseButtonDown(InGeometry, InMouseEvent);
+	return RedirectMouseDownToWidget(InGeometry, InMouseEvent).NativeReply;
+}
+
+void UWindowLayout::ToggleWindow()
+{
+	if (GetVisibility() == ESlateVisibility::Hidden)
+	{
+		SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+/*Testing Description 2*/
 void UWindowLayout::RefreshWindow()
 {
 }
 
 void UWindowLayout::InitializeSlots()
+{
+}
+
+void UWindowLayout::CreateChildWidgets()
+{
+}
+
+void UWindowLayout::SetIndexToChilds(uint8& IndexStart)
 {
 }
 

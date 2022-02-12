@@ -21,8 +21,13 @@ class TESTPROJECT_API USlotLayout : public UUserWidget
 public:
 	USlotLayout(const FObjectInitializer& ObjectInitializer);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	uint8 InventorySlotIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
+	bool NativeFromInventory = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
+	bool NativeFromEquipment = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlotStructure SlotStructure;
@@ -31,7 +36,7 @@ public:
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
 	
 	UFUNCTION()
-	void InitializeSlot(UTexture2D* BackgroundRef, APlayerController* PlayerControllerReference);
+	void InitializeSlot(UTexture2D* BackgroundRef);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AMyPlayerController* PlayerController;
@@ -57,9 +62,6 @@ protected:
 	
 	virtual void NativeConstruct() override;
 
-	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<UTexture2D> WidgetClass;
-
 protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -76,7 +78,10 @@ protected:
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 	
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
 	
@@ -86,4 +91,10 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
 	UImage* Background;
+	
+	UFUNCTION()
+	bool IsUnequipping(const uint8& LocalDraggedSlotIndex);
+	UFUNCTION()
+	bool IsEquipping(const uint8& InventorySlot);
+	
 };

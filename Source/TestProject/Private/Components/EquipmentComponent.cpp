@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Components/EquipmentComponent.h"
-#include "UI/ProfileLayout.h"
+
 
 // Sets default values for this component's properties
 UEquipmentComponent::UEquipmentComponent()
@@ -9,9 +9,7 @@ UEquipmentComponent::UEquipmentComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> ProfileObj(TEXT("/Game/UI/WBP_ProfileLayout"));
-    WidgetClass = ProfileObj.Class;
+	
 }
 
 
@@ -23,8 +21,6 @@ void UEquipmentComponent::BeginPlay()
 	NumberOfEquipmentSlots = 4;
 
 	InitInventory(NumberOfEquipmentSlots);
-
-	InitializeLayout();
 }
 
 
@@ -42,32 +38,23 @@ void UEquipmentComponent::InitInventory(int32 NumberSlots)
 	
 }
 
-void UEquipmentComponent::InitializeLayout()
+bool UEquipmentComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-	if (WidgetClass != nullptr)
+	// Trying to Equip an Item
+	if (FromInventorySlot != ToInventorySlot)
 	{
-		if (WindowWidget == nullptr)
-		{
-			WindowWidget = CreateWidget<UProfileLayout>(GetWorld(), WidgetClass);
-			WindowWidget->AddToViewport();
+		FSlotStructure LocalSlot = GetItemFromInventory(FromInventorySlot);
+		FSlotStructure SwapSlot = GetItemFromInventory(ToInventorySlot);
 
-			WindowWidget->SetAnchorsInViewport(FAnchors{0.2f, 0.2f});
+		AddItemToIndex(LocalSlot, ToInventorySlot);
+		AddItemToIndex(SwapSlot, FromInventorySlot);
 
-			WindowWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
+		return true;
 	}
+	return false; //Super::MoveInventoryItem(FromInventorySlot, ToInventorySlot);
 }
 
-void UEquipmentComponent::RefreshWidgetUI()
+bool UEquipmentComponent::EquipItem(FSlotStructure& SlotStructure)
 {
-	if (UProfileLayout* Widget = Cast<UProfileLayout>(WindowWidget))
-	{
-		Widget->RefreshWindow();
-	}
-}
-
-
-void UEquipmentComponent::ToggleWindow()
-{
-	Super::ToggleWindow();
+	return false;
 }
