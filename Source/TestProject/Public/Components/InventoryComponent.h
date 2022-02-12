@@ -25,6 +25,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
+	void EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfSlots;
 	

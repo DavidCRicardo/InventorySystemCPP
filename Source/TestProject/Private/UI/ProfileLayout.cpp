@@ -21,6 +21,9 @@ void UProfileLayout::NativeConstruct()
 	
 	Super::SetTitleToWindow(FString("PROFILE"));
 
+	NumberOfColumns = 2;
+	NumberOfRows = 2;
+	
 	CreateChildWidgets();
 	InitializeSlots();
 }
@@ -40,23 +43,19 @@ void UProfileLayout::CreateChildWidgets()
 		return;
 	}
 	
-	uint8 NumberOfRows = 2;
-	uint8 NumberOfColumns = 2;
-	
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
 	//FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(GetOwningPlayer()->GetHUD())->GetWidgetBPClass("SlotLayout_WBP");
 	if (WidgetLayout)
 	{
 		USlotLayout* W_EquipmentSlot = nullptr;
-		UUniformGridSlot* GridSlot = nullptr;
-		
+
 		for(int i = 0; i < NumberOfRows; i++)
 		{
 			for(int j = 0; j < NumberOfColumns; j++)
 			{
 				W_EquipmentSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
-				GridSlot = EquipmentGridPanel->AddChildToUniformGrid(W_EquipmentSlot, i, j);
+				UUniformGridSlot* GridSlot = EquipmentGridPanel->AddChildToUniformGrid(W_EquipmentSlot, i, j);
 				GridSlot->SetHorizontalAlignment(HAlign_Center);
 				GridSlot->SetVerticalAlignment(VAlign_Center);
 				

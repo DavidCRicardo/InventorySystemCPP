@@ -55,6 +55,11 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 	}	
 }
 
+void UInventoryComponent::EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	
+}
+
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
 {
 	const UDataTable* ItemTable = ItemDB;

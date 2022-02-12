@@ -20,6 +20,10 @@ public:
 	AMyPlayerController();
 
 	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
+
+	virtual void UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+
+	virtual void UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	
 	virtual void SetPawn(APawn* InPawn) override;
 
@@ -42,9 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleMenu();
 
-	UFUNCTION(BlueprintCallable, Category="Inventory")
-	void MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
-
+	UFUNCTION(BlueprintCallable, Category="Equipment")
+	void EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot);
+	
 	UFUNCTION()
 	void RefreshWidgets();
 	

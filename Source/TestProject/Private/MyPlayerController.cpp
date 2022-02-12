@@ -11,12 +11,6 @@ AMyPlayerController::AMyPlayerController()
 	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
-void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
-{
-	InventoryComponent->UseInventoryItem(InventorySlot);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-}
-
 void AMyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -25,6 +19,29 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleProfile", IE_Pressed, this, &AMyPlayerController::ToggleProfile);
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &AMyPlayerController::ToggleInventory);
 	InputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AMyPlayerController::ToggleMenu);
+}
+
+void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
+{
+	InventoryComponent->UseInventoryItem(InventorySlot);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+}
+
+void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+	{
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	}
+}
+
+void AMyPlayerController::UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	//IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
+
+	InventoryComponent->EquipFromInventory(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::BeginPlay()
@@ -103,8 +120,8 @@ void AMyPlayerController::RefreshWidgets()
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
 }
 
-void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
-{
+//void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
+//{
 	/*if (ToInventorySlot > InventoryComponent->Inventory.Num() - 1)
 	{
 		if (FromInventorySlot != ToInventorySlot)
@@ -127,10 +144,10 @@ void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const
 		}
 	}*/
 	
-	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
-	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	}
+	//if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+	//{
+	//	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	//}
 	
 	
 	/*if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
@@ -138,7 +155,7 @@ void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		// PrintInventory();
 	}*/
-}
+//}
 
 void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
@@ -172,4 +189,8 @@ void AMyPlayerController::PrintEquipment()
 		
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
 	}
+}
+
+void AMyPlayerController::EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
 }

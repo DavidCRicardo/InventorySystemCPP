@@ -114,13 +114,14 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		}*/
 
 		// Check If Equipping
-		/*if (IsEquipping(InventorySlotIndex))
-		{
+		//if (IsEquipping(InventorySlotIndex))
+		//{
+		//	PlayerController->EquipItemFromInventory(LocalDraggedSlot, InventorySlotIndex);
 			// Equip Item From Inventory to Equipment
 			// Equip Item From Inventory
 
-			return true;
-		}*/
+			//return true;
+		//}
 
 		/*MoveItemsInInventory();
 		if (IsTryingToSplit())
@@ -130,7 +131,8 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		}*/
 
 		// MoveInventoryItem()
-		PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
+		PlayerController->UI_MoveInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+		//PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
 		
 		return true;
@@ -288,6 +290,10 @@ bool USlotLayout::IsUnequipping(const uint8& LocalDraggedSlotIndex)
 
 bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 {
-	
+	const uint8 NumberOfEntries = (uint8)EEquipmentSlot::Count;
+	if (InventorySlot < NumberOfEntries)
+	{
+		return true;
+	}
 	return false;
 }

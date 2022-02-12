@@ -28,4 +28,9 @@ private:
 	virtual void CreateChildWidgets() override;
 	virtual void InitializeSlots() override;
 	virtual void OnButtonQuitClicked() override;
+	
+	UPROPERTY()
+	uint8 NumberOfColumns;
+	UPROPERTY()
+	uint8 NumberOfRows;
 };

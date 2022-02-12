@@ -40,4 +40,9 @@ private:
 	virtual void InitializeSlots() override;
 	virtual void CreateChildWidgets() override;
 	virtual void SetIndexToChilds(uint8& IndexStart) override;
+
+	UPROPERTY()
+	uint8 NumberOfColumns;
+	UPROPERTY()
+	uint8 NumberOfRows;
 };

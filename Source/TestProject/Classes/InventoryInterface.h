@@ -24,4 +24,11 @@ class TESTPROJECT_API IInventoryInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_UseInventoryItem(const uint8& InventorySlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_EquipInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
 };

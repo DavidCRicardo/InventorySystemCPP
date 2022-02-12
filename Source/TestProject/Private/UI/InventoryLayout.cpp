@@ -21,6 +21,9 @@ void UInventoryLayout::NativeConstruct()
 
 	Super::SetTitleToWindow("INVENTORY");
 
+	NumberOfRows = 7;
+	NumberOfColumns = 4;
+	
 	if (!IsValid(PlayerController))
 	{
 		return;
@@ -33,15 +36,12 @@ void UInventoryLayout::NativeConstruct()
 void UInventoryLayout::InitializeSlots()
 {
 	CreateChildWidgets();
-	uint8 FirstIndex = 0; //(uint8)EEquipmentSlot::Count;
+	uint8 FirstIndex = 0; //(uint8)EEquipmentSlot::Count; // 0 if I want to reset the slot indexes, or Count if I want to keep going
 	SetIndexToChilds(FirstIndex);
 }
 
 void UInventoryLayout::CreateChildWidgets()
 {
-	uint8 NumberOfRows = 7;
-	uint8 NumberOfColumns = 4;
-	
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
 	if (WidgetLayout)
 	{
@@ -65,8 +65,7 @@ void UInventoryLayout::CreateChildWidgets()
 
 void UInventoryLayout::SetIndexToChilds(uint8& IndexStart)
 {
-	FSlotStructure SlotStructure = {};
-	SlotStructure = PlayerController->InventoryComponent->GetEmptySlot();
+	const FSlotStructure SlotStructure = PlayerController->InventoryComponent->GetEmptySlot();
 	
 	for(int i = 0; i < InventorySlotsArray.Num(); i++)
 	{
