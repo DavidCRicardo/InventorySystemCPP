@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ItemDragVisual.h"
 #include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Inventory/FSlotStructure.h"
@@ -16,7 +17,7 @@ DECLARE_LOG_CATEGORY_CLASS(LogSlotLayout, Verbose, Verbose);
 UCLASS()
 class TESTPROJECT_API USlotLayout : public UUserWidget
 {
-	GENERATED_BODY()
+GENERATED_BODY()
 
 public:
 	USlotLayout(const FObjectInitializer& ObjectInitializer);
@@ -32,7 +33,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlotStructure SlotStructure;
 
-	UFUNCTION()
+
+UFUNCTION()
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
 	
 	UFUNCTION()
@@ -87,6 +89,9 @@ protected:
 	
 	UFUNCTION()
 	bool HasItem();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UItemDragVisual> ItemDragVisualClass;
 	
 private:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))

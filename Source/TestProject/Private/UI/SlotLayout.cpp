@@ -13,7 +13,6 @@
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	
 }
 
 void USlotLayout::NativeConstruct()
@@ -25,11 +24,6 @@ void USlotLayout::NativeConstruct()
 
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Mouse Button Down")));
-
-	// FEventReply EventReply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
-	// return EventReply.NativeReply;
-	
 	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
 }
 
@@ -47,6 +41,8 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 
 void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+	
 	ItemBorder->SetBrushColor(FItemQuality::Common);
 
 	ToggleTooltip();
@@ -54,6 +50,8 @@ void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointer
 
 void USlotLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
+	Super::NativeOnMouseLeave(InMouseEvent);
+	
 	ItemBorder->SetBrushColor(GetBorderColor());
 }
 
@@ -61,14 +59,23 @@ void USlotLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
 	UDragDropOperation*& OutOperation)
 {
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+	
 	if (HasItem())
 	{
 		ItemBorder->SetVisibility(ESlateVisibility::HitTestInvisible);
 		
-		UDragItem* DragDropOperation = NewObject<UDragItem>();
-		DragDropOperation->DefaultDragVisual = this;
-		DragDropOperation->Pivot = EDragPivot::MouseDown;
+		UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
+		DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
+		DragVisual->ItemBorder->SetBrushColor(ItemBorder->BrushColor);
 		
+		UDragItem* DragDropOperation = NewObject<UDragItem>();
+
+		// DragDropOperation->DefaultDragVisual = NewObject<USlotLayout>();
+		// DragDropOperation->DefaultDragVisual = this; 
+		DragDropOperation->DefaultDragVisual = DragVisual;
+		DragDropOperation->Pivot = EDragPivot::MouseDown;
+
 		DragDropOperation->DraggedSlotInformation = SlotStructure;
 		DragDropOperation->DraggedSlotIndex = InventorySlotIndex;
 		DragDropOperation->IsDraggedFromInventory = true;
@@ -76,14 +83,9 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		OutOperation = DragDropOperation;
 
 		HideTooltip();
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DragDetected Successful")));
-
 	}else
 	{
 		OutOperation = nullptr;
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Not Available To Drag")));
 	}
 }
 
@@ -91,15 +93,13 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
 	UDragDropOperation* InOperation)
 {
+	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	
 	UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
 	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Drag And Drop Operation Is Not Valid")));
-
 		return false;
 	}
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Drop")));
 	
 	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
 
@@ -162,7 +162,6 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("DragCancelled")));
-
 	// DragCancelled called when OnDrop returns false
 	
 	/* The Slot will stay bugged until the next Refresh() */
@@ -178,7 +177,7 @@ void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
 
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
-	SlotStructure = NewSlotStructure;	
+	SlotStructure = NewSlotStructure;
 	
 	if (HasItem())
 	{
@@ -188,7 +187,7 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	{
 		AmountTextBlock->SetText(FText::FromString(""));
 	}
-	
+
 	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
 	ItemBorder->SetBrushColor(GetBorderColor());
 	ItemBorder->SetVisibility(ESlateVisibility::Visible);
@@ -237,9 +236,6 @@ FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget*
 			if ( SlateWidgetDetectingDrag.IsValid() )
 			{
 				Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), DragKey);
-			
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, FString::Printf(TEXT("%s"), *Reply.NativeReply.ToString()));
-				
 				return Reply.NativeReply;
 			}
 		}
