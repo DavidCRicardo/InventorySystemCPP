@@ -25,16 +25,11 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void InitInventory(int32 NumberSlots) override;
-
-	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
-
+	
 	UFUNCTION()
 	bool EquipItem(FSlotStructure& SlotStructure);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfEquipmentSlots;
-	
-protected:
-	
 	
 };

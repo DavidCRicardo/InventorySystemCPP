@@ -99,6 +99,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		return false;
 	}
 	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Drop")));
 	
 	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
 
@@ -177,7 +178,7 @@ void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
 
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
-	SlotStructure = NewSlotStructure;
+	SlotStructure = NewSlotStructure;	
 	
 	if (HasItem())
 	{
@@ -236,6 +237,9 @@ FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget*
 			if ( SlateWidgetDetectingDrag.IsValid() )
 			{
 				Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), DragKey);
+			
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, FString::Printf(TEXT("%s"), *Reply.NativeReply.ToString()));
+				
 				return Reply.NativeReply;
 			}
 		}

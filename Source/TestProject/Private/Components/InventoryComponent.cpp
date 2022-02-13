@@ -27,7 +27,7 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	NumberOfSlots = 28;
+	NumberOfSlots = 28;// + (uint8)EEquipmentSlot::Count;
 
 	InitInventory(NumberOfSlots);
 }
@@ -53,11 +53,6 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 	{
 		CurrentSlot = SlotStructure;
 	}	
-}
-
-void UInventoryComponent::EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
-{
-	
 }
 
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
@@ -193,13 +188,36 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 	return {false, 0};
 }
 
+bool UInventoryComponent::EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	// Trying to Move to Different Spot
+	if (FromInventorySlot != ToInventorySlot)
+	{
+		const FSlotStructure LocalSlot = GetItemFromInventory(FromInventorySlot);
+		const FSlotStructure SwapSlot = GetItemFromInventory(ToInventorySlot);
+
+		if (SwapSlot.ItemStructure.EquipmentSlot == LocalSlot.ItemStructure.EquipmentSlot)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Let's Equip that Item!!")));
+		}else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You cannot equip that here!!")));
+		}
+		// AddItemToIndex(LocalSlot, ToInventorySlot);
+		// AddItemToIndex(SwapSlot, FromInventorySlot);
+
+		return false; //true;
+	}
+	return false;
+}
+
 bool UInventoryComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 	// Trying to Move to Different Spot
 	if (FromInventorySlot != ToInventorySlot)
 	{
-		FSlotStructure LocalSlot = GetItemFromInventory(FromInventorySlot);
-		FSlotStructure SwapSlot = GetItemFromInventory(ToInventorySlot);
+		const FSlotStructure LocalSlot = GetItemFromInventory(FromInventorySlot);
+		const FSlotStructure SwapSlot = GetItemFromInventory(ToInventorySlot);
 
 		AddItemToIndex(LocalSlot, ToInventorySlot);
 		AddItemToIndex(SwapSlot, FromInventorySlot);
@@ -209,7 +227,7 @@ bool UInventoryComponent::MoveInventoryItem(const uint8& FromInventorySlot, cons
 	return false;
 }
 
-void UInventoryComponent::AddItemToIndex(FSlotStructure& ContentToAdd, const uint8& InventorySlot)
+void UInventoryComponent::AddItemToIndex(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
 	Inventory[InventorySlot] = ContentToAdd;
 }

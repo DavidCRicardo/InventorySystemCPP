@@ -96,7 +96,7 @@ void AMyPlayerController::ToggleMenu()
 	if(InventoryComponent->AddItem(TEXT("G_Apple"), 1))
 	{
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		PrintInventory();
+		//PrintInventory();
 	}
 }
 
@@ -105,7 +105,7 @@ void AMyPlayerController::Interact()
 	if (InventoryComponent->AddItem(TEXT("Simple_Axe"), 1))
 	{
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		PrintEquipment();
+		//PrintEquipment();
 	}
 	
 	// Warning: Item doesn't exists

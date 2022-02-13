@@ -26,7 +26,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	bool EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfSlots;
@@ -53,7 +53,7 @@ public:
 	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	
 	UFUNCTION()
-	void AddItemToIndex(FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	void AddItemToIndex(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UFUNCTION()
 	void UseInventoryItem(const uint8& InventorySlot);
