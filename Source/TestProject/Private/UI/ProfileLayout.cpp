@@ -95,5 +95,17 @@ void UProfileLayout::InitializeSlots()
 
 void UProfileLayout::RefreshWindow()
 {
+	FSlotStructure CurrentSlot = {};
+
+	for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
+	{
+		CurrentSlot = PlayerController->InventoryComponent->Inventory[i];
+
+		/* Update Empty Slot */
+		if(CurrentSlot.Amount <= 0){
+			CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
+		}
 	
+		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
+	}
 }

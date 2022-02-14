@@ -8,7 +8,7 @@
 AMyPlayerController::AMyPlayerController()
 {
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+	// EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -74,7 +74,6 @@ void AMyPlayerController::ToggleProfile()
 		bShowMouseCursor = false;
 	}
 }
-
 
 void AMyPlayerController::ToggleInventory()
 {
@@ -193,4 +192,5 @@ void AMyPlayerController::PrintEquipment()
 
 void AMyPlayerController::EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot)
 {
+	InventoryComponent->EquipFromInventory(FromInventorySlot, ToInventorySlot);
 }

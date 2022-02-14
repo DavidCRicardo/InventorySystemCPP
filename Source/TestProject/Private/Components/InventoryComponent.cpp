@@ -27,8 +27,9 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	NumberOfSlots = 28;// + (uint8)EEquipmentSlot::Count;
-
+	// NumberOfSlots = 28;// + (uint8)EEquipmentSlot::Count;
+	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count;
+	
 	InitInventory(NumberOfSlots);
 }
 
@@ -46,13 +47,36 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 {
 	Inventory.Reserve(NumberSlots);
 
-	const FSlotStructure SlotStructure = GetEmptySlot();
+	FSlotStructure SlotStructure = {};
 	Inventory.Init(SlotStructure, NumberSlots);
 
+	uint8 Index = 0;
 	for (FSlotStructure& CurrentSlot : Inventory)
 	{
+		if (Index == 0)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Weapon);
+		}
+		else if (Index == 1)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);
+		}
+		else if (Index == 2)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Feet);
+		}
+		else if (Index == 3)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Hands);
+		}
+		else
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+		}
+		
 		CurrentSlot = SlotStructure;
-	}	
+		Index++;
+	}
 }
 
 bool UInventoryComponent::AddItem(FName ID, uint8 Amount)
@@ -98,8 +122,9 @@ bool UInventoryComponent::CreateStack(FSlotStructure& ContentToAdd)
 {
 	bool HasSpace = false;
 	uint8 IdentifiedIndex = 0;
-	
-	for (size_t i = 0; i < NumberOfSlots; i++)
+
+	// for (size_t i = 0; i < NumberOfSlots; i++)
+	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
 	{
 		const FSlotStructure& CurrentSlot = Inventory[i];
 		if (CurrentSlot.Amount <= 0)
@@ -166,8 +191,9 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 {
 	int8 LocalInteger = -1;
 	bool LocalBoolean = false;
-	
-	for (size_t i = 0; i < NumberOfSlots; i++)
+
+	// for (size_t i = 0; i < NumberOfSlots; i++)
+	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
 	{
 		const bool SameID = Inventory[i].ItemStructure.ID == ContentToAdd.ItemStructure.ID;
 		
@@ -239,25 +265,37 @@ FSlotStructure UInventoryComponent::GetItemFromInventory(const uint8& InventoryS
 	{
 		return Slot;
 	}
-	return GetEmptySlot();
+	
+	return GetEmptySlot(Slot.ItemStructure.EquipmentSlot);
 }
 
-FSlotStructure UInventoryComponent::GetEmptySlot()
+FSlotStructure UInventoryComponent::GetEmptySlot(const EEquipmentSlot FromEquipmentType)
 {
-	FSlotStructure EmptySlot = {};
+	FName Name;
+	if (FromEquipmentType == EEquipmentSlot::Weapon)
+	{
+		Name = "No_Weapon";
+	}else if(FromEquipmentType == EEquipmentSlot::Chest)
+	{
+		Name = "No_Chest";
+	}else if(FromEquipmentType == EEquipmentSlot::Feet)
+	{
+		Name = "No_Feet";
+	}else if(FromEquipmentType == EEquipmentSlot::Hands)
+	{
+		Name = "No_Hands";
+	}else
+	{
+		Name = "Empty";
+	}
 	
-	const UDataTable* ItemTable = ItemDB;
-	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName("Empty"), "", true);
-
-	EmptySlot.InitSlot(*NewItemData, 0);
-
-	return EmptySlot;
+	return GetItemFromItemDB(Name);
 }
 
 FSlotStructure UInventoryComponent::GetItemFromItemDB(FName Name)
 {
 	FSlotStructure Slot = {};
-	
+
 	const UDataTable* ItemTable = ItemDB;
 	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(Name), "", true);
 
@@ -294,7 +332,7 @@ void UInventoryComponent::UseConsumableItem(const uint8& InventorySlot, FSlotStr
 
 	if (WasFullAmountRemoved)
 	{
-		InventoryItem = GetEmptySlot();
+		InventoryItem = GetEmptySlot(EEquipmentSlot::Undefined);
 
 		RemoveItem(Inventory, InventorySlot);
 	}else
@@ -325,7 +363,7 @@ void UInventoryComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, co
 void UInventoryComponent::RemoveItem(TArray<FSlotStructure> OutInventory, const uint8& InventorySlot)
 {
 	// Clear Inventory Item
-	Inventory[InventorySlot] = GetEmptySlot();
+	Inventory[InventorySlot] = GetEmptySlot(EEquipmentSlot::Undefined);
 	
 	// Clear Inventory Slot Item UI
 	//RefreshInventoryUI();

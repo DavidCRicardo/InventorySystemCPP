@@ -46,7 +46,9 @@ public:
 	FSlotStructure GetItemFromInventory(const uint8& InventorySlot);
 
 	UFUNCTION()
-	FSlotStructure GetEmptySlot();
+	//FSlotStructure GetEmptySlot();
+	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);
+	
 	FSlotStructure GetItemFromItemDB(FName Name);
 
 	UFUNCTION()
@@ -54,6 +56,7 @@ public:
 	
 	UFUNCTION()
 	void AddItemToIndex(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	
 
 	UFUNCTION()
 	void UseInventoryItem(const uint8& InventorySlot);

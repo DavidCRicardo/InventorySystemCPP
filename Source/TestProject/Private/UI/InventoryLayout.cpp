@@ -21,8 +21,10 @@ void UInventoryLayout::NativeConstruct()
 
 	Super::SetTitleToWindow("INVENTORY");
 
+	/* TODO: This info needs to be Player Controller */
 	NumberOfRows = 7;
 	NumberOfColumns = 4;
+	/**/
 	
 	if (!IsValid(PlayerController))
 	{
@@ -36,7 +38,8 @@ void UInventoryLayout::NativeConstruct()
 void UInventoryLayout::InitializeSlots()
 {
 	CreateChildWidgets();
-	uint8 FirstIndex = 0; //(uint8)EEquipmentSlot::Count; // 0 if I want to reset the slot indexes, or Count if I want to keep going
+	// uint8 FirstIndex = 0; //(uint8)EEquipmentSlot::Count; // 0 if I want to reset the slot indexes, or Count if I want to keep going
+	uint8 FirstIndex = (uint8)EEquipmentSlot::Count;
 	SetIndexToChilds(FirstIndex);
 }
 
@@ -65,7 +68,7 @@ void UInventoryLayout::CreateChildWidgets()
 
 void UInventoryLayout::SetIndexToChilds(uint8& IndexStart)
 {
-	const FSlotStructure SlotStructure = PlayerController->InventoryComponent->GetEmptySlot();
+	const FSlotStructure SlotStructure = PlayerController->InventoryComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 	
 	for(int i = 0; i < InventorySlotsArray.Num(); i++)
 	{
@@ -87,16 +90,17 @@ void UInventoryLayout::RefreshWindow()
 	const uint8 InventoryLimit = PlayerController->InventoryComponent->NumberOfSlots;
 
 	FSlotStructure CurrentSlot = {};
-	for(int i = 0; i < InventoryLimit; i++)
+	// for(int i = 0; i < InventoryLimit; i++)
+	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit; i++)
 	{
 		CurrentSlot = PlayerController->InventoryComponent->Inventory[i];
 
 		/* Update Empty Slot */
 		if(CurrentSlot.Amount <= 0){
-			CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot();
+			CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 		}
-		
-		InventorySlotsArray[i]->UpdateSlot(CurrentSlot);
+		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count;
+		InventorySlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
 	}
 }
 

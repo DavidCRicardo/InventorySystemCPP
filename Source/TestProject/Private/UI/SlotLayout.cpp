@@ -29,8 +29,6 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("NativeOnMouseButtonDoubleClick")));
-
 	if (HasItem())
 	{
 		PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
@@ -115,14 +113,14 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		}*/
 
 		// Check If Equipping
-		//if (IsEquipping(InventorySlotIndex))
-		//{
-		//	PlayerController->EquipItemFromInventory(LocalDraggedSlot, InventorySlotIndex);
+		if (IsEquipping(InventorySlotIndex))
+		{
+			PlayerController->EquipItemFromInventory(LocalDraggedSlot, InventorySlotIndex);
 			// Equip Item From Inventory to Equipment
 			// Equip Item From Inventory
 
-			//return true;
-		//}
+			return true;
+		}
 
 		/*MoveItemsInInventory();
 		if (IsTryingToSplit())
@@ -293,7 +291,9 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 	const uint8 NumberOfEntries = (uint8)EEquipmentSlot::Count;
 	if (InventorySlot < NumberOfEntries)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Can equip this"))
 		return true;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("Cannot equip this"))
 	return false;
 }
