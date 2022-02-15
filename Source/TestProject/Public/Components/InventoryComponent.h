@@ -26,7 +26,14 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	bool EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
+	UFUNCTION()
+	EItemType GetItemTypeBySlot(const uint8& ItemSlot);
+
+	UFUNCTION()
+	bool EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	UFUNCTION()
+	bool UnEquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfSlots;
@@ -43,7 +50,7 @@ public:
 	bool AddItemToInventory(FSlotStructure& ContentToAdd);
 
 	UFUNCTION()
-	FSlotStructure GetItemFromInventory(const uint8& InventorySlot);
+	FSlotStructure GetInventorySlot(const uint8& InventorySlot);
 
 	UFUNCTION()
 	//FSlotStructure GetEmptySlot();
@@ -55,7 +62,7 @@ public:
 	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	
 	UFUNCTION()
-	void AddItemToIndex(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
 
 	UFUNCTION()
@@ -80,5 +87,6 @@ private:
 	void RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove, bool& WasFullAmountRemoved, uint8& AmountRemoved);
 
 	UFUNCTION()
-	void RemoveItem(TArray<FSlotStructure> OutInventory, const uint8& InventorySlot);
+	void RemoveItem(const uint8& InventorySlot);
+	void ClearInventorySlot(const uint8& InventorySlot);
 };

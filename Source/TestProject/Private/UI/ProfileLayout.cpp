@@ -48,7 +48,8 @@ void UProfileLayout::CreateChildWidgets()
 	if (WidgetLayout)
 	{
 		USlotLayout* W_EquipmentSlot = nullptr;
-
+		uint8 SlotIndex = 0;
+		
 		for(int i = 0; i < NumberOfRows; i++)
 		{
 			for(int j = 0; j < NumberOfColumns; j++)
@@ -58,8 +59,11 @@ void UProfileLayout::CreateChildWidgets()
 				UUniformGridSlot* GridSlot = EquipmentGridPanel->AddChildToUniformGrid(W_EquipmentSlot, i, j);
 				GridSlot->SetHorizontalAlignment(HAlign_Center);
 				GridSlot->SetVerticalAlignment(VAlign_Center);
-				
+
+				W_EquipmentSlot->InventorySlotIndex = SlotIndex;
 				EquipmentSlotsArray.Add(W_EquipmentSlot);
+
+				SlotIndex++;
 			}
 		}
 	}
@@ -71,8 +75,10 @@ void UProfileLayout::InitializeSlots()
 	{
 		return;
 	}
+
+	RefreshWindow();
 	
-	for (int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
+	/*for (int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
 	{
 		EquipmentSlotsArray[i]->NativeFromEquipment = true;
 		EquipmentSlotsArray[i]->InventorySlotIndex = i;
@@ -90,7 +96,7 @@ void UProfileLayout::InitializeSlots()
 		{
 			EquipmentSlotsArray[i]->UpdateSlot(PlayerController->InventoryComponent->GetItemFromItemDB("No_Hands"));
 		}
-	}
+	}*/
 }
 
 void UProfileLayout::RefreshWindow()
@@ -99,11 +105,24 @@ void UProfileLayout::RefreshWindow()
 
 	for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
 	{
-		CurrentSlot = PlayerController->InventoryComponent->Inventory[i];
+		CurrentSlot = PlayerController->InventoryComponent->GetInventorySlot(i); //Inventory[i];
 
 		/* Update Empty Slot */
 		if(CurrentSlot.Amount <= 0){
 			CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
+			if (i == 0)
+			{
+				CurrentSlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Weapon");
+			}else if(i == 1)
+			{
+				CurrentSlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Chest");
+			}else if(i == 2)
+			{
+				CurrentSlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Feet");
+			}else if(i == 3)
+			{
+				CurrentSlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Hands");
+			}
 		}
 	
 		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);

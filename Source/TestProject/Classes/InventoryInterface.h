@@ -31,4 +31,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_EquipInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_UnEquipInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 };

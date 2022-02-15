@@ -41,7 +41,17 @@ void AMyPlayerController::UI_EquipInventoryItem_Implementation(const uint8& From
 {
 	//IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
 
-	InventoryComponent->EquipFromInventory(FromInventorySlot, ToInventorySlot);
+	InventoryComponent->EquipItem(FromInventorySlot, ToInventorySlot);
+	RefreshWidgets();
+}
+
+void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	IInventoryInterface::UI_UnEquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
+
+	InventoryComponent->UnEquipItem(FromInventorySlot, ToInventorySlot);
+	RefreshWidgets();
 }
 
 void AMyPlayerController::BeginPlay()
@@ -190,7 +200,7 @@ void AMyPlayerController::PrintEquipment()
 	}
 }
 
-void AMyPlayerController::EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot)
+/*void AMyPlayerController::EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot)
 {
 	InventoryComponent->EquipFromInventory(FromInventorySlot, ToInventorySlot);
-}
+}*/

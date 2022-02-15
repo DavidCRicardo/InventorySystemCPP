@@ -25,9 +25,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void InitInventory(int32 NumberSlots) override;
-	
-	UFUNCTION()
-	bool EquipItem(FSlotStructure& SlotStructure);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfEquipmentSlots;

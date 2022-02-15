@@ -50,6 +50,12 @@ void UInventoryComponent::InitInventory(const int32 NumberSlots)
 	FSlotStructure SlotStructure = {};
 	Inventory.Init(SlotStructure, NumberSlots);
 
+	/*for (int i = 0; i < NumberSlots; i++)
+	{
+		SlotStructure = GetEmptySlot(GetEquipmentTypeBySlot(i));
+		SetInventorySlot(SlotStructure, i);
+	}*/
+	
 	uint8 Index = 0;
 	for (FSlotStructure& CurrentSlot : Inventory)
 	{
@@ -214,26 +220,80 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 	return {false, 0};
 }
 
-bool UInventoryComponent::EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+bool UInventoryComponent::EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-	// Trying to Move to Different Spot
+	// This method should be named ServerEquipFromInventory (Runs on Server and its Reliable)
+	// It redirects to EquipItem(FromInventorySlot, ToInventorySlot);
+	
+	/*const uint8 LocalFromInventorySlot = FromInventorySlot;*/
+	/*const uint8 LocalToInventorySlot = ToInventorySlot;*/
+	//GetInventoryItem(LocalFromInventorySlot);
+	/*const FSlotStructure LocalInventoryItem = GetInventorySlot(FromInventorySlot);*/
+	
+	if (GetItemTypeBySlot(FromInventorySlot) == EItemType::Equipment)
+	{
+		EEquipmentSlot LocalEquipmentSlotType = GetEquipmentTypeBySlot(FromInventorySlot); //LocalInventoryItem.ItemStructure.EquipmentSlot;
+		 
+		EEquipmentSlot EquipmentType = GetEquipmentTypeBySlot(ToInventorySlot);
+		if (EquipmentType == LocalEquipmentSlotType)
+		{
+			const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
+			const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
+
+			SetInventorySlot(LocalSlot, ToInventorySlot);
+			SetInventorySlot(SwapSlot, FromInventorySlot);
+			/*
+			//GetInventoryItem(LocalToInventorySlot);
+			const FSlotStructure LocalSwapInventoryItem = GetInventorySlot(LocalToInventorySlot);
+			// Swap Items
+			if(LocalSwapInventoryItem.Amount > 0)
+			{
+				//if(CanContainerStoreItems())
+				//{
+					// Swap Items
+				//}else
+				//{
+					// Warning: Container Cannot Store Items
+				//	return;
+				//}
+			}else
+			{
+				SetInventorySlot(LocalInventoryItem,LocalToInventorySlot);
+				RemoveItem(LocalFromInventorySlot);
+				// Move Item (Add Item, Remove Item)
+			}
+			// UpdateEquippedStats()
+			*/
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Let's Equip that Item!!")));
+
+			return true;
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ITEM CAN NOT BE EQUIPPED HERE")));
+		return false;
+	}
+	
+	// Warning: Item is not Equippable
+	return false;
+}
+
+/* After drag the Item back to Inventory, it needs to refresh correctly the equipment empty slot */
+/* Depending if can swap items (both same equipment type) or if it will need to change to the correctly empty slot */
+bool UInventoryComponent::UnEquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
 	if (FromInventorySlot != ToInventorySlot)
 	{
-		const FSlotStructure LocalSlot = GetItemFromInventory(FromInventorySlot);
-		const FSlotStructure SwapSlot = GetItemFromInventory(ToInventorySlot);
+		if (GetItemTypeBySlot(ToInventorySlot) == EItemType::Undefined)
+		{
+			const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
+			const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
 
-		if (SwapSlot.ItemStructure.EquipmentSlot == LocalSlot.ItemStructure.EquipmentSlot)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Let's Equip that Item!!")));
-		}else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You cannot equip that here!!")));
+			SetInventorySlot(LocalSlot, ToInventorySlot);
+			SetInventorySlot(SwapSlot, FromInventorySlot);
+
+			return true;
 		}
-		// AddItemToIndex(LocalSlot, ToInventorySlot);
-		// AddItemToIndex(SwapSlot, FromInventorySlot);
-
-		return false; //true;
 	}
+	
 	return false;
 }
 
@@ -242,31 +302,30 @@ bool UInventoryComponent::MoveInventoryItem(const uint8& FromInventorySlot, cons
 	// Trying to Move to Different Spot
 	if (FromInventorySlot != ToInventorySlot)
 	{
-		const FSlotStructure LocalSlot = GetItemFromInventory(FromInventorySlot);
-		const FSlotStructure SwapSlot = GetItemFromInventory(ToInventorySlot);
+		const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
+		const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
 
-		AddItemToIndex(LocalSlot, ToInventorySlot);
-		AddItemToIndex(SwapSlot, FromInventorySlot);
+		SetInventorySlot(LocalSlot, ToInventorySlot);
+		SetInventorySlot(SwapSlot, FromInventorySlot);
 
 		return true;
 	}
 	return false;
 }
 
-void UInventoryComponent::AddItemToIndex(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
+void UInventoryComponent::SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
 	Inventory[InventorySlot] = ContentToAdd;
 }
 
-FSlotStructure UInventoryComponent::GetItemFromInventory(const uint8& InventorySlot)
+FSlotStructure UInventoryComponent::GetInventorySlot(const uint8& InventorySlot)
 {
-	FSlotStructure Slot = Inventory[InventorySlot];
-	if (Slot.Amount > 0)
+	if (Inventory[InventorySlot].Amount > 0)
 	{
-		return Slot;
+		return Inventory[InventorySlot];
 	}
 	
-	return GetEmptySlot(Slot.ItemStructure.EquipmentSlot);
+	return GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
 }
 
 FSlotStructure UInventoryComponent::GetEmptySlot(const EEquipmentSlot FromEquipmentType)
@@ -292,7 +351,7 @@ FSlotStructure UInventoryComponent::GetEmptySlot(const EEquipmentSlot FromEquipm
 	return GetItemFromItemDB(Name);
 }
 
-FSlotStructure UInventoryComponent::GetItemFromItemDB(FName Name)
+FSlotStructure UInventoryComponent::GetItemFromItemDB(const FName Name)
 {
 	FSlotStructure Slot = {};
 
@@ -306,7 +365,7 @@ FSlotStructure UInventoryComponent::GetItemFromItemDB(FName Name)
 
 void UInventoryComponent::UseInventoryItem(const uint8& InventorySlot)
 {
-	FSlotStructure LocalInventorySlot = GetItemFromInventory(InventorySlot);
+	FSlotStructure LocalInventorySlot = GetInventorySlot(InventorySlot);
 
 	switch (LocalInventorySlot.ItemStructure.ItemType)
 	{
@@ -334,13 +393,11 @@ void UInventoryComponent::UseConsumableItem(const uint8& InventorySlot, FSlotStr
 	{
 		InventoryItem = GetEmptySlot(EEquipmentSlot::Undefined);
 
-		RemoveItem(Inventory, InventorySlot);
+		RemoveItem(InventorySlot);
 	}else
 	{
 		Inventory[InventorySlot] = InventoryItem;
 	}
-	
-	
 }
 
 void UInventoryComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove,
@@ -360,12 +417,53 @@ void UInventoryComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, co
 	}
 }
 
-void UInventoryComponent::RemoveItem(TArray<FSlotStructure> OutInventory, const uint8& InventorySlot)
+void UInventoryComponent::RemoveItem(const uint8& InventorySlot)
 {
 	// Clear Inventory Item
-	Inventory[InventorySlot] = GetEmptySlot(EEquipmentSlot::Undefined);
-	
+	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+
+
 	// Clear Inventory Slot Item UI
 	//RefreshInventoryUI();
 	//Inventory UI  - Inventory Slots .get(InventorySlot) = GetEmptySlot();
+}
+
+void UInventoryComponent::ClearInventorySlot(const uint8& InventorySlot)
+{
+	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+}
+
+// Returns the equipment type by equip slot number.
+EEquipmentSlot UInventoryComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
+{
+	return Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
+	switch (EquipmentSlot)
+	{
+	case 0:
+		return EEquipmentSlot::Weapon;
+	case 1:
+		return EEquipmentSlot::Chest;
+	case 2:
+		return EEquipmentSlot::Feet;
+	case 3:
+		return EEquipmentSlot::Hands;
+	default:
+		return EEquipmentSlot::Undefined;
+	}
+}
+
+EItemType UInventoryComponent::GetItemTypeBySlot(const uint8& ItemSlot)
+{
+	return Inventory[ItemSlot].ItemStructure.ItemType;
+	switch (ItemSlot)
+	{
+	case 1:
+		return EItemType::Miscellaneous;
+	case 2:
+		return EItemType::Equipment;
+	case 3:
+		return EItemType::Consumable;
+	default:
+		return EItemType::Undefined;
+	}
 }
