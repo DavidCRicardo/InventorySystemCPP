@@ -276,22 +276,40 @@ bool UInventoryComponent::EquipItem(const uint8& FromInventorySlot, const uint8&
 	return false;
 }
 
-/* After drag the Item back to Inventory, it needs to refresh correctly the equipment empty slot */
-/* Depending if can swap items (both same equipment type) or if it will need to change to the correctly empty slot */
 bool UInventoryComponent::UnEquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
+	// Trying to Move to Different Spot
 	if (FromInventorySlot != ToInventorySlot)
 	{
+	    /* ToInventorySlot is an Empty Slot*/
 		if (GetItemTypeBySlot(ToInventorySlot) == EItemType::Undefined)
 		{
 			const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
 			const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
-
+		
 			SetInventorySlot(LocalSlot, ToInventorySlot);
 			SetInventorySlot(SwapSlot, FromInventorySlot);
 
 			return true;
 		}
+		
+		/* Can only swap with a non Empty Slot if this one is an Equipment from the same EquipType */
+	    if( GetItemTypeBySlot(ToInventorySlot) == GetItemTypeBySlot(FromInventorySlot) )
+	    {
+		    if (GetEquipmentTypeBySlot(ToInventorySlot) == GetEquipmentTypeBySlot(FromInventorySlot))
+		    {
+		    
+			    const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
+			    const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
+            		
+			    SetInventorySlot(LocalSlot, ToInventorySlot);
+			    SetInventorySlot(SwapSlot, FromInventorySlot);
+            
+			    return true;
+		    }
+	    }
+
+	    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("YOU CANNOT DO THAT HERE")));
 	}
 	
 	return false;
@@ -299,7 +317,6 @@ bool UInventoryComponent::UnEquipItem(const uint8& FromInventorySlot, const uint
 
 bool UInventoryComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-	// Trying to Move to Different Spot
 	if (FromInventorySlot != ToInventorySlot)
 	{
 		const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);

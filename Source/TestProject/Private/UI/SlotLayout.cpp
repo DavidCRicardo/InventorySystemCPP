@@ -70,7 +70,7 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 
 		// DragDropOperation->DefaultDragVisual = NewObject<USlotLayout>();
-		// DragDropOperation->DefaultDragVisual = this; 
+		// DragDropOperation->DefaultDragVisual = this;
 		DragDropOperation->DefaultDragVisual = DragVisual;
 		DragDropOperation->Pivot = EDragPivot::MouseDown;
 
