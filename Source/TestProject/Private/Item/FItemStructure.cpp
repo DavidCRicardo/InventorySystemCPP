@@ -17,6 +17,7 @@ FItemStructure::FItemStructure()
 	MaxStackSize = 0;
 	Class = nullptr;
 	IsDroppable = false;
+	SkeletalMesh = nullptr;
 	WorldMesh = nullptr;
 	Health = 0;
 	Duration = 0.f;

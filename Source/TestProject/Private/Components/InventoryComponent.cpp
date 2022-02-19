@@ -264,7 +264,8 @@ bool UInventoryComponent::EquipItem(const uint8& FromInventorySlot, const uint8&
 			}
 			// UpdateEquippedStats()
 			*/
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Let's Equip that Item!!")));
+
+			UpdateEquippedMeshes(ToInventorySlot);
 
 			return true;
 		}
@@ -333,6 +334,13 @@ bool UInventoryComponent::MoveInventoryItem(const uint8& FromInventorySlot, cons
 void UInventoryComponent::SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
 	Inventory[InventorySlot] = ContentToAdd;
+
+	/* Only if its an Equipment */
+	/*(InventorySlot < (uint8)EEquipmentSlot::Count)
+	if (GetItemTypeBySlot(InventorySlot) == EItemType::Equipment)
+	{
+		UpdateEquippedMeshes(InventorySlot);
+	}*/
 }
 
 FSlotStructure UInventoryComponent::GetInventorySlot(const uint8& InventorySlot)
@@ -450,37 +458,51 @@ void UInventoryComponent::ClearInventorySlot(const uint8& InventorySlot)
 	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
 }
 
-// Returns the equipment type by equip slot number.
+void UInventoryComponent::UpdateEquippedMeshes(const uint8& InventorySlot)
+{
+	if (InventorySlot >= (uint8)EEquipmentSlot::Count)
+	{
+		return;
+	}
+	
+	FSlotStructure Slot = GetInventorySlot(InventorySlot);
+	
+	UClass* LocalClass = Slot.ItemStructure.Class;
+	UStaticMesh* LocalMesh = Slot.ItemStructure.WorldMesh;
+
+	switch(GetEquipmentTypeBySlot(InventorySlot))
+	{
+	case EEquipmentSlot::Weapon:
+
+		/* Update Main Hand  */
+		// Do we already have an actor spawned?
+		if (IsValid(CharacterReference->MainHand))
+		{
+			CharacterReference->MainHandMesh = Slot.ItemStructure.SkeletalMesh;
+			// CharacterReference->OnRep_MainHandMesh();
+			CharacterReference->SetHandMesh();
+		}
+		
+		if (IsValid(LocalClass))
+		{
+			// Spawn Actor
+			// Class = LocalClass
+			// SpawnTransform = CharacterReference->GetActorTransform
+
+			// AttachActorToComponent
+			// Don't forget to set Target, Parent, and, Socket Name ( From EquipmentSockets enum? )
+		}
+		break;
+	default: ;
+	}
+}
+
 EEquipmentSlot UInventoryComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
 {
 	return Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
-	switch (EquipmentSlot)
-	{
-	case 0:
-		return EEquipmentSlot::Weapon;
-	case 1:
-		return EEquipmentSlot::Chest;
-	case 2:
-		return EEquipmentSlot::Feet;
-	case 3:
-		return EEquipmentSlot::Hands;
-	default:
-		return EEquipmentSlot::Undefined;
-	}
 }
 
 EItemType UInventoryComponent::GetItemTypeBySlot(const uint8& ItemSlot)
 {
 	return Inventory[ItemSlot].ItemStructure.ItemType;
-	switch (ItemSlot)
-	{
-	case 1:
-		return EItemType::Miscellaneous;
-	case 2:
-		return EItemType::Equipment;
-	case 3:
-		return EItemType::Consumable;
-	default:
-		return EItemType::Undefined;
-	}
 }

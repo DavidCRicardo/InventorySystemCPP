@@ -59,6 +59,8 @@ void AMyPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	HUD_Reference = Cast<AMyHUD>(GetHUD());
+	//InventoryComponent->CharacterReference = Cast<AMyCharacter>(GetCharacter());
+	InventoryComponent->CharacterReference = Cast<AMyCharacter>(GetPawn());
 }
 
 void AMyPlayerController::SetPawn(APawn* InPawn)

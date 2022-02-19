@@ -14,7 +14,8 @@ class TESTPROJECT_API AMyCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AMyCharacter();
-
+	
+	//virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -61,4 +62,19 @@ public:
 	virtual void LookUpAtRate(float Rate);
 	
 	void InitializeDefaultPawnInputBindings();
+	
+
+	
+	UFUNCTION()
+	void SetHandMesh();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NonTransactional, meta=(Category="Default", OverrideNativeName="MainHand"))
+	USkeletalMeshComponent* MainHand;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, ReplicatedUsing="OnRep_MainHandMesh", meta=(DisplayName="Main Hand Mesh", Category="Inventory|Equipment", OverrideNativeName="MainHandMesh"))
+	USkeletalMesh* MainHandMesh;
+
+	UFUNCTION(meta=(Category, OverrideNativeName="OnRep_MainHandMesh"))
+	virtual void OnRep_MainHandMesh();
+	
 };

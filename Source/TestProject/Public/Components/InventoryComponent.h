@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyCharacter.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
@@ -53,13 +54,15 @@ public:
 	FSlotStructure GetInventorySlot(const uint8& InventorySlot);
 
 	UFUNCTION()
-	//FSlotStructure GetEmptySlot();
 	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);
 	
 	FSlotStructure GetItemFromItemDB(FName Name);
 
 	UFUNCTION()
 	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
+	UFUNCTION()
+	void UpdateEquippedMeshes(const uint8& InventorySlot);
 	
 	UFUNCTION()
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
@@ -67,6 +70,9 @@ public:
 
 	UFUNCTION()
 	void UseInventoryItem(const uint8& InventorySlot);
+
+	UPROPERTY()
+	AMyCharacter* CharacterReference;
 
 private:
 	UPROPERTY()

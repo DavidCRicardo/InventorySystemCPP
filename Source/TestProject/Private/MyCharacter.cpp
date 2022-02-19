@@ -5,6 +5,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,10 +45,20 @@ AMyCharacter::AMyCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
+	
 	/**/
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
+
+	MainHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MainHand"));
+	MainHand->SetupAttachment(GetMesh());
+
+	/*MainHandMesh = CreateOptionalDefaultSubobject<USkeletalMeshComponent>(TEXT("MainHand"));
+	if (MainHandMesh)
+	{
+		MainHandMesh->SetupAttachment(GetMesh());
+	}*/
+
 	
  	/*// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -74,11 +85,40 @@ AMyCharacter::AMyCharacter()
 	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
 }
 
+void AMyCharacter::OnRep_MainHandMesh()
+{
+	// MainHandMesh = New Mesh
+	MainHand->SetSkeletalMesh(MainHandMesh);
+	MainHand->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainHand");
+	
+	/*FEquipmentSockets__pf2757191718 bpfv__LocalEquipmentSockets__pf{};
+	bool bpfv__CallFunc_K2_AttachToComponent_ReturnValue__pf{};
+	const UScriptStruct* __Local__47 = FEquipmentSockets__pf2757191718::StaticStruct();
+	uint8* __Local__48 = (uint8*)FMemory_Alloca(__Local__47->GetStructureSize());
+	__Local__47->InitializeStruct(__Local__48);
+	FEquipmentSockets__pf2757191718& __Local__46 = *reinterpret_cast<FEquipmentSockets__pf2757191718*>(__Local__48);
+	bpfv__LocalEquipmentSockets__pf = __Local__46;
+	if(::IsValid(MainHand))
+	{
+		MainHand->SetSkeletalMesh(MainHandMesh, true);
+	}
+	if(::IsValid(MainHand))
+	{
+		bpfv__CallFunc_K2_AttachToComponent_ReturnValue__pf = MainHand->USceneComponent::K2_AttachToComponent((*(AccessPrivateProperty<USkeletalMeshComponent* >((this), ACharacter::__PPO__Mesh() ))), bpfv__LocalEquipmentSockets__pf.bpv__MainxHand_14_8A558B7C43EA00D3972964BA4E935F53__pfG, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+	}*/
+}
+
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AMyCharacter::SetHandMesh()
+{
+	MainHand->SetSkeletalMesh(MainHandMesh);
+	MainHand->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainHand");
 }
 
 // Called every frame
