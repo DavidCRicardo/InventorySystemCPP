@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Inventory/FSlotStructure.h"
 #include "MyCharacter.generated.h"
 
 UCLASS()
@@ -38,6 +39,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character")
 	class USphereComponent* InteractionField;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NonTransactional, meta=(Category="Default", OverrideNativeName="MainHand"))
+	USkeletalMeshComponent* MainHand;
+	
+	UFUNCTION()
+	void SetHandMesh();
 	
 public:	
 	// Called every frame
@@ -63,18 +70,15 @@ public:
 	
 	void InitializeDefaultPawnInputBindings();
 	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	
-	UFUNCTION()
-	void SetHandMesh();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, NonTransactional, meta=(Category="Default", OverrideNativeName="MainHand"))
-	USkeletalMeshComponent* MainHand;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, ReplicatedUsing="OnRep_MainHandMesh", meta=(DisplayName="Main Hand Mesh", Category="Inventory|Equipment", OverrideNativeName="MainHandMesh"))
 	USkeletalMesh* MainHandMesh;
 
-	UFUNCTION(meta=(Category, OverrideNativeName="OnRep_MainHandMesh"))
-	virtual void OnRep_MainHandMesh();
+	UFUNCTION()
+	void UpdateMainHandMesh(USkeletalMesh* NewHandMesh);
 	
+	UFUNCTION(meta=(OverrideNativeName="OnRep_MainHandMesh"))
+	void OnRep_MainHandMesh();
+
 };

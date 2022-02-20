@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -53,6 +54,8 @@ AMyCharacter::AMyCharacter()
 	MainHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MainHand"));
 	MainHand->SetupAttachment(GetMesh());
 
+	MainHandMesh = nullptr;
+	
 	/*MainHandMesh = CreateOptionalDefaultSubobject<USkeletalMeshComponent>(TEXT("MainHand"));
 	if (MainHandMesh)
 	{
@@ -87,9 +90,7 @@ AMyCharacter::AMyCharacter()
 
 void AMyCharacter::OnRep_MainHandMesh()
 {
-	// MainHandMesh = New Mesh
-	MainHand->SetSkeletalMesh(MainHandMesh);
-	MainHand->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainHand");
+	SetHandMesh();
 	
 	/*FEquipmentSockets__pf2757191718 bpfv__LocalEquipmentSockets__pf{};
 	bool bpfv__CallFunc_K2_AttachToComponent_ReturnValue__pf{};
@@ -101,11 +102,15 @@ void AMyCharacter::OnRep_MainHandMesh()
 	if(::IsValid(MainHand))
 	{
 		MainHand->SetSkeletalMesh(MainHandMesh, true);
-	}
-	if(::IsValid(MainHand))
-	{
 		bpfv__CallFunc_K2_AttachToComponent_ReturnValue__pf = MainHand->USceneComponent::K2_AttachToComponent((*(AccessPrivateProperty<USkeletalMeshComponent* >((this), ACharacter::__PPO__Mesh() ))), bpfv__LocalEquipmentSockets__pf.bpv__MainxHand_14_8A558B7C43EA00D3972964BA4E935F53__pfG, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 	}*/
+}
+
+void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AMyCharacter, MainHandMesh);
 }
 
 // Called when the game starts or when spawned
@@ -121,11 +126,16 @@ void AMyCharacter::SetHandMesh()
 	MainHand->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainHand");
 }
 
+void AMyCharacter::UpdateMainHandMesh(USkeletalMesh* NewHandMesh)
+{
+	MainHandMesh = NewHandMesh;
+	SetHandMesh();
+}
+
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input

@@ -90,15 +90,20 @@ void UInventoryLayout::RefreshWindow()
 	const uint8 InventoryLimit = PlayerController->InventoryComponent->NumberOfSlots;
 
 	FSlotStructure CurrentSlot = {};
+	FSlotStructure EmptySlot = {};
+	EmptySlot = PlayerController->InventoryComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+
 	// for(int i = 0; i < InventoryLimit; i++)
 	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit; i++)
 	{
-		CurrentSlot = PlayerController->InventoryComponent->Inventory[i];
-
+		CurrentSlot = PlayerController->InventoryComponent->GetInventorySlot(i);
+		
 		/* Update Empty Slot */
 		if(CurrentSlot.Amount <= 0){
-			CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+			PlayerController->InventoryComponent->SetInventorySlot(EmptySlot, i);
+			CurrentSlot = EmptySlot;
 		}
+
 		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count;
 		InventorySlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
 	}

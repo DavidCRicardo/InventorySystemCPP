@@ -232,7 +232,9 @@ bool UInventoryComponent::EquipItem(const uint8& FromInventorySlot, const uint8&
 	
 	if (GetItemTypeBySlot(FromInventorySlot) == EItemType::Equipment)
 	{
-		EEquipmentSlot LocalEquipmentSlotType = GetEquipmentTypeBySlot(FromInventorySlot); //LocalInventoryItem.ItemStructure.EquipmentSlot;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Equip this item...")));
+
+		EEquipmentSlot LocalEquipmentSlotType = GetEquipmentTypeBySlot(FromInventorySlot);
 		 
 		EEquipmentSlot EquipmentType = GetEquipmentTypeBySlot(ToInventorySlot);
 		if (EquipmentType == LocalEquipmentSlotType)
@@ -285,12 +287,17 @@ bool UInventoryComponent::UnEquipItem(const uint8& FromInventorySlot, const uint
 	    /* ToInventorySlot is an Empty Slot*/
 		if (GetItemTypeBySlot(ToInventorySlot) == EItemType::Undefined)
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Unequip and left empty equip slot")));
+
 			const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
 			const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
 		
 			SetInventorySlot(LocalSlot, ToInventorySlot);
 			SetInventorySlot(SwapSlot, FromInventorySlot);
 
+			UpdateEquippedMeshes(FromInventorySlot);
+			UpdateEquippedMeshes(ToInventorySlot);
+			
 			return true;
 		}
 		
@@ -299,17 +306,23 @@ bool UInventoryComponent::UnEquipItem(const uint8& FromInventorySlot, const uint
 	    {
 		    if (GetEquipmentTypeBySlot(ToInventorySlot) == GetEquipmentTypeBySlot(FromInventorySlot))
 		    {
-		    
-			    const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
+		    	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Unequip and Swap w/ another equip")));
+
+		    	EquipItem(ToInventorySlot, FromInventorySlot);
+			    /*const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
 			    const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
             		
 			    SetInventorySlot(LocalSlot, ToInventorySlot);
 			    SetInventorySlot(SwapSlot, FromInventorySlot);
-            
+
+		    	UpdateEquippedMeshes(FromInventorySlot);
+		    	UpdateEquippedMeshes(ToInventorySlot);*/
+
 			    return true;
 		    }
 	    }
-
+		
+		
 	    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("YOU CANNOT DO THAT HERE")));
 	}
 	
@@ -335,12 +348,14 @@ void UInventoryComponent::SetInventorySlot(const FSlotStructure& ContentToAdd, c
 {
 	Inventory[InventorySlot] = ContentToAdd;
 
+	
 	/* Only if its an Equipment */
 	/*(InventorySlot < (uint8)EEquipmentSlot::Count)
 	if (GetItemTypeBySlot(InventorySlot) == EItemType::Equipment)
 	{
 		UpdateEquippedMeshes(InventorySlot);
 	}*/
+
 }
 
 FSlotStructure UInventoryComponent::GetInventorySlot(const uint8& InventorySlot)
@@ -467,33 +482,20 @@ void UInventoryComponent::UpdateEquippedMeshes(const uint8& InventorySlot)
 	
 	FSlotStructure Slot = GetInventorySlot(InventorySlot);
 	
-	UClass* LocalClass = Slot.ItemStructure.Class;
-	UStaticMesh* LocalMesh = Slot.ItemStructure.WorldMesh;
-
+	USkeletalMesh* NewMesh = Slot.ItemStructure.SkeletalMesh;
+	
 	switch(GetEquipmentTypeBySlot(InventorySlot))
 	{
 	case EEquipmentSlot::Weapon:
-
-		/* Update Main Hand  */
-		// Do we already have an actor spawned?
-		if (IsValid(CharacterReference->MainHand))
+		if (IsValid(NewMesh))
 		{
-			CharacterReference->MainHandMesh = Slot.ItemStructure.SkeletalMesh;
-			// CharacterReference->OnRep_MainHandMesh();
-			CharacterReference->SetHandMesh();
+			CharacterReference->UpdateMainHandMesh(NewMesh);
 		}
 		
-		if (IsValid(LocalClass))
-		{
-			// Spawn Actor
-			// Class = LocalClass
-			// SpawnTransform = CharacterReference->GetActorTransform
-
-			// AttachActorToComponent
-			// Don't forget to set Target, Parent, and, Socket Name ( From EquipmentSockets enum? )
-		}
 		break;
-	default: ;
+	default:
+		CharacterReference->UpdateMainHandMesh(nullptr);
+		break;
 	}
 }
 
