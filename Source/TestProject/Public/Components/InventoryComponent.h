@@ -31,10 +31,7 @@ public:
 	UFUNCTION()
 	EItemType GetItemTypeBySlot(const uint8& ItemSlot);
 
-	UFUNCTION()
-	bool EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
-	UFUNCTION()
-	bool UnEquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfSlots;
@@ -95,4 +92,17 @@ private:
 	UFUNCTION()
 	void RemoveItem(const uint8& InventorySlot);
 	void ClearInventorySlot(const uint8& InventorySlot);
+
+
+	UFUNCTION(Server, Reliable)
+	void Server_EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
+	UFUNCTION(Server, Reliable)
+	void Server_UnEquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
+	UFUNCTION()
+	bool EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	
+	UFUNCTION()
+	bool UnEquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 };

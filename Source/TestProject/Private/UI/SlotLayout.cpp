@@ -301,7 +301,6 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 	const uint8 NumberOfEntries = (uint8)EEquipmentSlot::Count;
 	if (InventorySlot < NumberOfEntries)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Can equip this"))
 		return true;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Cannot equip this"))

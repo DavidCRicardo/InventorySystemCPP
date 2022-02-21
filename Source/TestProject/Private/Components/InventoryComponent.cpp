@@ -220,6 +220,8 @@ FReturnTupleBoolInt UInventoryComponent::HasPartialStack(const FSlotStructure& C
 	return {false, 0};
 }
 
+
+
 bool UInventoryComponent::EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 	// This method should be named ServerEquipFromInventory (Runs on Server and its Reliable)
@@ -232,7 +234,7 @@ bool UInventoryComponent::EquipItem(const uint8& FromInventorySlot, const uint8&
 	
 	if (GetItemTypeBySlot(FromInventorySlot) == EItemType::Equipment)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Equip this item...")));
+		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Equip this item...")));
 
 		EEquipmentSlot LocalEquipmentSlotType = GetEquipmentTypeBySlot(FromInventorySlot);
 		 
@@ -287,7 +289,7 @@ bool UInventoryComponent::UnEquipItem(const uint8& FromInventorySlot, const uint
 	    /* ToInventorySlot is an Empty Slot*/
 		if (GetItemTypeBySlot(ToInventorySlot) == EItemType::Undefined)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Unequip and left empty equip slot")));
+			// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Unequip and left empty equip slot")));
 
 			const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
 			const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
@@ -306,7 +308,7 @@ bool UInventoryComponent::UnEquipItem(const uint8& FromInventorySlot, const uint
 	    {
 		    if (GetEquipmentTypeBySlot(ToInventorySlot) == GetEquipmentTypeBySlot(FromInventorySlot))
 		    {
-		    	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Unequip and Swap w/ another equip")));
+		    	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Unequip and Swap w/ another equip")));
 
 		    	EquipItem(ToInventorySlot, FromInventorySlot);
 			    /*const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
@@ -489,12 +491,30 @@ void UInventoryComponent::UpdateEquippedMeshes(const uint8& InventorySlot)
 	case EEquipmentSlot::Weapon:
 		if (IsValid(NewMesh))
 		{
-			CharacterReference->UpdateMainHandMesh(NewMesh);
+			//CharacterReference->WeaponMesh = NewMesh;
+			//CharacterReference->Weapon->SetSkeletalMesh(NewMesh);
+			CharacterReference->UpdateMainWeaponMesh(NewMesh);
 		}
-		
+		break;
+	case EEquipmentSlot::Chest:
+			//CharacterReference->ChestMesh = NewMesh;
+			CharacterReference->UpdateChestMesh(NewMesh);
+	
+		break;
+	case EEquipmentSlot::Feet:
+		//CharacterReference->UpdateFeetMesh(NewMesh);
+		break;
+	case EEquipmentSlot::Hands:
+		//CharacterReference->UpdateHandsMesh(NewMesh);
 		break;
 	default:
-		CharacterReference->UpdateMainHandMesh(nullptr);
+		if (InventorySlot == 0)
+		{
+			CharacterReference->UpdateMainWeaponMesh(nullptr);
+		}else if (InventorySlot == 1)
+		{
+			CharacterReference->UpdateChestMesh(nullptr);
+		}
 		break;
 	}
 }
@@ -507,4 +527,16 @@ EEquipmentSlot UInventoryComponent::GetEquipmentTypeBySlot(const uint8& Equipmen
 EItemType UInventoryComponent::GetItemTypeBySlot(const uint8& ItemSlot)
 {
 	return Inventory[ItemSlot].ItemStructure.ItemType;
+}
+
+void UInventoryComponent::Server_EquipFromInventory_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	EquipItem(FromInventorySlot, ToInventorySlot);
+}
+
+void UInventoryComponent::Server_UnEquipFromInventory_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	UnEquipItem(FromInventorySlot, ToInventorySlot);
 }

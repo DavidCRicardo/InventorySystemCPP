@@ -51,10 +51,19 @@ AMyCharacter::AMyCharacter()
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
 
-	MainHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MainHand"));
-	MainHand->SetupAttachment(GetMesh());
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(GetMesh());
+	Weapon->SetIsReplicated(true);
+	
+	Chest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest"));
+	Chest->SetupAttachment(GetMesh());
+	
+	WeaponMesh = nullptr;
+	ChestMesh = nullptr;
 
-	MainHandMesh = nullptr;
+	//Initialize the player's Health
+	MaxHealth = 100.0f;
+	CurrentHealth = MaxHealth;
 	
 	/*MainHandMesh = CreateOptionalDefaultSubobject<USkeletalMeshComponent>(TEXT("MainHand"));
 	if (MainHandMesh)
@@ -86,31 +95,63 @@ AMyCharacter::AMyCharacter()
 	GetCharacterMovement()->bIgnoreBaseRotation = true;*/
 
 	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
-}
-
-void AMyCharacter::OnRep_MainHandMesh()
-{
-	SetHandMesh();
 	
-	/*FEquipmentSockets__pf2757191718 bpfv__LocalEquipmentSockets__pf{};
-	bool bpfv__CallFunc_K2_AttachToComponent_ReturnValue__pf{};
-	const UScriptStruct* __Local__47 = FEquipmentSockets__pf2757191718::StaticStruct();
-	uint8* __Local__48 = (uint8*)FMemory_Alloca(__Local__47->GetStructureSize());
-	__Local__47->InitializeStruct(__Local__48);
-	FEquipmentSockets__pf2757191718& __Local__46 = *reinterpret_cast<FEquipmentSockets__pf2757191718*>(__Local__48);
-	bpfv__LocalEquipmentSockets__pf = __Local__46;
-	if(::IsValid(MainHand))
-	{
-		MainHand->SetSkeletalMesh(MainHandMesh, true);
-		bpfv__CallFunc_K2_AttachToComponent_ReturnValue__pf = MainHand->USceneComponent::K2_AttachToComponent((*(AccessPrivateProperty<USkeletalMeshComponent* >((this), ACharacter::__PPO__Mesh() ))), bpfv__LocalEquipmentSockets__pf.bpv__MainxHand_14_8A558B7C43EA00D3972964BA4E935F53__pfG, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-	}*/
 }
 
 void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(AMyCharacter, MainHandMesh);
+
+	//Replicate current health.
+	DOREPLIFETIME(AMyCharacter, CurrentHealth);
+
+	DOREPLIFETIME(AMyCharacter, Weapon);
+	DOREPLIFETIME(AMyCharacter, WeaponMesh);
+	DOREPLIFETIME(AMyCharacter, ChestMesh);
+	DOREPLIFETIME(AMyCharacter, MainFeetMesh);
+	DOREPLIFETIME(AMyCharacter, MainHandsMesh);
+}
+
+void AMyCharacter::OnHealthUpdate()
+{
+	//Client-specific functionality
+	if (IsLocallyControlled())
+	{
+		FString healthMessage = FString::Printf(TEXT("You now have %f health remaining."), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
+
+		if (CurrentHealth <= 0)
+		{
+			FString deathMessage = FString::Printf(TEXT("You have been killed."));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
+		}
+	}
+
+	//Server-specific functionality
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
+	}
+
+	//Functions that occur on all machines. 
+	/*  
+		Any special functionality that should occur as a result of damage or death should be placed here. 
+	*/
+}
+
+void AMyCharacter::SetCurrentHealth(float healthValue)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
+		OnHealthUpdate();
+	}
+}
+
+void AMyCharacter::OnRep_CurrentHealth()
+{
+	OnHealthUpdate();
 }
 
 // Called when the game starts or when spawned
@@ -120,17 +161,55 @@ void AMyCharacter::BeginPlay()
 	
 }
 
-void AMyCharacter::SetHandMesh()
+
+void AMyCharacter::SetWeaponMesh()
 {
-	MainHand->SetSkeletalMesh(MainHandMesh);
-	MainHand->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainHand");
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("SetWeaponMesh")));
+
+	Weapon->SetSkeletalMesh(WeaponMesh);
+	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainWeapon");
 }
 
-void AMyCharacter::UpdateMainHandMesh(USkeletalMesh* NewHandMesh)
+void AMyCharacter::UpdateMainWeaponMesh(USkeletalMesh* NewMesh)
 {
-	MainHandMesh = NewHandMesh;
-	SetHandMesh();
+	WeaponMesh = NewMesh;
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("UpdateMainWeaponMesh")));
+
+	SetWeaponMesh();
+	
 }
+void AMyCharacter::UpdateChestMesh(USkeletalMesh* NewMesh)
+{
+	ChestMesh = NewMesh;
+	
+	Chest->SetSkeletalMesh(ChestMesh);
+	Chest->SetMasterPoseComponent(GetMesh());
+}
+
+void AMyCharacter::OnRep_MainWeaponMesh()
+{
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("OnRep_MainWeaponMesh")));
+
+	Weapon->SetSkeletalMesh(WeaponMesh);
+	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainWeapon");
+}
+
+void AMyCharacter::OnRep_MainChestMesh()
+{
+	Chest->SetSkeletalMesh(ChestMesh);
+	Chest->SetMasterPoseComponent(GetMesh());
+}
+
+void AMyCharacter::OnRep_MainFeetMesh()
+{
+	
+}
+
+void AMyCharacter::OnRep_MainHandsMesh()
+{
+	
+}
+
 
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)

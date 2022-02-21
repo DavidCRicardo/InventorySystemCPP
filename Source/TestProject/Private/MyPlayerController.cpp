@@ -39,9 +39,9 @@ void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromI
 void AMyPlayerController::UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot,
 	const uint8& ToInventorySlot)
 {
-	//IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
+	IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
 
-	InventoryComponent->EquipItem(FromInventorySlot, ToInventorySlot);
+	InventoryComponent->Server_EquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
 	RefreshWidgets();
 }
 
@@ -50,7 +50,7 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 {
 	IInventoryInterface::UI_UnEquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
 
-	InventoryComponent->UnEquipItem(FromInventorySlot, ToInventorySlot);
+	InventoryComponent->Server_UnEquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
 	RefreshWidgets();
 }
 
@@ -104,7 +104,11 @@ void AMyPlayerController::ToggleInventory()
 
 void AMyPlayerController::ToggleMenu()
 {
-	if(InventoryComponent->AddItem(TEXT("G_Apple"), 1))
+	/*AMyCharacter* Character123 = Cast<AMyCharacter>(GetCharacter());
+	
+	Character123->SetCurrentHealth(Character123->CurrentHealth - 5);*/
+	
+	if(InventoryComponent->AddItem(TEXT("Simple_Armor"), 1))
 	{
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		//PrintInventory();
