@@ -2,10 +2,8 @@
 
 
 #include "MyHUD.h"
-
 #include "FWidgetsLayoutBP.h"
 #include "Blueprint/UserWidget.h"
-#include "UI/HUDLayout.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
 
@@ -28,45 +26,28 @@ void AMyHUD::BeginPlay()
 	Super::BeginPlay();
 	
 	const UDataTable* WidgetTable = WidgetDB;
+	FWidgetsLayoutBP* NewWidgetData = nullptr;
 	
-	FWidgetsLayoutBP* NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("HUDLayout_WBP"), "", true);
-	if (NewWidgetData)
-	{
-		HUDReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
-		
-		if (HUDReference)
-		{
-			HUDReference->AddToViewport();
-		}
-	}else
-	{
-		UE_LOG (LogTemp, Warning, TEXT ("Cannot Load Class HUDLayout_WBP."));
+	HUDReference = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("HUDLayout_WBP"));
+	if (HUDReference)
+	{	
+		HUDReference->AddToViewport();		
 	}
 
-	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("ProfileLayout_WBP"), "", true);	
-	if (NewWidgetData)
+	ProfileLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("ProfileLayout_WBP"));
+	if (ProfileLayout)
 	{
-		ProfileLayout = CreateWidget<UProfileLayout>(GetWorld(), NewWidgetData->Widget);
-		
-		if (ProfileLayout)
-		{
-			ProfileLayout->AddToViewport();
-			ProfileLayout->SetAnchorsInViewport(FAnchors{0.2f, 0.2f});
-			ProfileLayout->SetVisibility(ESlateVisibility::Hidden);
-		}
+		ProfileLayout->AddToViewport();
+		ProfileLayout->SetAnchorsInViewport(FAnchors{0.2f, 0.2f});
+		ProfileLayout->SetVisibility(ESlateVisibility::Hidden);
 	}
-	
-	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("InventoryLayout_WBP"), "", true);	
-	if (NewWidgetData)
+
+	InventoryLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InventoryLayout_WBP"));
+	if (InventoryLayout)
 	{
-		InventoryLayout = CreateWidget<UInventoryLayout>(GetWorld(), NewWidgetData->Widget);
-		
-		if (InventoryLayout)
-		{
-			InventoryLayout->AddToViewport();
-			InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
-			InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-		}
+		InventoryLayout->AddToViewport();
+		InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
+		InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -83,11 +64,13 @@ void AMyHUD::ToggleWindow(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
 	{
-		InventoryLayout->ToggleWindow();
+		Cast<UInventoryLayout>(InventoryLayout)->ToggleWindow();
+		// InventoryLayout->ToggleWindow();
 	}
 	else if (Layout == ELayout::Equipment)
 	{
-		ProfileLayout->ToggleWindow();
+		Cast<UProfileLayout>(ProfileLayout)->ToggleWindow();
+		// ProfileLayout->ToggleWindow();
 	}
 }
 
@@ -95,12 +78,30 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
 	{
-		InventoryLayout->RefreshWindow();
+		if (UInventoryLayout* InventoryWidget = Cast<UInventoryLayout>(InventoryLayout))
+		{
+			InventoryWidget->RefreshWindow();
+		}
+		//InventoryLayout->RefreshWindow();
 	}
 	else if (Layout == ELayout::Equipment)
 	{
-		ProfileLayout->RefreshWindow();
+		if (UProfileLayout* ProfileWidget = Cast<UProfileLayout>(ProfileLayout))
+		{
+			ProfileWidget->RefreshWindow();
+		}
+		// ProfileLayout->RefreshWindow();
 	}
+}
+
+UUserWidget* AMyHUD::CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name)
+{
+	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(Name, "", true);
+	if (NewWidgetData)
+	{
+		return CreateWidget<UUserWidget>(GetWorld(), NewWidgetData->Widget);
+	}
+	return nullptr;
 }
 
 FWidgetsLayoutBP* AMyHUD::GetWidgetBPClass(const FName Name)

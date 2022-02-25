@@ -26,26 +26,31 @@ public:
 	
 	UFUNCTION()
 	void RefreshWidgetUILayout(ELayout Layout);
-	
+
 	FWidgetsLayoutBP* GetWidgetBPClass(FName Name);
 
 protected:
 	AMyHUD();
 	
 	virtual void DrawHUD() override;
-	
+
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY()
+	UDataTable* WidgetDB;
+	
+	UUserWidget* CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name);
+	
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UHUDLayout* HUDReference;
+	UUserWidget* HUDReference;
+	// class UHUDLayout* HUDReference;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UInventoryLayout* InventoryLayout;
-	
+	UUserWidget* InventoryLayout;
+	// class UInventoryLayout* InventoryLayout;
+
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UProfileLayout* ProfileLayout;
-	
-	UPROPERTY()
-    UDataTable* WidgetDB;
+	UUserWidget* ProfileLayout;
+	//class UProfileLayout* ProfileLayout;
 };
