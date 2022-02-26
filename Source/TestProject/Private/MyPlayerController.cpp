@@ -21,10 +21,31 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AMyPlayerController::ToggleMenu);
 }
 
+void AMyPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CharacterReference = Cast<AMyCharacter>(GetPawn());
+	InventoryComponent->CharacterReference = CharacterReference;
+
+	HUD_Reference = Cast<AMyHUD>(GetHUD());
+}
+
+void AMyPlayerController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	//APawn* Pawn = GetPawn();
+	//Character_Reference = Cast<AMyCharacter>(GetPawn());
+	//Character_Reference = (InPawn ? Cast<AMyCharacter>(InPawn) : NULL);
+}
+
+
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
 	InventoryComponent->UseInventoryItem(InventorySlot);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
 }
 
 void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot,
@@ -52,25 +73,6 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 
 	InventoryComponent->Server_UnEquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
 	RefreshWidgets();
-}
-
-void AMyPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	CharacterReference = Cast<AMyCharacter>(GetPawn());
-	InventoryComponent->CharacterReference = CharacterReference;
-
-	HUD_Reference = Cast<AMyHUD>(GetHUD());
-}
-
-void AMyPlayerController::SetPawn(APawn* InPawn)
-{
-	Super::SetPawn(InPawn);
-
-	//APawn* Pawn = GetPawn();
-	//Character_Reference = Cast<AMyCharacter>(GetPawn());
-	//Character_Reference = (InPawn ? Cast<AMyCharacter>(InPawn) : NULL);
 }
 
 void AMyPlayerController::ToggleProfile()
@@ -107,6 +109,9 @@ void AMyPlayerController::ToggleMenu()
 {
 	if(InventoryComponent->AddItem(TEXT("Simple_Armor"), 1))
 	{
+		InventoryComponent->AddItem(TEXT("Simple_Boots"), 1);
+		InventoryComponent->AddItem(TEXT("Simple_Gloves"), 1);
+		
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		//PrintInventory();
 	}

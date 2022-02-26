@@ -59,11 +59,13 @@ public:
 
 	UFUNCTION()
 	void UpdateEquippedMeshes(const uint8& InventorySlot);
-	
+
+	UFUNCTION()
+	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
+
 	UFUNCTION()
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
-
 	UFUNCTION()
 	void UseInventoryItem(const uint8& InventorySlot);
 
@@ -85,6 +87,18 @@ private:
 	UFUNCTION()
 	void UseConsumableItem(const uint8& InventorySlot, FSlotStructure& InventoryItem);
 
+	UFUNCTION()
+	bool GetEmptyInventorySpace(uint8& OutIndex);
+	UFUNCTION()
+	EEquipmentSlot GetItemEquipmentSlot(FSlotStructure Item);
+	UFUNCTION()
+	bool ItemIsValid(FSlotStructure Item);
+	UFUNCTION()
+	bool GetEmptyEquipmentSlotByType(EEquipmentSlot EquipmentSlot, uint8& OutIndex);
+	
+	UFUNCTION()
+	void UseEquipmentItem(const uint8& InventorySlot, const FSlotStructure& SlotStructure);
+	
 	UFUNCTION()
 	void RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove, bool& WasFullAmountRemoved, uint8& AmountRemoved);
 

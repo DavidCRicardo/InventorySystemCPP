@@ -405,6 +405,9 @@ void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
 	case EItemType::Consumable:
 		UseConsumableItem(InventorySlot, LocalInventorySlot);
 		break;
+	case EItemType::Equipment:
+		UseEquipmentItem(InventorySlot, LocalInventorySlot);
+		break;
 	default:
 		break;
 	}
@@ -433,8 +436,88 @@ void UInventoryManagerComponent::UseConsumableItem(const uint8& InventorySlot, F
 	}
 }
 
+
+void UInventoryManagerComponent::UseEquipmentItem(const uint8& InventorySlot, const FSlotStructure& SlotStructure)
+{
+	// Are we Unequipping?
+	const uint8 NumberOfEntries = (uint8)EEquipmentSlot::Count;
+	if (InventorySlot < NumberOfEntries)
+	{
+		// Yes, we are Unequipping
+		uint8 Index = 0;
+		if (GetEmptyInventorySpace(Index))
+		{
+				Server_UnEquipFromInventory_Implementation(InventorySlot, Index);
+			return;	
+		}
+		UE_LOG(LogInventory, Warning, TEXT("NO FREE SPACE"))
+	}
+	else
+	{
+		EEquipmentSlot LocalEquipmentSlot = GetItemEquipmentSlot(SlotStructure);
+		uint8 Index = 0;
+		// Finds Empty Slot Of Type To Equip 
+		if( GetEmptyEquipmentSlotByType(LocalEquipmentSlot, Index) )
+		{
+			Server_EquipFromInventory_Implementation(InventorySlot, Index);
+		}else
+		{
+			const uint8 ToInventorySlot = GetEquipmentSlotByType(LocalEquipmentSlot);
+			Server_EquipFromInventory_Implementation(InventorySlot, ToInventorySlot);
+		}
+	}
+
+	//No, Find Empty Slot Of Type To Equip To
+	
+}
+bool UInventoryManagerComponent::GetEmptyInventorySpace(uint8& OutIndex)
+{
+	for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberOfSlots; Index++)
+	{
+		FSlotStructure Slot = Inventory[Index];
+		if (!ItemIsValid(Slot))
+		{
+			OutIndex = Index;
+			return true;
+		}
+	}
+	return false;
+}
+
+EEquipmentSlot UInventoryManagerComponent::GetItemEquipmentSlot(const FSlotStructure Item)
+{
+	return Item.ItemStructure.EquipmentSlot;
+}
+
+bool UInventoryManagerComponent::ItemIsValid(const FSlotStructure Item)
+{
+	if (Item.Amount > 0)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool UInventoryManagerComponent::GetEmptyEquipmentSlotByType(EEquipmentSlot EquipmentSlot, uint8& OutIndex)
+{
+	for (uint8 Index = 0; Index < (uint8)EEquipmentSlot::Count; Index++)
+	{
+		EEquipmentSlot LocalEquipSlot = GetEquipmentTypeBySlot(Index);
+		FSlotStructure LocalSlot = GetInventorySlot(Index);
+
+		// Is Same Type And Empty?
+		if (!ItemIsValid(LocalSlot) && EquipmentSlot == LocalEquipSlot)
+		{
+			OutIndex = Index;
+			return true;;
+		}
+	}
+	
+	return false;
+}
+
 void UInventoryManagerComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove,
-	bool& WasFullAmountRemoved, uint8& AmountRemoved)
+                                                      bool& WasFullAmountRemoved, uint8& AmountRemoved)
 {
 	if (AmountToRemove >= InventoryItem.Amount)
 	{
@@ -482,23 +565,34 @@ void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot
 		switch (InventorySlot)
 		{
 		case EEquipmentSlot::Weapon:
-			//CharacterReference->MainWeaponMesh = nullptr;
 			CharacterReference->Server_UpdateWeaponMesh(NewMesh);
 			break;
 		case EEquipmentSlot::Chest:
-			//CharacterReference->ChestMesh = nullptr;
 			CharacterReference->Server_UpdateChestMesh(NewMesh);
 			break;
 		case EEquipmentSlot::Feet:
-			//CharacterReference->UpdateFeetMesh(NewMesh);
+			CharacterReference->Server_UpdateFeetMesh(NewMesh);
 			break;
 		case EEquipmentSlot::Hands:
-			//CharacterReference->UpdateHandsMesh(NewMesh);
+			CharacterReference->Server_UpdateHandsMesh(NewMesh);
 			break;
 		default:
 			break;
 		}
 	}
+}
+
+uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot)
+{
+	for(uint8 Index = 0; Index < (uint8)EEquipmentSlot::Count; Index++)
+	{
+		EEquipmentSlot LocalSlotType = GetEquipmentTypeBySlot(Index);
+		if (EquipmentSlot == LocalSlotType)
+		{
+			return Index;
+		}
+	}
+	return 0;
 }
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)

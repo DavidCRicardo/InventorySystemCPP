@@ -44,6 +44,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* Chest;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* Feet;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* Hands;
 
 public:
 
@@ -77,6 +83,12 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainChestMesh", meta=(DisplayName="Main Chest Mesh", Category="Inventory|Equipment"))
 	USkeletalMesh* ChestMesh;
+
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainFeetMesh", meta=(DisplayName="Main Feet Mesh", Category="Inventory|Equipment"))
+	USkeletalMesh* FeetMesh;
+
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainHandsMesh", meta=(DisplayName="Main Hands Mesh", Category="Inventory|Equipment"))
+	USkeletalMesh* HandsMesh;
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_UpdateWeaponMesh(USkeletalMesh* NewMesh);
@@ -88,13 +100,28 @@ public:
 	bool Server_UpdateChestMesh_Validate(USkeletalMesh* NewMesh);
 	void Server_UpdateChestMesh_Implementation(USkeletalMesh* NewMesh);
 	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_UpdateFeetMesh(USkeletalMesh* NewMesh);
+	bool Server_UpdateFeetMesh_Validate(USkeletalMesh* NewMesh);
+	void Server_UpdateFeetMesh_Implementation(USkeletalMesh* NewMesh);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_UpdateHandsMesh(USkeletalMesh* NewMesh);
+	bool Server_UpdateHandsMesh_Validate(USkeletalMesh* NewMesh);
+	void Server_UpdateHandsMesh_Implementation(USkeletalMesh* NewMesh);
+	
 	UFUNCTION(meta=(OverrideNativeName="OnRep_MainWeaponMesh"))
 	void OnRep_MainWeaponMesh();
 
 	UFUNCTION(meta=(OverrideNativeName="OnRep_MainChestMesh"))
 	void OnRep_MainChestMesh();
 	
+	UFUNCTION(meta=(OverrideNativeName="OnRep_MainFeetMesh"))
+	void OnRep_MainFeetMesh();
 
+	UFUNCTION(meta=(OverrideNativeName="OnRep_MainHandsMesh"))
+	void OnRep_MainHandsMesh();
+	
 	/** The player's maximum health. This is the highest that their health can be, and the value that their health starts at when spawned.*/
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth;

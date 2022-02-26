@@ -51,28 +51,29 @@ AMyCharacter::AMyCharacter()
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
 
+	// Initialize the player's equipment
 	MainWeapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	MainWeapon->SetupAttachment(GetMesh());
 	
-	
 	Chest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest"));
 	Chest->SetupAttachment(GetMesh());
+
+	Hands = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hands"));
+	Hands->SetupAttachment(GetMesh());
+
+	Feet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
+	Feet->SetupAttachment(GetMesh());
 	
 	MainWeaponMesh = nullptr;
-	
 	ChestMesh = nullptr;
-
+	FeetMesh = nullptr;
+	HandsMesh = nullptr;
+	
 	//Initialize the player's Health
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
 	
-	/*MainHandMesh = CreateOptionalDefaultSubobject<USkeletalMeshComponent>(TEXT("MainHand"));
-	if (MainHandMesh)
-	{
-		MainHandMesh->SetupAttachment(GetMesh());
-	}*/
 
-	
  	/*// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -108,6 +109,8 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
+	DOREPLIFETIME(AMyCharacter, FeetMesh);
+	DOREPLIFETIME(AMyCharacter, HandsMesh);
 }
 
 void AMyCharacter::OnHealthUpdate()
@@ -169,11 +172,25 @@ void AMyCharacter::Tick(float DeltaTime)
 void AMyCharacter::Server_UpdateWeaponMesh_Implementation(USkeletalMesh* NewMesh)
 {
 	MainWeaponMesh = NewMesh;
+	OnRep_MainWeaponMesh();
 }
 
 void AMyCharacter::Server_UpdateChestMesh_Implementation(USkeletalMesh* NewMesh)
 {
 	ChestMesh = NewMesh;
+	OnRep_MainChestMesh();
+}
+
+void AMyCharacter::Server_UpdateFeetMesh_Implementation(USkeletalMesh* NewMesh)
+{
+	FeetMesh = NewMesh;
+	OnRep_MainFeetMesh();
+}
+
+void AMyCharacter::Server_UpdateHandsMesh_Implementation(USkeletalMesh* NewMesh)
+{
+	HandsMesh = NewMesh;
+	OnRep_MainHandsMesh();
 }
 
 bool AMyCharacter::Server_UpdateWeaponMesh_Validate(USkeletalMesh* NewMesh)
@@ -186,6 +203,17 @@ bool AMyCharacter::Server_UpdateChestMesh_Validate(USkeletalMesh* NewMesh)
 	return true;
 }
 
+bool AMyCharacter::Server_UpdateFeetMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+bool AMyCharacter::Server_UpdateHandsMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+
 /* OnRep Functions */
 void AMyCharacter::OnRep_MainWeaponMesh()
 {
@@ -197,6 +225,18 @@ void AMyCharacter::OnRep_MainChestMesh()
 {
 	Chest->SetSkeletalMesh(ChestMesh);
 	Chest->SetMasterPoseComponent(GetMesh());
+}
+
+void AMyCharacter::OnRep_MainFeetMesh()
+{
+	Feet->SetSkeletalMesh(FeetMesh);
+	Feet->SetMasterPoseComponent(GetMesh());
+}
+
+void AMyCharacter::OnRep_MainHandsMesh()
+{
+	Hands->SetSkeletalMesh(HandsMesh);
+	Hands->SetMasterPoseComponent(GetMesh());
 }
 /* End OnRep Functions */
 
@@ -243,7 +283,6 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleInventory", EKeys::I));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleMenu", EKeys::M));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Interact", EKeys::F));
-
 	}
 }
 
