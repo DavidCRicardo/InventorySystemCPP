@@ -3,12 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryComponent.h"
 #include "EquipmentComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TESTPROJECT_API UEquipmentComponent : public UInventoryComponent
+class TESTPROJECT_API UEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -23,10 +22,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	virtual void InitInventory(int32 NumberSlots) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 NumberOfEquipmentSlots;
 	
 };

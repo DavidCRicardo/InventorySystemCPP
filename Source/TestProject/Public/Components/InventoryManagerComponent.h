@@ -7,16 +7,16 @@
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
-#include "InventoryComponent.generated.h"
+#include "InventoryManagerComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TESTPROJECT_API UInventoryComponent : public UActorComponent
+class TESTPROJECT_API UInventoryManagerComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UInventoryComponent();
+	UInventoryManagerComponent();
 
 protected:
 	// Called when the game starts
@@ -32,7 +32,6 @@ public:
 	EItemType GetItemTypeBySlot(const uint8& ItemSlot);
 
 	
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfSlots;
 	

@@ -51,14 +51,15 @@ AMyCharacter::AMyCharacter()
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
 
-	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(GetMesh());
-	Weapon->SetIsReplicated(true);
+	MainWeapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	MainWeapon->SetupAttachment(GetMesh());
+	
 	
 	Chest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest"));
 	Chest->SetupAttachment(GetMesh());
 	
-	WeaponMesh = nullptr;
+	MainWeaponMesh = nullptr;
+	
 	ChestMesh = nullptr;
 
 	//Initialize the player's Health
@@ -105,11 +106,8 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	//Replicate current health.
 	DOREPLIFETIME(AMyCharacter, CurrentHealth);
 
-	DOREPLIFETIME(AMyCharacter, Weapon);
-	DOREPLIFETIME(AMyCharacter, WeaponMesh);
+	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
-	DOREPLIFETIME(AMyCharacter, MainFeetMesh);
-	DOREPLIFETIME(AMyCharacter, MainHandsMesh);
 }
 
 void AMyCharacter::OnHealthUpdate()
@@ -161,37 +159,38 @@ void AMyCharacter::BeginPlay()
 	
 }
 
-
-void AMyCharacter::SetWeaponMesh()
+// Called every frame
+void AMyCharacter::Tick(float DeltaTime)
 {
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("SetWeaponMesh")));
-
-	Weapon->SetSkeletalMesh(WeaponMesh);
-	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainWeapon");
+	Super::Tick(DeltaTime);
 }
 
-void AMyCharacter::UpdateMainWeaponMesh(USkeletalMesh* NewMesh)
+// Server Events
+void AMyCharacter::Server_UpdateWeaponMesh_Implementation(USkeletalMesh* NewMesh)
 {
-	WeaponMesh = NewMesh;
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("UpdateMainWeaponMesh")));
-
-	SetWeaponMesh();
-	
+	MainWeaponMesh = NewMesh;
 }
-void AMyCharacter::UpdateChestMesh(USkeletalMesh* NewMesh)
+
+void AMyCharacter::Server_UpdateChestMesh_Implementation(USkeletalMesh* NewMesh)
 {
 	ChestMesh = NewMesh;
-	
-	Chest->SetSkeletalMesh(ChestMesh);
-	Chest->SetMasterPoseComponent(GetMesh());
 }
 
+bool AMyCharacter::Server_UpdateWeaponMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+bool AMyCharacter::Server_UpdateChestMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+/* OnRep Functions */
 void AMyCharacter::OnRep_MainWeaponMesh()
 {
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("OnRep_MainWeaponMesh")));
-
-	Weapon->SetSkeletalMesh(WeaponMesh);
-	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainWeapon");
+	MainWeapon->SetSkeletalMesh(MainWeaponMesh);
+	MainWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainWeapon");
 }
 
 void AMyCharacter::OnRep_MainChestMesh()
@@ -199,23 +198,7 @@ void AMyCharacter::OnRep_MainChestMesh()
 	Chest->SetSkeletalMesh(ChestMesh);
 	Chest->SetMasterPoseComponent(GetMesh());
 }
-
-void AMyCharacter::OnRep_MainFeetMesh()
-{
-	
-}
-
-void AMyCharacter::OnRep_MainHandsMesh()
-{
-	
-}
-
-
-// Called every frame
-void AMyCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+/* End OnRep Functions */
 
 // Called to bind functionality to input
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

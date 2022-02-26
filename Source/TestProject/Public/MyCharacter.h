@@ -39,27 +39,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character")
 	class USphereComponent* InteractionField;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing=OnRep_MainWeaponMesh)
-	USkeletalMeshComponent* Weapon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* MainWeapon;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* Chest;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, NonTransactional, meta=(Category="Default", OverrideNativeName="MainFeet"))
-	USkeletalMeshComponent* MainFeet;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, NonTransactional, meta=(Category="Default", OverrideNativeName="MainHands"))
-	USkeletalMeshComponent* MainHands;
-	
-	UFUNCTION()
-	void SetWeaponMesh();
-	//UFUNCTION()
-	//void SetChestMesh();
-	/*UFUNCTION()
-	void SetFeetMesh();
-	UFUNCTION()
-	void SetHandsMesh();*/
-	
 public:
 
 	// Called every frame
@@ -87,35 +72,28 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UPROPERTY(BlueprintReadWrite, ReplicatedUsing=OnRep_MainWeaponMesh, meta=(DisplayName="Main Weapon Mesh", Category="Inventory|Equipment"))
-	USkeletalMesh* WeaponMesh;
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainWeaponMesh", meta=(DisplayName="Weapon Mesh", Category="Inventory|Equipment"))
+	USkeletalMesh* MainWeaponMesh;
 
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainChestMesh", meta=(DisplayName="Main Chest Mesh", Category="Inventory|Equipment"))
 	USkeletalMesh* ChestMesh;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, ReplicatedUsing="OnRep_MainFeetMesh", meta=(DisplayName="Main Feet Mesh", Category="Inventory|Equipment", OverrideNativeName="MainFeetMesh"))
-	USkeletalMesh* MainFeetMesh;
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_UpdateWeaponMesh(USkeletalMesh* NewMesh);
+	bool Server_UpdateWeaponMesh_Validate(USkeletalMesh* NewMesh);
+	void Server_UpdateWeaponMesh_Implementation(USkeletalMesh* NewMesh);
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, ReplicatedUsing="OnRep_MainHandsMesh", meta=(DisplayName="Main Hands Mesh", Category="Inventory|Equipment", OverrideNativeName="MainHandsMesh"))
-	USkeletalMesh* MainHandsMesh;
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_UpdateChestMesh(USkeletalMesh* NewMesh);
+	bool Server_UpdateChestMesh_Validate(USkeletalMesh* NewMesh);
+	void Server_UpdateChestMesh_Implementation(USkeletalMesh* NewMesh);
 	
-	UFUNCTION()
-	void UpdateMainWeaponMesh(USkeletalMesh* NewMesh);
-
-	UFUNCTION()
-	void UpdateChestMesh(USkeletalMesh* NewMesh);
-	
-	UFUNCTION()
+	UFUNCTION(meta=(OverrideNativeName="OnRep_MainWeaponMesh"))
 	void OnRep_MainWeaponMesh();
 
-	UFUNCTION()
+	UFUNCTION(meta=(OverrideNativeName="OnRep_MainChestMesh"))
 	void OnRep_MainChestMesh();
 	
-	UFUNCTION(meta=(OverrideNativeName="OnRep_MainFeetMesh"))
-	void OnRep_MainFeetMesh();
-	
-	UFUNCTION(meta=(OverrideNativeName="OnRep_MainHandsMesh"))
-	void OnRep_MainHandsMesh();
 
 	/** The player's maximum health. This is the highest that their health can be, and the value that their health starts at when spawned.*/
 	UPROPERTY(EditDefaultsOnly, Category = "Health")

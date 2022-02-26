@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "InventoryInterface.h"
 #include "Components/EquipmentComponent.h"
-#include "Components/InventoryComponent.h"
+#include "Components/InventoryManagerComponent.h"
 #include "MyPlayerController.generated.h"
 
 /**
@@ -29,10 +29,11 @@ public:
 	virtual void SetPawn(APawn* InPawn) override;
 
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
+	
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
-	UInventoryComponent* InventoryComponent;
+	UInventoryManagerComponent* InventoryComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* EquipmentComponent;
@@ -46,9 +47,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleMenu();
-
-	//UFUNCTION(BlueprintCallable, Category="Equipment")
-	//void EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot);
 	
 	UFUNCTION()
 	void RefreshWidgets();
@@ -58,11 +56,14 @@ protected:
 	
 	virtual void SetupInputComponent() override;
 
+	UPROPERTY(VisibleAnywhere, Category="Character")
+	AMyCharacter* CharacterReference;
+
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
 
 	void PrintInventory();
-	void PrintEquipment();
+	//void PrintEquipment();
 
 	UPROPERTY()
 	class AMyHUD* HUD_Reference;
