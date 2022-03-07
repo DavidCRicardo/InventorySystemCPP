@@ -3,6 +3,7 @@
 
 #include "MyPlayerController.h"
 #include "MyHUD.h"
+#include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
 
 AMyPlayerController::AMyPlayerController()
@@ -40,7 +41,6 @@ void AMyPlayerController::SetPawn(APawn* InPawn)
 	//Character_Reference = (InPawn ? Cast<AMyCharacter>(InPawn) : NULL);
 }
 
-
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
 	InventoryComponent->UseInventoryItem(InventorySlot);
@@ -73,6 +73,11 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 
 	InventoryComponent->Server_UnEquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
 	RefreshWidgets();
+}
+
+void AMyPlayerController::GetUsableActorFocus()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("GetUsableActorFocus being called"));
 }
 
 void AMyPlayerController::ToggleProfile()
@@ -119,12 +124,24 @@ void AMyPlayerController::ToggleMenu()
 
 void AMyPlayerController::Interact()
 {
-	if (InventoryComponent->AddItem(TEXT("Simple_Axe"), 1))
-	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	//if (InventoryComponent->AddItem(TEXT("Simple_Axe"), 1))
+	//{
+	//	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		//PrintEquipment();
+	//}
+
+	if (CharacterReference->UsableActorsInsideRange.Num() > 0)
+	{
+		AActor* Actor = CharacterReference->UsableActorsInsideRange[0];
+		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
+		{
+			InventoryComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+			
+			//CharacterReference->UsableActorsInsideRange.Remove(Actor);
+			GetWorld()->DestroyActor(WorldActor);
+		}
 	}
-	
 	// Warning: Item doesn't exists
 	// Warning: Not enough space on Inventory
 	

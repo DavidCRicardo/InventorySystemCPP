@@ -36,8 +36,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character")
 	float BaseLookUpRate;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
 	class USphereComponent* InteractionField;
+
+	UPROPERTY()
+	class AMyPlayerController* MyPlayerController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* MainWeapon;
@@ -52,7 +55,6 @@ protected:
 	USkeletalMeshComponent* Hands;
 
 public:
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -78,6 +80,9 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	TArray<AActor*> UsableActorsInsideRange;
+	
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainWeaponMesh", meta=(DisplayName="Weapon Mesh", Category="Inventory|Equipment"))
 	USkeletalMesh* MainWeaponMesh;
 
@@ -145,6 +150,13 @@ public:
 	/** Setter for Current Health. Clamps the value between 0 and MaxHealth and calls OnHealthUpdate. Should only be called on the server.*/
 	UFUNCTION(BlueprintCallable, Category="Health")
 	void SetCurrentHealth(float healthValue);
+
+	
+	UFUNCTION(BlueprintCallable)
+	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+	void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
 	/** Response to health being updated. Called on the server immediately after modification, and on clients in response to a RepNotify*/

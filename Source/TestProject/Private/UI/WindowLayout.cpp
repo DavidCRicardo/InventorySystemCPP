@@ -97,7 +97,7 @@ void UWindowLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoi
 	this->SetVisibility(ESlateVisibility::HitTestInvisible);
 	
 	DragDropOperation->WidgetReference = this;
-	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());;
+	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 
 	DragDropOperation->DefaultDragVisual = this;
 	DragDropOperation->Pivot = EDragPivot::MouseDown;

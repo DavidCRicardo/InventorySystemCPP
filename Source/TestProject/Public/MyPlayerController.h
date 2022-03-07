@@ -31,13 +31,15 @@ public:
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
 	
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class AMyHUD* HUD_Reference;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* EquipmentComponent;
-
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleProfile();
@@ -51,6 +53,11 @@ public:
 	UFUNCTION()
 	void RefreshWidgets();
 	
+	// UFUNCTION(Client)
+	// void Client_GetUsableActorFocus();
+	UFUNCTION()
+	void GetUsableActorFocus();
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -64,8 +71,5 @@ protected:
 
 	void PrintInventory();
 	//void PrintEquipment();
-
-	UPROPERTY()
-	class AMyHUD* HUD_Reference;
 	
 };

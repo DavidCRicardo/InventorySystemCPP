@@ -2,6 +2,11 @@
 
 
 #include "MyCharacter.h"
+
+#include "MyHUD.h"
+#include "MyPlayerController.h"
+#include "UsableActor.h"
+#include "UsableActorInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -11,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Net/UnrealNetwork.h"
+
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -46,11 +52,17 @@ AMyCharacter::AMyCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
 	
+
 	/**/
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
 
+	InteractionField->InitSphereRadius(150);
+	//InteractionField->InitCapsuleSize(150.f, 100.f);
+	InteractionField->SetCollisionProfileName(TEXT("CollisionTrigger"));
+	
 	// Initialize the player's equipment
 	MainWeapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	MainWeapon->SetupAttachment(GetMesh());
@@ -107,6 +119,8 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	//Replicate current health.
 	DOREPLIFETIME(AMyCharacter, CurrentHealth);
 
+	DOREPLIFETIME(AMyCharacter, UsableActorsInsideRange);
+	
 	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
 	DOREPLIFETIME(AMyCharacter, FeetMesh);
@@ -150,6 +164,66 @@ void AMyCharacter::SetCurrentHealth(float healthValue)
 	}
 }
 
+void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IsLocallyControlled() && OverlappedComp == InteractionField)
+	{
+		if (OtherActor && (OtherActor != this) && OtherComp)
+		{
+			// GetUsableActor
+			if (OtherActor->Implements<UUsableActorInterface>())
+			{
+				if (IsValid(OtherActor))
+				{
+					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
+					{
+						UsableActor->BeginOutlineFocus_Implementation();
+
+						if (!UsableActor->InteractUserWidget)
+						{
+							UsableActor->InteractUserWidget = MyPlayerController->HUD_Reference->GetInteractWidget();
+							UsableActor->InteractUserWidget->AddToViewport();
+						}
+						
+						// Set Interact Text
+						FText MessageText = UsableActor->GetUseActionText_Implementation();
+						UsableActor->SetInteractText(MessageText);
+
+						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+
+						SetActorTickEnabled(true);
+						UsableActorsInsideRange.Add(UsableActor);
+					}
+				}
+			}
+		}
+	}
+}
+
+void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (IsLocallyControlled() && OverlappedComp == InteractionField)
+	{
+		if (OtherActor && (OtherActor != this) && OtherComp)
+		{
+			bool bDoesImplementInterface = OtherActor->Implements<UUsableActorInterface>();
+			if (bDoesImplementInterface)
+			{
+				if (IsValid(OtherActor))
+				{
+					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
+					{
+						UsableActor->EndOutlineFocus_Implementation();
+						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+						
+						UsableActorsInsideRange.Remove(UsableActor);
+					}
+				}
+			}
+		}
+	}
+}
+
 void AMyCharacter::OnRep_CurrentHealth()
 {
 	OnHealthUpdate();
@@ -159,6 +233,12 @@ void AMyCharacter::OnRep_CurrentHealth()
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MyPlayerController = Cast<AMyPlayerController>(GetController());
+	
+	/* Overlap Events */
+	InteractionField->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnBeginOverlap);
+	InteractionField->OnComponentEndOverlap.AddDynamic(this, &AMyCharacter::OnEndOverlap);
 	
 }
 
@@ -166,6 +246,35 @@ void AMyCharacter::BeginPlay()
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (UsableActorsInsideRange.Num() == 0)
+	{
+		SetActorTickEnabled(false);
+		return;
+	}
+
+	for (AActor*& UsableActor : UsableActorsInsideRange)
+	{
+		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
+		{
+			FVector2D ScreenPosition = {};
+			//MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
+			//TempUsableActor->SetScreenPosition(ScreenPosition);
+			if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
+			{
+				if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)
+				{
+					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+				}
+				
+				TempUsableActor->SetScreenPosition(ScreenPosition);
+			
+			}else
+			{
+				TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
 }
 
 // Server Events

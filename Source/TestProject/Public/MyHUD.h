@@ -28,6 +28,9 @@ public:
 	void RefreshWidgetUILayout(ELayout Layout);
 
 	FWidgetsLayoutBP* GetWidgetBPClass(FName Name);
+	
+	UFUNCTION()
+	UUserWidget* GetInteractWidget();
 
 protected:
 	AMyHUD();
@@ -53,4 +56,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UUserWidget* ProfileLayout;
 	//class UProfileLayout* ProfileLayout;
+
+	UPROPERTY(EditAnywhere, Category = "Default")
+	UUserWidget* InteractTextWidget;
 };

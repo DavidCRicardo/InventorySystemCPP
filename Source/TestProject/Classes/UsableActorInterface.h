@@ -22,8 +22,11 @@ class TESTPROJECT_API IUsableActorInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	bool OnActorUsed(APlayerController* Controller);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Default")
+	FText GetUseActionText(); 
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Default")
+	bool GetIsActorUsable();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	bool BeginOutlineFocus();
@@ -31,9 +34,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	bool EndOutlineFocus();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	bool GetIsActorUsable();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Default")
+	bool OnActorUsed(APlayerController* Controller);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	FText GetUseActionText();
 };
