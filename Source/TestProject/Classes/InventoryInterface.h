@@ -29,6 +29,9 @@ public:
 	void UI_MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_DropInventoryItem(const uint8& InventorySlot);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_EquipInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")

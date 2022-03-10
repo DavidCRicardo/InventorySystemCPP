@@ -57,8 +57,16 @@ void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromI
 	}
 }
 
+void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& InventorySlot)
+{
+	IInventoryInterface::UI_DropInventoryItem_Implementation(InventorySlot);
+
+	InventoryComponent->Server_DropItemFromInventory_Implementation(InventorySlot);
+	RefreshWidgets();
+}
+
 void AMyPlayerController::UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot,
-	const uint8& ToInventorySlot)
+                                                               const uint8& ToInventorySlot)
 {
 	IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
 
@@ -124,12 +132,6 @@ void AMyPlayerController::ToggleMenu()
 
 void AMyPlayerController::Interact()
 {
-	//if (InventoryComponent->AddItem(TEXT("Simple_Axe"), 1))
-	//{
-	//	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		//PrintEquipment();
-	//}
-
 	if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 	{
 		AActor* Actor = CharacterReference->UsableActorsInsideRange[0];
@@ -138,14 +140,9 @@ void AMyPlayerController::Interact()
 			InventoryComponent->AddItem(WorldActor->ID, WorldActor->Amount);
 			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 			
-			//CharacterReference->UsableActorsInsideRange.Remove(Actor);
 			GetWorld()->DestroyActor(WorldActor);
 		}
 	}
-	// Warning: Item doesn't exists
-	// Warning: Not enough space on Inventory
-	
-	//PrintInventory();
 }
 
 void AMyPlayerController::RefreshWidgets()
@@ -176,19 +173,3 @@ void AMyPlayerController::PrintInventory()
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"), *a.ToString(), b, c));
 	}
 }
-
-/*void AMyPlayerController::PrintEquipment()
-{
-	for (int i = 0; i < EquipmentComponent->NumberOfEquipmentSlots; i++)
-	{
-		FText a = EquipmentComponent->Inventory[i].ItemStructure.Name;
-		uint8 b = EquipmentComponent->Inventory[i].Amount;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
-	}
-}*/
-
-/*void AMyPlayerController::EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
-	InventoryComponent->EquipFromInventory(FromInventorySlot, ToInventorySlot);
-}*/

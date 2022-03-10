@@ -4,20 +4,31 @@
 #include "UI/HUDLayout.h"
 #include "DragItem.h"
 #include "DragWidget.h"
+#include "MyPlayerController.h"
 
 bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnDrop HUDLayout"));
-
+	
 	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
 	if (!IsValid(DragWidgetResult))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("DragWidget Cast returned null."))
-
 		// Drop Dragged Inventory Item
-		//UE_LOG(LogTemp, Warning, TEXT("DragItem Cast returned successfully."))
+		UDragItem* DragItemResult = Cast<UDragItem>(InOperation);
+		if (!IsValid(DragItemResult))
+		{
+			return false;
+		}
+
+		if (DragItemResult->IsDraggedFromInventory)
+		{
+			if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwningPlayer()))
+			{
+				PC->UI_DropInventoryItem_Implementation(DragItemResult->DraggedSlotIndex);
+				
+				return true;
+			}
+		}
 		
 		return false;
 	} //Drop Dragged UI Window

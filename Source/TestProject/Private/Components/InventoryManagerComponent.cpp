@@ -3,6 +3,8 @@
 
 #include "Components/InventoryManagerComponent.h"
 
+#include "WorldActor.h"
+
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
 
 // Sets default values for this component's properties
@@ -331,6 +333,64 @@ bool UInventoryManagerComponent::UnEquipItem(const uint8& FromInventorySlot, con
 	return false;
 }
 
+void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
+{
+	FSlotStructure LocalSlot = GetInventorySlot(InventorySlot);
+	if (LocalSlot.ItemStructure.IsDroppable)
+	{
+		FTransform OutTransform {};
+		// Randomize Drop Location (&OutTransform)
+		if (APlayerController* PC =  Cast<APlayerController>(GetOwner()) )
+		{
+			// Drop at character feet
+			FVector LocalLocation {0.0f, 0.0f, -96.0f};
+			
+			FVector PawnLocation = PC->GetPawn()->GetActorLocation();
+
+			//Drop Distance Range From Character
+			const uint8 DropDistanceRange = FMath::RandRange(64, 96);
+			FVector LocationOnRange {(float)DropDistanceRange,0.0f,0.0f};
+
+			// Drop Items 360 Degrees Around Player
+			const uint8 DropItemsRotation = FMath::RandRange(0, 360); // -100 , 100
+			FRotator Rotation {0.0f, 0.0f, (float)DropItemsRotation};
+
+			FVector VectorRotated = Rotation.RotateVector(LocationOnRange);
+
+			FVector FinalLocation = PawnLocation + VectorRotated + LocalLocation;
+
+			// Give The Dropped Object A Random Rotation
+			const int8 RandomRotation = FMath::RandRange(-10, 10);
+
+			FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
+
+			FVector FinalScale {1.0f,1.0f,1.0f};
+
+			OutTransform = {FinalRotator, FinalLocation, FinalScale};
+		}
+		
+		// Spawn World Actor
+		UClass* ActorClass = LocalSlot.ItemStructure.Class;
+		AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(ActorClass, OutTransform);
+		if (WActor )
+		{
+			//PActor->ID = LocalSlot.ItemStructure.ID;
+			WActor->Amount = LocalSlot.Amount;
+		}
+
+		RemoveItem(InventorySlot);
+
+		// Are we dropping an equipped item?
+		if (InventorySlot < (uint8)EEquipmentSlot::Count)
+		{
+			UpdateEquippedMeshes(InventorySlot);
+		}
+	}else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("You cannot drop this..."))
+	}
+}
+
 bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 	if (FromInventorySlot != ToInventorySlot)
@@ -605,8 +665,18 @@ EItemType UInventoryManagerComponent::GetItemTypeBySlot(const uint8& ItemSlot)
 	return Inventory[ItemSlot].ItemStructure.ItemType;
 }
 
+bool UInventoryManagerComponent::Server_DropItemFromInventory_Validate(uint8 InventorySlot)
+{
+	return true;
+}
+
+void UInventoryManagerComponent::Server_DropItemFromInventory_Implementation(uint8 InventorySlot)
+{
+	DropItem(InventorySlot);
+}
+
 void UInventoryManagerComponent::Server_EquipFromInventory_Implementation(const uint8& FromInventorySlot,
-	const uint8& ToInventorySlot)
+                                                                          const uint8& ToInventorySlot)
 {
 	EquipItem(FromInventorySlot, ToInventorySlot);
 }
