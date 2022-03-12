@@ -28,6 +28,7 @@ void AMyPlayerController::BeginPlay()
 
 	CharacterReference = Cast<AMyCharacter>(GetPawn());
 	InventoryComponent->CharacterReference = CharacterReference;
+	InventoryComponent->ControllerReference = this;
 
 	HUD_Reference = Cast<AMyHUD>(GetHUD());
 }
@@ -44,6 +45,7 @@ void AMyPlayerController::SetPawn(APawn* InPawn)
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
 	InventoryComponent->UseInventoryItem(InventorySlot);
+	
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
 }
@@ -83,9 +85,22 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 	RefreshWidgets();
 }
 
-void AMyPlayerController::GetUsableActorFocus()
+void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("GetUsableActorFocus being called"));
+	OnActorUsed(Actor);
+}
+void AMyPlayerController::OnActorUsed(AActor* Actor)
+{
+	if (HasAuthority())
+	{
+		if (IsValid(Actor))
+		{
+			if(AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
+			{
+				WorldActor->OnActorUsed_Implementation(this);
+			}
+		}
+	}
 }
 
 void AMyPlayerController::ToggleProfile()
@@ -120,13 +135,13 @@ void AMyPlayerController::ToggleInventory()
 
 void AMyPlayerController::ToggleMenu()
 {
-	if(InventoryComponent->AddItem(TEXT("Simple_Armor"), 1))
+	if(InventoryComponent->AddItem(TEXT("Cardboard_Chest"), 1))
 	{
-		InventoryComponent->AddItem(TEXT("Simple_Boots"), 1);
-		InventoryComponent->AddItem(TEXT("Simple_Gloves"), 1);
+		InventoryComponent->AddItem(TEXT("Cardboard_Boots"), 1);
+		InventoryComponent->AddItem(TEXT("Cardboard_Gloves"), 1);
 		
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		//PrintInventory();
+		PrintInventory();
 	}
 }
 
@@ -137,11 +152,15 @@ void AMyPlayerController::Interact()
 		AActor* Actor = CharacterReference->UsableActorsInsideRange[0];
 		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
 		{
+
+			Server_OnActorUsed(Actor);
+
 			InventoryComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 			
-			GetWorld()->DestroyActor(WorldActor);
+			//GetWorld()->DestroyActor(WorldActor);
 		}
+		
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	}
 }
 

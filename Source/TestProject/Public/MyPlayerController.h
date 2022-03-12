@@ -53,11 +53,9 @@ public:
 	
 	UFUNCTION()
 	void RefreshWidgets();
-	
-	// UFUNCTION(Client)
-	// void Client_GetUsableActorFocus();
-	UFUNCTION()
-	void GetUsableActorFocus();
+
+	UFUNCTION(Server, Reliable)
+	void Server_OnActorUsed(AActor* Actor);
 
 protected:
 	virtual void BeginPlay() override;
@@ -70,7 +68,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
 
+	UFUNCTION()
 	void PrintInventory();
-	//void PrintEquipment();
 	
+	UFUNCTION()
+	void OnActorUsed(AActor* Actor);
 };

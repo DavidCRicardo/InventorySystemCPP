@@ -31,7 +31,9 @@ public:
 	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
-
+	
+	UPROPERTY(EditAnywhere, Category = "Default")
+	UUserWidget* InventoryLayout;
 protected:
 	AMyHUD();
 	
@@ -49,8 +51,7 @@ private:
 	UUserWidget* HUDReference;
 	// class UHUDLayout* HUDReference;
 
-	UPROPERTY(EditAnywhere, Category = "Default")
-	UUserWidget* InventoryLayout;
+	
 	// class UInventoryLayout* InventoryLayout;
 
 	UPROPERTY(EditAnywhere, Category = "Default")

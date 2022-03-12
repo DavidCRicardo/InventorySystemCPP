@@ -92,9 +92,9 @@ bool AUsableActor::OnActorUsed_Implementation(APlayerController* Controller)
 		}
 		return true;
 	}
-	else {
-		return false;
-	}
+	
+	return false;
+	
 
 	// return IUsableActorInterface::OnActorUsed_Implementation(Controller);
 }
@@ -136,11 +136,13 @@ void AUsableActor::SetScreenPosition(FVector2D ScreenPosition)
 	InteractUserWidget->SetPositionInViewport(ScreenPosition);
 }
 
-bool AUsableActor::OnWasUsed() {
+bool AUsableActor::OnWasUsed()	 {
 	
 	if (IsValid(UsedSound)) {
 		UGameplayStatics::PlaySoundAtLocation(this, UsedSound, GetActorLocation());
 	}
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("WasUsed being called"));
 
 	return true;
 }

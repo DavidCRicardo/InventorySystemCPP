@@ -100,7 +100,6 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 		{
 			InventoryWidget->RefreshWindow();
 		}
-		//InventoryLayout->RefreshWindow();
 	}
 	else if (Layout == ELayout::Equipment)
 	{
@@ -108,7 +107,6 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 		{
 			ProfileWidget->RefreshWindow();
 		}
-		// ProfileLayout->RefreshWindow();
 	}
 }
 

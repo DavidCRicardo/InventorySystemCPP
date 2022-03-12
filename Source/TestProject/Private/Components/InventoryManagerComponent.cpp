@@ -3,7 +3,10 @@
 
 #include "Components/InventoryManagerComponent.h"
 
+#include "MyHUD.h"
+#include "MyPlayerController.h"
 #include "WorldActor.h"
+#include "UI/InventoryLayout.h"
 
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
 
@@ -336,43 +339,49 @@ bool UInventoryManagerComponent::UnEquipItem(const uint8& FromInventorySlot, con
 void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 {
 	FSlotStructure LocalSlot = GetInventorySlot(InventorySlot);
+	UClass* LocalClass = LocalSlot.ItemStructure.Class;
+	
 	if (LocalSlot.ItemStructure.IsDroppable)
 	{
 		FTransform OutTransform {};
 		// Randomize Drop Location (&OutTransform)
-		if (APlayerController* PC =  Cast<APlayerController>(GetOwner()) )
+		APlayerController* PC =  Cast<APlayerController>(GetOwner());
+		if (!IsValid(PC))
 		{
+			return;
+		}
 			// Drop at character feet
-			FVector LocalLocation {0.0f, 0.0f, -96.0f};
+			FVector LocalLocation {0.0f, 0.0f, -98.0f};
 			
 			FVector PawnLocation = PC->GetPawn()->GetActorLocation();
 
 			//Drop Distance Range From Character
-			const uint8 DropDistanceRange = FMath::RandRange(64, 96);
-			FVector LocationOnRange {(float)DropDistanceRange,0.0f,0.0f};
+			//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
+			const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
+			FVector DistanceFromPawn {(float)DropDistanceRangeX,1.0f,1.0f};
 
 			// Drop Items 360 Degrees Around Player
-			const uint8 DropItemsRotation = FMath::RandRange(0, 360); // -100 , 100
-			FRotator Rotation {0.0f, 0.0f, (float)DropItemsRotation};
+			const float DropItemsRotation = FMath::FRandRange(-180, 180);
+			//FRotator Rotation {1.0f, DropItemsRotation, DropItemsRotation}; // Drop Around Player
+			FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
 
-			FVector VectorRotated = Rotation.RotateVector(LocationOnRange);
+			FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
 
-			FVector FinalLocation = PawnLocation + VectorRotated + LocalLocation;
+			FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated; 
 
 			// Give The Dropped Object A Random Rotation
-			const int8 RandomRotation = FMath::RandRange(-10, 10);
-
-			FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
+			// const int8 RandomRotation = FMath::RandRange(-10, 10);
+			// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
+			FRotator FinalRotator {1.0f, 1.0f, 1.0f};
 
 			FVector FinalScale {1.0f,1.0f,1.0f};
 
-			OutTransform = {FinalRotator, FinalLocation, FinalScale};
-		}
+			OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
+		
 		
 		// Spawn World Actor
-		UClass* ActorClass = LocalSlot.ItemStructure.Class;
-		AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(ActorClass, OutTransform);
-		if (WActor )
+		AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(LocalClass, OutTransform);
+		if (WActor)
 		{
 			//PActor->ID = LocalSlot.ItemStructure.ID;
 			WActor->Amount = LocalSlot.Amount;
@@ -597,11 +606,6 @@ void UInventoryManagerComponent::RemoveItem(const uint8& InventorySlot)
 {
 	// Clear Inventory Item
 	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
-
-
-	// Clear Inventory Slot Item UI
-	//RefreshInventoryUI();
-	//Inventory UI  - Inventory Slots .get(InventorySlot) = GetEmptySlot();
 }
 
 void UInventoryManagerComponent::ClearInventorySlot(const uint8& InventorySlot)
@@ -665,12 +669,7 @@ EItemType UInventoryManagerComponent::GetItemTypeBySlot(const uint8& ItemSlot)
 	return Inventory[ItemSlot].ItemStructure.ItemType;
 }
 
-bool UInventoryManagerComponent::Server_DropItemFromInventory_Validate(uint8 InventorySlot)
-{
-	return true;
-}
-
-void UInventoryManagerComponent::Server_DropItemFromInventory_Implementation(uint8 InventorySlot)
+void UInventoryManagerComponent::Server_DropItemFromInventory_Implementation(const uint8& InventorySlot)
 {
 	DropItem(InventorySlot);
 }

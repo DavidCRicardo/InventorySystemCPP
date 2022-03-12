@@ -3,6 +3,8 @@
 
 #include "WorldActor.h"
 
+#include "MyHUD.h"
+#include "MyPlayerController.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -59,6 +61,16 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnActorUsed_Implementation being called"));
 
+	if (HasAuthority())
+	{
+		//if (AMyPlayerController* PC = Cast<AMyPlayerController>(Controller) )
+		//{
+			//PC->InventoryComponent->AddItem(ID, Amount);
+
+			Destroy();
+		//}
+	}
+	
 	return Super::OnActorUsed_Implementation(Controller);
 }
 
