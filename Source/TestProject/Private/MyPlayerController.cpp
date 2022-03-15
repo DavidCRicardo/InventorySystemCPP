@@ -30,16 +30,20 @@ void AMyPlayerController::BeginPlay()
 	InventoryComponent->CharacterReference = CharacterReference;
 	InventoryComponent->ControllerReference = this;
 
+
+	InventoryComponent->Server_InitInventory(32);
+	
 	HUD_Reference = Cast<AMyHUD>(GetHUD());
-}
+	
+	if (AMyHUD* HUD_Reference2 = Cast<AMyHUD>(GetHUD()))
+	{
+		HUDLayoutReference = HUD_Reference2->HUDLayoutReference;
 
-void AMyPlayerController::SetPawn(APawn* InPawn)
-{
-	Super::SetPawn(InPawn);
-
-	//APawn* Pawn = GetPawn();
-	//Character_Reference = Cast<AMyCharacter>(GetPawn());
-	//Character_Reference = (InPawn ? Cast<AMyCharacter>(InPawn) : NULL);
+		if (HUD_Reference2 && HUDLayoutReference)
+		{
+			InventoryComponent->InitializeInventoryManagerUI(HUDLayoutReference->InventoryUI);
+		}
+	}
 }
 
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
@@ -98,6 +102,8 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 			if(AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
 			{
 				WorldActor->OnActorUsed_Implementation(this);
+
+				InventoryComponent->Server_RefreshInventorySlots();
 			}
 		}
 	}
@@ -152,18 +158,20 @@ void AMyPlayerController::Interact()
 		AActor* Actor = CharacterReference->UsableActorsInsideRange[0];
 		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
 		{
-
 			Server_OnActorUsed(Actor);
 
 			InventoryComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-			
+			//PrintInventory();
 			//GetWorld()->DestroyActor(WorldActor);
 		}
 		
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	}
 }
-
+UUserWidget* AMyPlayerController::GetInteractWidget()
+{
+	return HUD_Reference->GetInteractWidget();
+}
 void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);

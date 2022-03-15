@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MyCharacter.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
+#include "MyCharacter.h"
+#include "UI/InventoryLayout.h"
 #include "InventoryManagerComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -26,6 +27,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
+	void InitializeInventoryManagerUI(UInventoryLayout* Widget);
+
+	UFUNCTION(Server, Reliable)
+	void Server_InitInventory(uint8 InventorySize);
+	
 	UFUNCTION(Server, Reliable)
 	void Server_EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
@@ -48,8 +55,12 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSlotStructure> Inventory;
-	
 
+	UPROPERTY()
+	UInventoryLayout* InventoryUI;
+	UPROPERTY()
+	AMyCharacter* CharacterReference;
+	
 	virtual void InitInventory(int32 NumberSlots = 32);
 	
 	UFUNCTION()
@@ -67,6 +78,9 @@ public:
 	FSlotStructure GetItemFromItemDB(FName Name);
 
 	UFUNCTION()
+	void UseInventoryItem(const uint8& InventorySlot);
+	
+	UFUNCTION()
 	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UFUNCTION()
@@ -74,16 +88,29 @@ public:
 
 	UFUNCTION()
 	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
-
-	UFUNCTION()
-	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
-	UFUNCTION()
-	void UseInventoryItem(const uint8& InventorySlot);
+	UFUNCTION(Client, Reliable)
+	void SetInventorySlotItem(uint32 InventorySlot, FSlotStructure SlotInformation);
 
-	UPROPERTY()
-	AMyCharacter* CharacterReference;
+	UFUNCTION(Client, Reliable)
+	void Client_ClearAllInventorySlots();
+	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	void ClearAllInventorySlots();
+	
+	UFUNCTION(Client, Reliable)
+	void Client_ClearInventorySlot(const uint8& InventorySlot);
+	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	void ClearInventorySlot(const uint8& InventorySlot);
 
+	UFUNCTION(Client, Reliable)
+	void Client_SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+
+	UFUNCTION(Server, Reliable)
+	void Server_RefreshInventorySlots();
+	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	void RefreshInventorySlots();
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
@@ -115,10 +142,6 @@ private:
 
 	UFUNCTION()
 	void RemoveItem(const uint8& InventorySlot);
-	void ClearInventorySlot(const uint8& InventorySlot);
-
-
-	
 	UFUNCTION()
 	bool EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	

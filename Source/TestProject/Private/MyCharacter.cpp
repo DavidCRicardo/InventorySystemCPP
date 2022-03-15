@@ -3,10 +3,10 @@
 
 #include "MyCharacter.h"
 
-#include "MyHUD.h"
 #include "MyPlayerController.h"
 #include "UsableActor.h"
 #include "UsableActorInterface.h"
+#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -53,7 +53,8 @@ AMyCharacter::AMyCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
-	
+	/**/
+	MyPlayerController = Cast<AMyPlayerController>(GetOwner());
 
 	/**/
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
@@ -171,7 +172,8 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 		if (OtherActor && (OtherActor != this) && OtherComp)
 		{
 			// GetUsableActor
-			if (OtherActor->Implements<UUsableActorInterface>())
+			bool bDoesImplementInterface = OtherActor->Implements<UUsableActorInterface>();
+			if (bDoesImplementInterface)
 			{
 				if (IsValid(OtherActor))
 				{
@@ -181,7 +183,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 
 						if (!UsableActor->InteractUserWidget)
 						{
-							UsableActor->InteractUserWidget = MyPlayerController->HUD_Reference->GetInteractWidget();
+							UsableActor->InteractUserWidget = MyPlayerController->GetInteractWidget();
 							UsableActor->InteractUserWidget->AddToViewport();
 						}
 						
@@ -193,6 +195,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 
 						SetActorTickEnabled(true);
 						UsableActorsInsideRange.Add(UsableActor);
+						
 					}
 				}
 			}
@@ -258,8 +261,8 @@ void AMyCharacter::Tick(float DeltaTime)
 		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
 		{
 			FVector2D ScreenPosition = {};
-			//MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
-			//TempUsableActor->SetScreenPosition(ScreenPosition);
+			MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
+			TempUsableActor->SetScreenPosition(ScreenPosition);
 			if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
 			{
 				if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)

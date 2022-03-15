@@ -2,9 +2,7 @@
 
 
 #include "Components/InventoryManagerComponent.h"
-
 #include "MyHUD.h"
-#include "MyPlayerController.h"
 #include "WorldActor.h"
 #include "UI/InventoryLayout.h"
 
@@ -16,6 +14,8 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	
+	SetIsReplicated(true);
 	
 	// Get ItemDB 
 	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
@@ -45,6 +45,25 @@ void UInventoryManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UInventoryManagerComponent::Server_InitInventory_Implementation(uint8 InventorySize)
+{
+	
+}
+
+
+void UInventoryManagerComponent::InitializeInventoryManagerUI(UInventoryLayout* Widget)
+{
+	InventoryUI = Widget;
+}
+
+void UInventoryManagerComponent::SetInventorySlotItem_Implementation(uint32 InventorySlot, FSlotStructure SlotInformation)
+{
+	USlotLayout* a = InventoryUI->InventorySlotsArray[InventorySlot];
+	a->SlotStructure = SlotInformation;
+	
+	a->UpdateSlot(SlotInformation);
 }
 
 /* Initializes the Inventory Array to a Specified Size */
@@ -224,8 +243,6 @@ FReturnTupleBoolInt UInventoryManagerComponent::HasPartialStack(const FSlotStruc
 	}
 	return {false, 0};
 }
-
-
 
 bool UInventoryManagerComponent::EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
@@ -415,11 +432,6 @@ bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlo
 	return false;
 }
 
-void UInventoryManagerComponent::SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
-{
-	Inventory[InventorySlot] = ContentToAdd;
-}
-
 FSlotStructure UInventoryManagerComponent::GetInventorySlot(const uint8& InventorySlot)
 {
 	if (Inventory[InventorySlot].Amount > 0)
@@ -504,7 +516,6 @@ void UInventoryManagerComponent::UseConsumableItem(const uint8& InventorySlot, F
 		Inventory[InventorySlot] = InventoryItem;
 	}
 }
-
 
 void UInventoryManagerComponent::UseEquipmentItem(const uint8& InventorySlot, const FSlotStructure& SlotStructure)
 {
@@ -606,11 +617,72 @@ void UInventoryManagerComponent::RemoveItem(const uint8& InventorySlot)
 {
 	// Clear Inventory Item
 	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+
+	if (InventoryUI)
+	{
+		Client_ClearInventorySlot(InventorySlot);
+	}
 }
 
+void UInventoryManagerComponent::Client_SetInventorySlot_Implementation(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
+{
+	SetInventorySlot(ContentToAdd, InventorySlot);
+}
+void UInventoryManagerComponent::SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
+{
+	Inventory[InventorySlot] = ContentToAdd;
+
+	if (InventoryUI)
+	{
+		USlotLayout* LocalSlot = InventoryUI->InventorySlotsArray[InventorySlot];
+		LocalSlot->SlotStructure = ContentToAdd;
+
+		Client_SetInventorySlot(ContentToAdd, InventorySlot);
+	}
+}
+
+void UInventoryManagerComponent::Client_ClearInventorySlot_Implementation(const uint8& InventorySlot)
+{
+	ClearInventorySlot(InventorySlot);
+}
 void UInventoryManagerComponent::ClearInventorySlot(const uint8& InventorySlot)
 {
 	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+
+	USlotLayout* LocalSlot = InventoryUI->InventorySlotsArray[InventorySlot];
+	LocalSlot->SlotStructure = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+}
+
+void UInventoryManagerComponent::Client_ClearAllInventorySlots_Implementation()
+{
+	ClearAllInventorySlots();
+}
+void UInventoryManagerComponent::ClearAllInventorySlots()
+{
+	for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberOfSlots; Index++)
+	{
+		USlotLayout* LocalSlot = InventoryUI->InventorySlotsArray[Index];
+		LocalSlot->SlotStructure =  GetEmptySlot(GetEquipmentTypeBySlot(Index));
+	}
+}
+
+void UInventoryManagerComponent::Server_RefreshInventorySlots_Implementation()
+{
+	RefreshInventorySlots();
+}
+
+void UInventoryManagerComponent::RefreshInventorySlots()
+{
+	Client_ClearAllInventorySlots();
+	
+	for(uint8 i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
+	{
+		FSlotStructure LocalSlot = Inventory[i];
+		if(LocalSlot.Amount > 0)
+		{
+			SetInventorySlotItem(i, LocalSlot);
+		}
+	}
 }
 
 void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot)

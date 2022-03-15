@@ -5,6 +5,7 @@
 #include "DragItem.h"
 #include "MyHUD.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "MyPlayerController.h"
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"

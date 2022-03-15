@@ -6,6 +6,7 @@
 #include "FWidgetsLayoutBP.h"
 #include "GameFramework/HUD.h"
 #include "UI/ELayout.h"
+#include "UI/HUDLayout.h"
 #include "MyHUD.generated.h"
 
 class UDataTable;
@@ -34,6 +35,10 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UUserWidget* InventoryLayout;
+
+	UPROPERTY(EditAnywhere, Category = "Default")
+	UHUDLayout* HUDLayoutReference;
+
 protected:
 	AMyHUD();
 	

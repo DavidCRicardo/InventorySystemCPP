@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "MyPlayerController.h"
+//#include "MyPlayerController.h"
 #include "WindowLayout.generated.h"
 
+class MyPlayerController;
 /**
  * 
  */

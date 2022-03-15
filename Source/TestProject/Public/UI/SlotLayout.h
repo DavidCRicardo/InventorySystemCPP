@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "ItemDragVisual.h"
-#include "MyPlayerController.h"
+//#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Inventory/FSlotStructure.h"
 #include "SlotLayout.generated.h"
+
+class AMyPlayerController;
 
 DECLARE_LOG_CATEGORY_CLASS(LogSlotLayout, Verbose, Verbose);
 

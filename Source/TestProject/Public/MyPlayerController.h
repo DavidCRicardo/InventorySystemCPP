@@ -27,14 +27,15 @@ public:
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	/* Ends Interface */
 	
-	virtual void SetPawn(APawn* InPawn) override;
-
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
 	
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AMyHUD* HUD_Reference;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UHUDLayout* HUDLayoutReference;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryComponent;
@@ -57,6 +58,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_OnActorUsed(AActor* Actor);
 
+	UFUNCTION()
+	UUserWidget* GetInteractWidget();
 protected:
 	virtual void BeginPlay() override;
 	
@@ -67,6 +70,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
+
 
 	UFUNCTION()
 	void PrintInventory();

@@ -4,7 +4,6 @@
 #include "UI/HUDLayout.h"
 #include "DragItem.h"
 #include "DragWidget.h"
-#include "MyPlayerController.h"
 
 bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
@@ -22,6 +21,7 @@ bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent&
 
 		if (DragItemResult->IsDraggedFromInventory)
 		{
+			
 			if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwningPlayer()))
 			{
 				PC->UI_DropInventoryItem_Implementation(DragItemResult->DraggedSlotIndex);
