@@ -3,8 +3,11 @@
 
 #include "Components/InventoryManagerComponent.h"
 #include "MyHUD.h"
+#include "MyPlayerController.h"
 #include "WorldActor.h"
+#include "Components/UniformGridPanel.h"
 #include "UI/InventoryLayout.h"
+#include "Net/UnrealNetwork.h"
 
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
 
@@ -35,6 +38,8 @@ void UInventoryManagerComponent::BeginPlay()
 	// NumberOfSlots = 28;// + (uint8)EEquipmentSlot::Count;
 	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count;
 	
+	InventorySize = NumberOfSlots;
+
 	InitInventory(NumberOfSlots);
 }
 
@@ -47,20 +52,111 @@ void UInventoryManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
-void UInventoryManagerComponent::Server_InitInventory_Implementation(uint8 InventorySize)
+void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UInventoryManagerComponent, InventorySize);
+}
+
+void UInventoryManagerComponent::InitializeInventoryManager(UEquipmentComponent* PlayerInventory_Param)
+{
+	PlayerInventory = PlayerInventory_Param;
+}
+
+void UInventoryManagerComponent::Client_AddItem_Implementation(FName ID, uint8 Amount)
+{
+	AddItem(ID, Amount);
+}
+
+void UInventoryManagerComponent::Server_InitInventory_Implementation()
+{
+	PlayerInventory->Server_InitInventory(InventorySize);
 }
 
 
-void UInventoryManagerComponent::InitializeInventoryManagerUI(UInventoryLayout* Widget)
+void UInventoryManagerComponent::InitializeInventoryManagerUI(UMainLayout* Widget)
 {
 	InventoryUI = Widget;
 }
 
-void UInventoryManagerComponent::SetInventorySlotItem_Implementation(uint32 InventorySlot, FSlotStructure SlotInformation)
+void UInventoryManagerComponent::Client_LoadInventory_Implementation()
 {
-	USlotLayout* a = InventoryUI->InventorySlotsArray[InventorySlot];
+	LoadInventory();
+}
+
+void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* PlayerInventory2,
+	FSlotStructure& InventoryItem)
+{
+	UInventoryComponent* LocalInventory = PlayerInventory2;
+	FSlotStructure LocalInventoryItem = InventoryItem;
+
+	uint8 LocalItemAmount = LocalInventoryItem.Amount;
+	FGuid LocalItemID = LocalInventoryItem.ItemStructure.ID;
+	// if (IsCurrency?)
+	// {
+	//		return;
+	// }
+
+
+	if (LocalInventoryItem.ItemStructure.IsStackable)
+	{
+		//AddItem
+	}
+	//AddItem(LocalInventoryItem.ItemStructure.ID, LocalInventoryItem.Amount);
+	AddItemToInventory(LocalInventoryItem);
+}
+
+void UInventoryManagerComponent::TryToAddItemToInventory2(UInventoryComponent* PlayerInventory_Value, FName& NameItem)
+{
+	UInventoryComponent* LocalInventory = PlayerInventory_Value;
+
+	// if (IsCurrency?)
+	// {
+	//		return;
+	// }
+
+	AddItem(NameItem, 1);
+}
+
+void UInventoryManagerComponent::LoadInventory()
+{
+	if (IsValid(InventoryUI) && IsValid(InventoryUI->Inventory))
+	{
+		InventoryUI->Inventory->InventoryGridPanel->ClearChildren();
+	}
+
+	const uint8 SlotsPerRow = 4;
+	//CreateInventorySlots(InventorySize, SlotsPerRow);
+
+	Server_RefreshInventorySlots();
+}
+/*void UInventoryManagerComponent::CreateInventorySlots(const uint8& Size, const uint8& SlotPerRows)
+{
+	if (Size > 0)
+	{
+		const uint8 LocalInventorySize = Size;
+		const uint8 LocalMaxRowSize = SlotPerRows;
+		const uint8 LocalSlotNumber = (uint8)EEquipmentSlot::Count;
+
+		uint8 LocalLoopCount = 0;
+		uint8 LocalLastIndex = FMath::CeilToInt(LocalInventorySize / LocalMaxRowSize) - 1;
+		LocalLastIndex = FMath::Max(LocalInventorySize, LocalLoopCount);
+
+		// ...
+
+		// Our Inventory Is Already Created By Default... (On Specific Profile Or Inventory Class)
+	}
+}*/
+
+void UInventoryManagerComponent::Client_SetInventorySlotItem_Implementation(uint32 InventorySlot, FSlotStructure SlotInformation)
+{
+	SetInventorySlot(SlotInformation, InventorySlot);
+}
+
+void UInventoryManagerComponent::SetInventorySlotItem(uint32 InventorySlot, FSlotStructure SlotInformation)
+{
+	USlotLayout* a = InventoryUI->Inventory->InventorySlotsArray[InventorySlot];
 	a->SlotStructure = SlotInformation;
 	
 	a->UpdateSlot(SlotInformation);
@@ -266,6 +362,8 @@ bool UInventoryManagerComponent::EquipItem(const uint8& FromInventorySlot, const
 			const FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
 			const FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
 
+			//Client_SetInventorySlot(LocalSlot, ToInventorySlot);
+			//Client_SetInventorySlot(SwapSlot, FromInventorySlot);
 			SetInventorySlot(LocalSlot, ToInventorySlot);
 			SetInventorySlot(SwapSlot, FromInventorySlot);
 			/*
@@ -360,40 +458,52 @@ void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 	
 	if (LocalSlot.ItemStructure.IsDroppable)
 	{
-		FTransform OutTransform {};
 		// Randomize Drop Location (&OutTransform)
 		APlayerController* PC =  Cast<APlayerController>(GetOwner());
 		if (!IsValid(PC))
 		{
 			return;
 		}
+
+		AMyPlayerController* PC2 =  Cast<AMyPlayerController>(GetOwner());
+		if (IsValid(PC2))
+		{
+			PC2->Server_OnActorDropped(LocalSlot);
+		}
+		
+		if (IsValid(ControllerReference))
+		{
+			ControllerReference->Server_OnActorDropped_Implementation(LocalSlot);
+		}
+		/*
 			// Drop at character feet
-			FVector LocalLocation {0.0f, 0.0f, -98.0f};
+		FVector LocalLocation {0.0f, 0.0f, -98.0f};
 			
-			FVector PawnLocation = PC->GetPawn()->GetActorLocation();
+		FVector PawnLocation = PC->GetPawn()->GetActorLocation();
 
 			//Drop Distance Range From Character
 			//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
-			const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
-			FVector DistanceFromPawn {(float)DropDistanceRangeX,1.0f,1.0f};
+		const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
+		FVector DistanceFromPawn {(float)DropDistanceRangeX,1.0f,1.0f};
 
 			// Drop Items 360 Degrees Around Player
-			const float DropItemsRotation = FMath::FRandRange(-180, 180);
+		const float DropItemsRotation = FMath::FRandRange(-180, 180);
 			//FRotator Rotation {1.0f, DropItemsRotation, DropItemsRotation}; // Drop Around Player
-			FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
+		FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
 
-			FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
+		FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
 
-			FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated; 
+		FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated; 
 
 			// Give The Dropped Object A Random Rotation
 			// const int8 RandomRotation = FMath::RandRange(-10, 10);
 			// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
-			FRotator FinalRotator {1.0f, 1.0f, 1.0f};
+		FRotator FinalRotator {1.0f, 1.0f, 1.0f};
 
-			FVector FinalScale {1.0f,1.0f,1.0f};
-
-			OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
+		FVector FinalScale {1.0f,1.0f,1.0f};
+		
+		FTransform OutTransform {};
+		OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
 		
 		
 		// Spawn World Actor
@@ -403,7 +513,7 @@ void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 			//PActor->ID = LocalSlot.ItemStructure.ID;
 			WActor->Amount = LocalSlot.Amount;
 		}
-
+	*/
 		RemoveItem(InventorySlot);
 
 		// Are we dropping an equipped item?
@@ -634,10 +744,8 @@ void UInventoryManagerComponent::SetInventorySlot(const FSlotStructure& ContentT
 
 	if (InventoryUI)
 	{
-		USlotLayout* LocalSlot = InventoryUI->InventorySlotsArray[InventorySlot];
+		USlotLayout* LocalSlot = InventoryUI->Inventory->InventorySlotsArray[InventorySlot];
 		LocalSlot->SlotStructure = ContentToAdd;
-
-		Client_SetInventorySlot(ContentToAdd, InventorySlot);
 	}
 }
 
@@ -649,7 +757,7 @@ void UInventoryManagerComponent::ClearInventorySlot(const uint8& InventorySlot)
 {
 	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
 
-	USlotLayout* LocalSlot = InventoryUI->InventorySlotsArray[InventorySlot];
+	USlotLayout* LocalSlot = InventoryUI->Inventory->InventorySlotsArray[InventorySlot];
 	LocalSlot->SlotStructure = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
 }
 
@@ -659,11 +767,26 @@ void UInventoryManagerComponent::Client_ClearAllInventorySlots_Implementation()
 }
 void UInventoryManagerComponent::ClearAllInventorySlots()
 {
-	for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberOfSlots; Index++)
+	if (IsValid(InventoryUI))
 	{
-		USlotLayout* LocalSlot = InventoryUI->InventorySlotsArray[Index];
-		LocalSlot->SlotStructure =  GetEmptySlot(GetEquipmentTypeBySlot(Index));
+		uint8 Index = 0;
+		for(FSlotStructure& Slot : InventoryUI->InventorySlots)
+		{
+			Slot = GetEmptySlot(GetEquipmentTypeBySlot(Index));
+			Index++;
+		}
 	}
+
+	//TArray<FSlotStructure*>  __Local__121 = {};
+	//bpfv__CallFunc_Array_Length_ReturnValue__pf = FCustomThunkTemplates::Array_Length(((::IsValid(InventoryUI)) ? (InventoryUI->InventorySlots) : (__Local__121)));
+				
+	
+	
+	/*for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberOfSlots; Index++)
+	{
+		USlotLayout* LocalSlot = InventoryUI->Inventory->InventorySlotsArray[Index];
+		LocalSlot->SlotStructure =  GetEmptySlot(GetEquipmentTypeBySlot(Index));
+	}*/
 }
 
 void UInventoryManagerComponent::Server_RefreshInventorySlots_Implementation()
@@ -673,7 +796,13 @@ void UInventoryManagerComponent::Server_RefreshInventorySlots_Implementation()
 
 void UInventoryManagerComponent::RefreshInventorySlots()
 {
+	TArray<FSlotStructure> InventoryItems {};
 	Client_ClearAllInventorySlots();
+
+	if(IsValid(PlayerInventory))
+	{
+		PlayerInventory->GetInventoryItems(/*out*/ InventoryItems);
+	}
 	
 	for(uint8 i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
 	{

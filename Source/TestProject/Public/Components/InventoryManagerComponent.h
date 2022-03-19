@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EquipmentComponent.h"
+#include "InventoryComponent.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
 #include "MyCharacter.h"
-#include "UI/InventoryLayout.h"
+#include "UI/MainLayout.h"
 #include "InventoryManagerComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -19,6 +21,9 @@ public:
 	// Sets default values for this component's properties
 	UInventoryManagerComponent();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -28,10 +33,33 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void InitializeInventoryManagerUI(UInventoryLayout* Widget);
+	void InitializeInventoryManagerUI(UMainLayout* Widget);
 
+	UFUNCTION() //EquipmentInventoryComponent
+	void InitializeInventoryManager(UEquipmentComponent* PlayerInventory_Param);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_LoadInventory();
+
+	UFUNCTION()
+	void TryToAddItemToInventory(UInventoryComponent* PlayerInventory2, FSlotStructure& InventoryItem);
+	UFUNCTION()
+	void TryToAddItemToInventory2(UInventoryComponent* PlayerInventory_Value, FName& NameItem);
+
+	UFUNCTION(Client, Reliable)
+	void Client_AddItem(FName ID, uint8 Amount);
+
+private:
+	// Client Only: Inventory UI Events
+	UFUNCTION(Category= "UserInterface|Private|Inventory")
+	void LoadInventory();
+
+	//UFUNCTION(Category= "UserInterface|Private|Inventory")
+	//void CreateInventorySlots(const uint8& Size, const uint8& SlotPerRows);
+	
+public:
 	UFUNCTION(Server, Reliable)
-	void Server_InitInventory(uint8 InventorySize);
+	void Server_InitInventory();
 	
 	UFUNCTION(Server, Reliable)
 	void Server_EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
@@ -44,6 +72,9 @@ public:
 	
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Player Inventory", Category="Default", OverrideNativeName="PlayerInventory"))
+	UInventoryComponent* PlayerInventory;
 	
 	UFUNCTION()
 	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
@@ -53,11 +84,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 NumberOfSlots;
 	
+	UPROPERTY(Replicated)
+	uint8 InventorySize;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSlotStructure> Inventory;
 
 	UPROPERTY()
-	UInventoryLayout* InventoryUI;
+	UMainLayout* InventoryUI;
 	UPROPERTY()
 	AMyCharacter* CharacterReference;
 	
@@ -88,8 +122,10 @@ public:
 
 	UFUNCTION()
 	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
-	
+
 	UFUNCTION(Client, Reliable)
+	void Client_SetInventorySlotItem(uint32 InventorySlot, FSlotStructure SlotInformation);
+	UFUNCTION()
 	void SetInventorySlotItem(uint32 InventorySlot, FSlotStructure SlotInformation);
 
 	UFUNCTION(Client, Reliable)

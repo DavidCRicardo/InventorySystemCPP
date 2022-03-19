@@ -4,6 +4,7 @@
 #include "UI/InventoryLayout.h"
 #include "UI/SlotLayout.h"
 #include "MyHUD.h"
+#include "MyPlayerController.h"
 #include "Components/UniformGridPanel.h"
 
 UInventoryLayout::UInventoryLayout()
@@ -25,6 +26,8 @@ void UInventoryLayout::NativeConstruct()
 	NumberOfRows = 7;
 	NumberOfColumns = 4;
 	/**/
+
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	
 	if (!IsValid(PlayerController))
 	{
@@ -68,7 +71,7 @@ void UInventoryLayout::CreateChildWidgets()
 
 void UInventoryLayout::SetIndexToChilds(uint8& IndexStart)
 {
-	const FSlotStructure SlotStructure = PlayerController->InventoryComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+	const FSlotStructure SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 	
 	for(int i = 0; i < InventorySlotsArray.Num(); i++)
 	{
@@ -87,20 +90,20 @@ void UInventoryLayout::ToggleWindow()
 
 void UInventoryLayout::RefreshWindow()
 {
-	const uint8 InventoryLimit = PlayerController->InventoryComponent->NumberOfSlots;
+	const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->NumberOfSlots;
 
 	FSlotStructure CurrentSlot = {};
 	FSlotStructure EmptySlot = {};
-	EmptySlot = PlayerController->InventoryComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 
 	// for(int i = 0; i < InventoryLimit; i++)
 	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit; i++)
 	{
-		CurrentSlot = PlayerController->InventoryComponent->GetInventorySlot(i);
+		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
 		
 		/* Update Empty Slot */
 		if(CurrentSlot.Amount <= 0){
-			PlayerController->InventoryComponent->SetInventorySlot(EmptySlot, i);
+			PlayerController->InventoryManagerComponent->SetInventorySlot(EmptySlot, i);
 			CurrentSlot = EmptySlot;
 		}
 

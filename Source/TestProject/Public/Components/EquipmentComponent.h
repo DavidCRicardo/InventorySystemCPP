@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryComponent.h"
+#include "MyCharacter.h"
 #include "EquipmentComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TESTPROJECT_API UEquipmentComponent : public UActorComponent
+class TESTPROJECT_API UEquipmentComponent : public UInventoryComponent
 {
 	GENERATED_BODY()
 
@@ -22,5 +24,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
+	UPROPERTY()
+	AMyCharacter* EquipmentCharacterReference;
+	// EquipmentCharacter
 };

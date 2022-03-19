@@ -3,6 +3,7 @@
 
 #include "UI/ProfileLayout.h"
 #include "MyHUD.h"
+#include "MyPlayerController.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
 
@@ -23,7 +24,9 @@ void UProfileLayout::NativeConstruct()
 
 	NumberOfColumns = 2;
 	NumberOfRows = 2;
-	
+
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+
 	CreateChildWidgets();
 	InitializeSlots();
 }
@@ -85,7 +88,7 @@ void UProfileLayout::RefreshWindow()
 	
 	for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
 	{
-		CurrentSlot = PlayerController->InventoryComponent->GetInventorySlot(i);
+		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
 
 		/* Update Empty Slot */
 		if(CurrentSlot.Amount <= 0){
@@ -93,19 +96,19 @@ void UProfileLayout::RefreshWindow()
 			//CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
 			if (i == 0)
 			{
-				EmptySlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Weapon");
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
 			}else if(i == 1)
 			{
-				EmptySlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Chest");
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
 			}else if(i == 2)
 			{
-				EmptySlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Feet");
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
 			}else if(i == 3)
 			{
-				EmptySlot = PlayerController->InventoryComponent->GetItemFromItemDB("No_Hands");
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
 			}
 			CurrentSlot = EmptySlot;
-			PlayerController->InventoryComponent->SetInventorySlot(CurrentSlot, i);
+			PlayerController->InventoryManagerComponent->SetInventorySlot(CurrentSlot, i);
 		}
 	
 		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);

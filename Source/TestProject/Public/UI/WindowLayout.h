@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-//#include "MyPlayerController.h"
 #include "WindowLayout.generated.h"
 
-class MyPlayerController;
 /**
  * 
  */
@@ -38,9 +36,6 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* QuitButton;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	AMyPlayerController* PlayerController;
 	
 	virtual void SetTitleToWindow(FString Title = FString("WINDOW"));
 	

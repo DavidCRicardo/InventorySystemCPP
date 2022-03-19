@@ -2,8 +2,15 @@
 
 
 #include "UI/HUDLayout.h"
+
 #include "DragItem.h"
 #include "DragWidget.h"
+#include "MyPlayerController.h"
+
+void UHUDLayout::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
 
 bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {

@@ -34,7 +34,7 @@ void AMyHUD::BeginPlay()
 	if (NewWidgetData)
 	{
 		HUDLayoutReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
-		HUDLayoutReference->AddToViewport();
+		//HUDLayoutReference->AddToViewport();
 	}
 	
 	

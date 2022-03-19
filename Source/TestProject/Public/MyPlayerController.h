@@ -32,16 +32,16 @@ public:
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class AMyHUD* HUD_Reference;
+	class AMyHUD* HUD_Reference_old;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UHUDLayout* HUDLayoutReference;
+	class UHUDLayout* HUDReference;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
-	UInventoryManagerComponent* InventoryComponent;
+	UInventoryManagerComponent* InventoryManagerComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
-	UEquipmentComponent* EquipmentComponent;
+	UEquipmentComponent* PlayerInventoryComponent;
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleProfile();
@@ -58,6 +58,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_OnActorUsed(AActor* Actor);
 
+	UFUNCTION(Server, Reliable)
+	void Server_OnActorDropped(FSlotStructure LocalSlot);
+
+	UFUNCTION()
+	void OnActorDropped(FSlotStructure LocalSlot);
+	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
 protected:

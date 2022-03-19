@@ -59,16 +59,22 @@ void AWorldActor::Server_InitializeItemData_Implementation()
 
 bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnActorUsed_Implementation being called"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnActorUsed_Implementation being called"));
 
 	if (HasAuthority())
 	{
-		//if (AMyPlayerController* PC = Cast<AMyPlayerController>(Controller) )
-		//{
-			//PC->InventoryComponent->AddItem(ID, Amount);
+		if (AMyPlayerController* PC = Cast<AMyPlayerController>(Controller) )
+		{
+			//UEquipmentComponent* PlayerInventory = PC->PlayerInventoryComponent;
+			//FSlotStructure InventoryItem = {};
 
+			//PC->InventoryManagerComponent->TryToAddItemToInventory(PlayerInventory, InventoryItem);
+			//PC->InventoryManagerComponent->TryToAddItemToInventory2(PlayerInventory, ID);
+
+			//PC->InventoryManagerComponent->AddItem(ID, Amount);
+			
 			Destroy();
-		//}
+		}
 	}
 	
 	return Super::OnActorUsed_Implementation(Controller);
