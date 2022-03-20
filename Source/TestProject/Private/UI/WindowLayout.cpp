@@ -3,7 +3,6 @@
 
 #include "UI/WindowLayout.h"
 #include "DragWidget.h"
-#include "MyPlayerController.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
@@ -14,8 +13,6 @@ void UWindowLayout::NativeConstruct()
 	Super::NativeConstruct();
 
 	QuitButton->OnClicked.AddUniqueDynamic(this, &UWindowLayout::OnButtonQuitClicked);
-	
-	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 
 	SetTitleToWindow();
 
@@ -97,7 +94,7 @@ void UWindowLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoi
 	this->SetVisibility(ESlateVisibility::HitTestInvisible);
 	
 	DragDropOperation->WidgetReference = this;
-	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());;
+	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 
 	DragDropOperation->DefaultDragVisual = this;
 	DragDropOperation->Pivot = EDragPivot::MouseDown;

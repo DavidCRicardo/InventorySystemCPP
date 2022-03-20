@@ -6,6 +6,7 @@
 #include "FWidgetsLayoutBP.h"
 #include "GameFramework/HUD.h"
 #include "UI/ELayout.h"
+#include "UI/HUDLayout.h"
 #include "MyHUD.generated.h"
 
 class UDataTable;
@@ -26,26 +27,42 @@ public:
 	
 	UFUNCTION()
 	void RefreshWidgetUILayout(ELayout Layout);
-	
+
 	FWidgetsLayoutBP* GetWidgetBPClass(FName Name);
+	
+	UFUNCTION()
+	UUserWidget* GetInteractWidget();
+	
+	UPROPERTY(EditAnywhere, Category = "Default")
+	UUserWidget* InventoryLayout;
+
+	UPROPERTY(EditAnywhere, Category = "Default")
+	UHUDLayout* HUDLayoutReference;
 
 protected:
 	AMyHUD();
 	
 	virtual void DrawHUD() override;
-	
+
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY()
+	UDataTable* WidgetDB;
+	
+	UUserWidget* CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name);
+	
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UHUDLayout* HUDReference;
+	UUserWidget* HUDReference;
+	// class UHUDLayout* HUDReference;
+
+	
+	// class UInventoryLayout* InventoryLayout;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UInventoryLayout* InventoryLayout;
-	
+	UUserWidget* ProfileLayout;
+	//class UProfileLayout* ProfileLayout;
+
 	UPROPERTY(EditAnywhere, Category = "Default")
-	class UProfileLayout* ProfileLayout;
-	
-	UPROPERTY()
-    UDataTable* WidgetDB;
+	UUserWidget* InteractTextWidget;
 };

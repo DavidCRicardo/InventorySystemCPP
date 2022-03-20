@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MainLayout.h"
 #include "Blueprint/UserWidget.h"
 #include "HUDLayout.generated.h"
 
@@ -14,7 +15,14 @@ class TESTPROJECT_API UHUDLayout : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UMainLayout* MainLayout;
+
 protected:
-	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	UFUNCTION()
+	virtual void NativeConstruct() override;
 	
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
 };

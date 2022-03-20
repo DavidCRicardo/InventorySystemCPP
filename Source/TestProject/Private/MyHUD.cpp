@@ -2,10 +2,10 @@
 
 
 #include "MyHUD.h"
-
 #include "FWidgetsLayoutBP.h"
 #include "Blueprint/UserWidget.h"
-#include "UI/HUDLayout.h"
+#include "Components/TextBlock.h"
+#include "UI/InteractText.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
 
@@ -28,46 +28,54 @@ void AMyHUD::BeginPlay()
 	Super::BeginPlay();
 	
 	const UDataTable* WidgetTable = WidgetDB;
+	FWidgetsLayoutBP* NewWidgetData = nullptr;
 	
-	FWidgetsLayoutBP* NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("HUDLayout_WBP"), "", true);
+	/*NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>("HUDLayout_WBP", "", true);
 	if (NewWidgetData)
 	{
-		HUDReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
-		
-		if (HUDReference)
-		{
-			HUDReference->AddToViewport();
-		}
-	}else
+		HUDLayoutReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
+		HUDLayoutReference->AddToViewport();
+	}*/
+	
+	HUDReference = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("HUDLayout_WBP"));
+	if (HUDReference)
+	{	
+		HUDReference->AddToViewport();		
+	}
+	
+	ProfileLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("ProfileLayout_WBP"));
+	if (ProfileLayout)
 	{
-		UE_LOG (LogTemp, Warning, TEXT ("Cannot Load Class HUDLayout_WBP."));
+		ProfileLayout->AddToViewport();
+		ProfileLayout->SetAnchorsInViewport(FAnchors{0.2f, 0.2f});
+		ProfileLayout->SetVisibility(ESlateVisibility::Hidden);
 	}
 
-	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("ProfileLayout_WBP"), "", true);	
-	if (NewWidgetData)
+	InventoryLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InventoryLayout_WBP"));
+	if (InventoryLayout)
 	{
-		ProfileLayout = CreateWidget<UProfileLayout>(GetWorld(), NewWidgetData->Widget);
-		
-		if (ProfileLayout)
-		{
-			ProfileLayout->AddToViewport();
-			ProfileLayout->SetAnchorsInViewport(FAnchors{0.2f, 0.2f});
-			ProfileLayout->SetVisibility(ESlateVisibility::Hidden);
-		}
+		InventoryLayout->AddToViewport();
+		InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
+		InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	InteractTextWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
+	if (InteractTextWidget)
+	{
+		InteractTextWidget->AddToViewport();
+		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+UUserWidget* AMyHUD::GetInteractWidget()
+{
+	const UDataTable* WidgetTable = WidgetDB;
+	FWidgetsLayoutBP* NewWidgetData = nullptr;
 	
-	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("InventoryLayout_WBP"), "", true);	
-	if (NewWidgetData)
-	{
-		InventoryLayout = CreateWidget<UInventoryLayout>(GetWorld(), NewWidgetData->Widget);
-		
-		if (InventoryLayout)
-		{
-			InventoryLayout->AddToViewport();
-			InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
-			InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
+	return CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
+
+	//UUserWidget* TempWidget = InteractTextWidget;
+	//return TempWidget;
 }
 
 bool AMyHUD::IsAnyWidgetVisible()
@@ -83,11 +91,11 @@ void AMyHUD::ToggleWindow(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
 	{
-		InventoryLayout->ToggleWindow();
+		Cast<UInventoryLayout>(InventoryLayout)->ToggleWindow();
 	}
 	else if (Layout == ELayout::Equipment)
 	{
-		ProfileLayout->ToggleWindow();
+		Cast<UProfileLayout>(ProfileLayout)->ToggleWindow();
 	}
 }
 
@@ -95,12 +103,28 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
 	{
-		InventoryLayout->RefreshWindow();
+		if (UInventoryLayout* InventoryWidget = Cast<UInventoryLayout>(InventoryLayout))
+		{
+			InventoryWidget->RefreshWindow();
+		}
 	}
 	else if (Layout == ELayout::Equipment)
 	{
-		ProfileLayout->RefreshWindow();
+		if (UProfileLayout* ProfileWidget = Cast<UProfileLayout>(ProfileLayout))
+		{
+			ProfileWidget->RefreshWindow();
+		}
 	}
+}
+
+UUserWidget* AMyHUD::CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name)
+{
+	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(Name, "", true);
+	if (NewWidgetData)
+	{
+		return CreateWidget<UUserWidget>(GetWorld(), NewWidgetData->Widget);
+	}
+	return nullptr;
 }
 
 FWidgetsLayoutBP* AMyHUD::GetWidgetBPClass(const FName Name)

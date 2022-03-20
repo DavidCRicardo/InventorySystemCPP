@@ -2,13 +2,21 @@
 
 
 #include "MyCharacter.h"
+
+#include "MyPlayerController.h"
+#include "UsableActor.h"
+#include "UsableActorInterface.h"
+#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
+#include "Net/UnrealNetwork.h"
+
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -46,9 +54,39 @@ AMyCharacter::AMyCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	/**/
+	MyPlayerController = Cast<AMyPlayerController>(GetOwner());
+
+	/**/
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
+
+	InteractionField->InitSphereRadius(150);
+	//InteractionField->InitCapsuleSize(150.f, 100.f);
+	InteractionField->SetCollisionProfileName(TEXT("CollisionTrigger"));
 	
+	// Initialize the player's equipment
+	MainWeapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	MainWeapon->SetupAttachment(GetMesh());
+	
+	Chest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest"));
+	Chest->SetupAttachment(GetMesh());
+
+	Hands = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hands"));
+	Hands->SetupAttachment(GetMesh());
+
+	Feet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
+	Feet->SetupAttachment(GetMesh());
+	
+	MainWeaponMesh = nullptr;
+	ChestMesh = nullptr;
+	FeetMesh = nullptr;
+	HandsMesh = nullptr;
+	
+	//Initialize the player's Health
+	MaxHealth = 100.0f;
+	CurrentHealth = MaxHealth;
+	
+
  	/*// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -72,12 +110,138 @@ AMyCharacter::AMyCharacter()
 	GetCharacterMovement()->bIgnoreBaseRotation = true;*/
 
 	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
+	
+}
+
+void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//Replicate current health.
+	DOREPLIFETIME(AMyCharacter, CurrentHealth);
+
+	DOREPLIFETIME(AMyCharacter, UsableActorsInsideRange);
+	
+	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
+	DOREPLIFETIME(AMyCharacter, ChestMesh);
+	DOREPLIFETIME(AMyCharacter, FeetMesh);
+	DOREPLIFETIME(AMyCharacter, HandsMesh);
+}
+
+void AMyCharacter::OnHealthUpdate()
+{
+	//Client-specific functionality
+	if (IsLocallyControlled())
+	{
+		FString healthMessage = FString::Printf(TEXT("You now have %f health remaining."), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
+
+		if (CurrentHealth <= 0)
+		{
+			FString deathMessage = FString::Printf(TEXT("You have been killed."));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
+		}
+	}
+
+	//Server-specific functionality
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
+	}
+
+	//Functions that occur on all machines. 
+	/*  
+		Any special functionality that should occur as a result of damage or death should be placed here. 
+	*/
+}
+
+void AMyCharacter::SetCurrentHealth(float healthValue)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
+		OnHealthUpdate();
+	}
+}
+
+void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IsLocallyControlled() && OverlappedComp == InteractionField)
+	{
+		if (OtherActor && (OtherActor != this) && OtherComp)
+		{
+			// GetUsableActor
+			bool bDoesImplementInterface = OtherActor->Implements<UUsableActorInterface>();
+			if (bDoesImplementInterface)
+			{
+				if (IsValid(OtherActor))
+				{
+					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
+					{
+						UsableActor->BeginOutlineFocus_Implementation();
+
+						if (!UsableActor->InteractUserWidget)
+						{
+							UsableActor->InteractUserWidget = MyPlayerController->GetInteractWidget();
+							UsableActor->InteractUserWidget->AddToViewport();
+						}
+						
+						// Set Interact Text
+						FText MessageText = UsableActor->GetUseActionText_Implementation();
+						UsableActor->SetInteractText(MessageText);
+
+						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+
+						SetActorTickEnabled(true);
+						UsableActorsInsideRange.Add(UsableActor);
+						
+					}
+				}
+			}
+		}
+	}
+}
+
+void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (IsLocallyControlled() && OverlappedComp == InteractionField)
+	{
+		if (OtherActor && (OtherActor != this) && OtherComp)
+		{
+			bool bDoesImplementInterface = OtherActor->Implements<UUsableActorInterface>();
+			if (bDoesImplementInterface)
+			{
+				if (IsValid(OtherActor))
+				{
+					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
+					{
+						UsableActor->EndOutlineFocus_Implementation();
+						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+						
+						UsableActorsInsideRange.Remove(UsableActor);
+					}
+				}
+			}
+		}
+	}
+}
+
+void AMyCharacter::OnRep_CurrentHealth()
+{
+	OnHealthUpdate();
 }
 
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MyPlayerController = Cast<AMyPlayerController>(GetController());
+	
+	/* Overlap Events */
+	InteractionField->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnBeginOverlap);
+	InteractionField->OnComponentEndOverlap.AddDynamic(this, &AMyCharacter::OnEndOverlap);
 	
 }
 
@@ -86,7 +250,107 @@ void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (UsableActorsInsideRange.Num() == 0)
+	{
+		SetActorTickEnabled(false);
+		return;
+	}
+
+	for (AActor*& UsableActor : UsableActorsInsideRange)
+	{
+		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
+		{
+			FVector2D ScreenPosition = {};
+			MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
+			TempUsableActor->SetScreenPosition(ScreenPosition);
+			if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
+			{
+				if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)
+				{
+					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+				}
+				
+				TempUsableActor->SetScreenPosition(ScreenPosition);
+			
+			}else
+			{
+				TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
 }
+
+// Server Events
+void AMyCharacter::Server_UpdateWeaponMesh_Implementation(USkeletalMesh* NewMesh)
+{
+	MainWeaponMesh = NewMesh;
+	OnRep_MainWeaponMesh();
+}
+
+void AMyCharacter::Server_UpdateChestMesh_Implementation(USkeletalMesh* NewMesh)
+{
+	ChestMesh = NewMesh;
+	OnRep_MainChestMesh();
+}
+
+void AMyCharacter::Server_UpdateFeetMesh_Implementation(USkeletalMesh* NewMesh)
+{
+	FeetMesh = NewMesh;
+	OnRep_MainFeetMesh();
+}
+
+void AMyCharacter::Server_UpdateHandsMesh_Implementation(USkeletalMesh* NewMesh)
+{
+	HandsMesh = NewMesh;
+	OnRep_MainHandsMesh();
+}
+
+bool AMyCharacter::Server_UpdateWeaponMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+bool AMyCharacter::Server_UpdateChestMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+bool AMyCharacter::Server_UpdateFeetMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+bool AMyCharacter::Server_UpdateHandsMesh_Validate(USkeletalMesh* NewMesh)
+{
+	return true;
+}
+
+
+/* OnRep Functions */
+void AMyCharacter::OnRep_MainWeaponMesh()
+{
+	MainWeapon->SetSkeletalMesh(MainWeaponMesh);
+	MainWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "MainWeapon");
+}
+
+void AMyCharacter::OnRep_MainChestMesh()
+{
+	Chest->SetSkeletalMesh(ChestMesh);
+	Chest->SetMasterPoseComponent(GetMesh());
+}
+
+void AMyCharacter::OnRep_MainFeetMesh()
+{
+	Feet->SetSkeletalMesh(FeetMesh);
+	Feet->SetMasterPoseComponent(GetMesh());
+}
+
+void AMyCharacter::OnRep_MainHandsMesh()
+{
+	Hands->SetSkeletalMesh(HandsMesh);
+	Hands->SetMasterPoseComponent(GetMesh());
+}
+/* End OnRep Functions */
 
 // Called to bind functionality to input
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -131,7 +395,6 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleInventory", EKeys::I));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleMenu", EKeys::M));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Interact", EKeys::F));
-
 	}
 }
 

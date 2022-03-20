@@ -26,13 +26,3 @@ void UEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	// ...
 }
-
-void UEquipmentComponent::InitInventory(int32 NumberSlots)
-{
-	Super::InitInventory(NumberSlots);
-}
-
-bool UEquipmentComponent::EquipItem(FSlotStructure& SlotStructure)
-{
-	return false;
-}

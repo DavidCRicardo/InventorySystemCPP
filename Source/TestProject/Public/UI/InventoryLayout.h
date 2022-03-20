@@ -33,6 +33,8 @@ public:
 	TArray<USlotLayout*>InventorySlotsArray;
 
 protected:
+	UPROPERTY()
+	AMyPlayerController* PlayerController;
 	
 private:
 	virtual void NativeConstruct() override;

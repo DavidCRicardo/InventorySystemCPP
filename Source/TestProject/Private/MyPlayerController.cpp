@@ -3,12 +3,15 @@
 
 #include "MyPlayerController.h"
 #include "MyHUD.h"
+#include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
 
 AMyPlayerController::AMyPlayerController()
 {
-	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>(TEXT("InventoryComponent"));
+	InventoryManagerComponent->SetIsReplicated(true);
+	
+	//PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -21,50 +24,135 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AMyPlayerController::ToggleMenu);
 }
 
+void AMyPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CharacterReference = Cast<AMyCharacter>(GetPawn());
+	InventoryManagerComponent->CharacterReference = CharacterReference;
+	
+	if (AMyHUD* HUD_Reference = Cast<AMyHUD>(GetHUD()))
+	{
+		HUD_Reference_stable = HUD_Reference;
+		//HUDLayoutReference = HUD_Reference->HUDLayoutReference;
+	}
+}
+
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
-	InventoryComponent->UseInventoryItem(InventorySlot);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	InventoryManagerComponent->UseInventoryItem(InventorySlot);
+	
+	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
+	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Equipment);
 }
 
 void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot,
 	const uint8& ToInventorySlot)
 {
-	if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
+	if (InventoryManagerComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+		HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
 	}
 }
 
+void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& InventorySlot)
+{
+	IInventoryInterface::UI_DropInventoryItem_Implementation(InventorySlot);
+
+	InventoryManagerComponent->Server_DropItemFromInventory_Implementation(InventorySlot);
+	RefreshWidgets();
+}
+
 void AMyPlayerController::UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot,
+                                                               const uint8& ToInventorySlot)
+{
+	IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
+
+	InventoryManagerComponent->Server_EquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
+	RefreshWidgets();
+}
+
+void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot,
 	const uint8& ToInventorySlot)
 {
-	//IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
+	IInventoryInterface::UI_UnEquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
 
-	InventoryComponent->EquipFromInventory(FromInventorySlot, ToInventorySlot);
+	InventoryManagerComponent->Server_UnEquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
+	RefreshWidgets();
 }
 
-void AMyPlayerController::BeginPlay()
+void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
-	Super::BeginPlay();
-
-	HUD_Reference = Cast<AMyHUD>(GetHUD());
+	OnActorUsed(Actor);
+}
+void AMyPlayerController::OnActorUsed(AActor* Actor)
+{
+	if (HasAuthority())
+	{
+		if (IsValid(Actor))
+		{
+			if(AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
+			{
+				WorldActor->OnActorUsed_Implementation(this);
+				
+				//InventoryManagerComponent->Server_RefreshInventorySlots();
+				//InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+			}
+		}
+	}
 }
 
-void AMyPlayerController::SetPawn(APawn* InPawn)
+void AMyPlayerController::Server_OnActorDropped_Implementation(FSlotStructure LocalSlot)
 {
-	Super::SetPawn(InPawn);
+	OnActorDropped(LocalSlot);
+}
 
-	//APawn* Pawn = GetPawn();
-	//Character_Reference = Cast<AMyCharacter>(GetPawn());
-	//Character_Reference = (InPawn ? Cast<AMyCharacter>(InPawn) : NULL);
+void AMyPlayerController::OnActorDropped(FSlotStructure LocalSlot)
+{
+	UClass* LocalClass = LocalSlot.ItemStructure.Class;
+
+	// Drop at character feet
+	FVector LocalLocation {0.0f, 0.0f, -98.0f};
+			
+	FVector PawnLocation = GetPawn()->GetActorLocation();
+
+	//Drop Distance Range From Character
+	//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
+	const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
+	FVector DistanceFromPawn {(float)DropDistanceRangeX,1.0f,1.0f};
+
+	// Drop Items 360 Degrees Around Player
+	const float DropItemsRotation = FMath::FRandRange(-180, 180);
+	//FRotator Rotation {1.0f, DropItemsRotation, DropItemsRotation}; // Drop Around Player
+	FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
+
+	FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
+
+	FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated; 
+
+	// Give The Dropped Object A Random Rotation
+	// const int8 RandomRotation = FMath::RandRange(-10, 10);
+	// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
+	FRotator FinalRotator {1.0f, 1.0f, 1.0f};
+
+	FVector FinalScale {1.0f,1.0f,1.0f};
+		
+	FTransform OutTransform {};
+	OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
+	
+	// Spawn World Actor
+	AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(LocalClass, OutTransform);
+	if (WActor)
+	{
+		WActor->Amount = LocalSlot.Amount;
+	}
 }
 
 void AMyPlayerController::ToggleProfile()
 {
-	HUD_Reference->ToggleWindow(ELayout::Equipment);
+	HUD_Reference_stable->ToggleWindow(ELayout::Equipment);
 	
-	if (HUD_Reference->IsAnyWidgetVisible())
+	if (HUD_Reference_stable->IsAnyWidgetVisible())
 	{
 		SetInputMode(FInputModeGameAndUI());
 		bShowMouseCursor = true;
@@ -75,12 +163,11 @@ void AMyPlayerController::ToggleProfile()
 	}
 }
 
-
 void AMyPlayerController::ToggleInventory()
 {
-	HUD_Reference->ToggleWindow(ELayout::Inventory);
+	HUD_Reference_stable->ToggleWindow(ELayout::Inventory);
 
-	if (HUD_Reference->IsAnyWidgetVisible())
+	if (HUD_Reference_stable->IsAnyWidgetVisible())
 	{
 		SetInputMode(FInputModeGameAndUI());
 		bShowMouseCursor = true;
@@ -93,69 +180,41 @@ void AMyPlayerController::ToggleInventory()
 
 void AMyPlayerController::ToggleMenu()
 {
-	if(InventoryComponent->AddItem(TEXT("G_Apple"), 1))
+	if(InventoryManagerComponent->AddItem(TEXT("Cardboard_Chest"), 1))
 	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		//PrintInventory();
+		InventoryManagerComponent->AddItem(TEXT("Cardboard_Boots"), 1);
+		InventoryManagerComponent->AddItem(TEXT("Cardboard_Gloves"), 1);
+		
+		HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
+		PrintInventory();
 	}
 }
 
 void AMyPlayerController::Interact()
 {
-	if (InventoryComponent->AddItem(TEXT("Simple_Axe"), 1))
+	if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		//PrintEquipment();
+		AActor* Actor = CharacterReference->UsableActorsInsideRange[0];
+		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
+		{
+			Server_OnActorUsed(Actor);
+
+			InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+		}
+		
+		HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
 	}
-	
-	// Warning: Item doesn't exists
-	// Warning: Not enough space on Inventory
-	
-	//PrintInventory();
 }
 
+UUserWidget* AMyPlayerController::GetInteractWidget()
+{
+	return HUD_Reference_stable->GetInteractWidget();
+}
 void AMyPlayerController::RefreshWidgets()
 {
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
+	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
+	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Equipment);
 }
-
-//void AMyPlayerController::MoveInventoryItem(const uint8 FromInventorySlot, const uint8 ToInventorySlot)
-//{
-	/*if (ToInventorySlot > InventoryComponent->Inventory.Num() - 1)
-	{
-		if (FromInventorySlot != ToInventorySlot)
-		{
-			FSlotStructure LocalSlot = GetItemFrom(InventoryComponent->Inventory, FromInventorySlot);
-			FSlotStructure SwapSlot = GetItemFrom(EquipmentComponent->Inventory, ToInventorySlot);
-
-			AddItemToInventoryAndToIndex(EquipmentComponent->Inventory, LocalSlot, ToInventorySlot);
-			AddItemToInventoryAndToIndex(InventoryComponent->Inventory, SwapSlot, FromInventorySlot);
-			
-			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-			HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-		}
-		if (EquipmentComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
-		{
-			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-			HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-			//HUD_Reference->RefreshWidgetUI(1);
-			//HUD_Reference->RefreshWidgetUI(2);
-		}
-	}*/
-	
-	//if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
-	//{
-	//	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	//}
-	
-	
-	/*if (InventoryComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
-	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		// PrintInventory();
-	}*/
-//}
 
 void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
@@ -169,28 +228,13 @@ FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory
 
 void AMyPlayerController::PrintInventory()
 {
-	for (int i = 0; i < InventoryComponent->NumberOfSlots; i++)
+	for (int i = 0; i < InventoryManagerComponent->NumberOfSlots; i++)
 	{
-		FText a = InventoryComponent->Inventory[i].ItemStructure.Name;
-		uint8 b = InventoryComponent->Inventory[i].Amount;
+		FText a = InventoryManagerComponent->Inventory[i].ItemStructure.Name;
+		uint8 b = InventoryManagerComponent->Inventory[i].Amount;
 		//uint8 c = W_InventoryLayout->InventorySlotsArray[i]->InventorySlotIndex;
 
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"), *a.ToString(), b, c));
 	}
-}
-
-void AMyPlayerController::PrintEquipment()
-{
-	for (int i = 0; i < EquipmentComponent->NumberOfEquipmentSlots; i++)
-	{
-		FText a = EquipmentComponent->Inventory[i].ItemStructure.Name;
-		uint8 b = EquipmentComponent->Inventory[i].Amount;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
-	}
-}
-
-void AMyPlayerController::EquipItemFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
 }

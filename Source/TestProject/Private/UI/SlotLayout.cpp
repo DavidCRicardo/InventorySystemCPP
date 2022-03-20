@@ -5,6 +5,7 @@
 #include "DragItem.h"
 #include "MyHUD.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "MyPlayerController.h"
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -29,8 +30,6 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("NativeOnMouseButtonDoubleClick")));
-
 	if (HasItem())
 	{
 		PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
@@ -72,7 +71,7 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 
 		// DragDropOperation->DefaultDragVisual = NewObject<USlotLayout>();
-		// DragDropOperation->DefaultDragVisual = this; 
+		// DragDropOperation->DefaultDragVisual = this;
 		DragDropOperation->DefaultDragVisual = DragVisual;
 		DragDropOperation->Pivot = EDragPivot::MouseDown;
 
@@ -106,23 +105,24 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	if (DragDropOperation->IsDraggedFromInventory)
 	{
 		// Check If Unequipping
-		/*if (IsUnequipping(LocalDraggedSlot))
+		if (IsUnequipping(LocalDraggedSlot))
 		{
+			PlayerController->UI_UnEquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			// Unequip Item From Equipment To Inventory
 			// Unequip Item To Inventory
 			
 			return true;
-		}*/
+		}
 
 		// Check If Equipping
-		//if (IsEquipping(InventorySlotIndex))
-		//{
-		//	PlayerController->EquipItemFromInventory(LocalDraggedSlot, InventorySlotIndex);
+		if (IsEquipping(InventorySlotIndex))
+		{
+			PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			// Equip Item From Inventory to Equipment
 			// Equip Item From Inventory
 
-			//return true;
-		//}
+			return true;
+		}
 
 		/*MoveItemsInInventory();
 		if (IsTryingToSplit())
@@ -175,13 +175,21 @@ void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
 	ItemBorder->SetBrushColor(GetBorderColor());
 }
 
+/* UpdateSlot needs to be updated and cleaned correctly */
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SlotStructure = NewSlotStructure;
 	
-	if (HasItem())
+	if (HasItem() )
 	{
-		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
+		if (InventorySlotIndex < (uint8)EEquipmentSlot::Count)
+		{
+			AmountTextBlock->SetText(FText::FromString(""));
+		}
+		else
+		{
+			AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
+		}
 	}
 	else
 	{
@@ -278,6 +286,7 @@ void USlotLayout::HideTooltip()
 	}
 }
 
+/* Returns true if slot dragged and dropped its from equipment layout */
 bool USlotLayout::IsUnequipping(const uint8& LocalDraggedSlotIndex)
 {
 	const uint8 NumberOfEntries = (uint8)EEquipmentSlot::Count;
@@ -287,7 +296,7 @@ bool USlotLayout::IsUnequipping(const uint8& LocalDraggedSlotIndex)
 	}
 	return false;
 }
-
+/* Returns true if slot that received the drop its from equipment layout */
 bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 {
 	const uint8 NumberOfEntries = (uint8)EEquipmentSlot::Count;
@@ -295,5 +304,6 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 	{
 		return true;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("Cannot equip this"))
 	return false;
 }

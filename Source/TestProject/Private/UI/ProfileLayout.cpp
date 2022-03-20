@@ -3,6 +3,7 @@
 
 #include "UI/ProfileLayout.h"
 #include "MyHUD.h"
+#include "MyPlayerController.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
 
@@ -23,7 +24,9 @@ void UProfileLayout::NativeConstruct()
 
 	NumberOfColumns = 2;
 	NumberOfRows = 2;
-	
+
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+
 	CreateChildWidgets();
 	InitializeSlots();
 }
@@ -48,7 +51,8 @@ void UProfileLayout::CreateChildWidgets()
 	if (WidgetLayout)
 	{
 		USlotLayout* W_EquipmentSlot = nullptr;
-
+		uint8 SlotIndex = 0;
+		
 		for(int i = 0; i < NumberOfRows; i++)
 		{
 			for(int j = 0; j < NumberOfColumns; j++)
@@ -58,8 +62,11 @@ void UProfileLayout::CreateChildWidgets()
 				UUniformGridSlot* GridSlot = EquipmentGridPanel->AddChildToUniformGrid(W_EquipmentSlot, i, j);
 				GridSlot->SetHorizontalAlignment(HAlign_Center);
 				GridSlot->SetVerticalAlignment(VAlign_Center);
-				
+
+				W_EquipmentSlot->InventorySlotIndex = SlotIndex;
 				EquipmentSlotsArray.Add(W_EquipmentSlot);
+
+				SlotIndex++;
 			}
 		}
 	}
@@ -71,29 +78,39 @@ void UProfileLayout::InitializeSlots()
 	{
 		return;
 	}
-	
-	for (int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
-	{
-		EquipmentSlotsArray[i]->NativeFromEquipment = true;
-		EquipmentSlotsArray[i]->InventorySlotIndex = i;
 
-		if (i == 0)
-		{
-			EquipmentSlotsArray[i]->UpdateSlot(PlayerController->InventoryComponent->GetItemFromItemDB("No_Weapon"));
-		}else if(i == 1)
-		{
-			EquipmentSlotsArray[i]->UpdateSlot(PlayerController->InventoryComponent->GetItemFromItemDB("No_Chest"));
-		}else if(i == 2)
-		{
-			EquipmentSlotsArray[i]->UpdateSlot(PlayerController->InventoryComponent->GetItemFromItemDB("No_Feet"));
-		}else if(i == 3)
-		{
-			EquipmentSlotsArray[i]->UpdateSlot(PlayerController->InventoryComponent->GetItemFromItemDB("No_Hands"));
-		}
-	}
+	RefreshWindow();
 }
 
 void UProfileLayout::RefreshWindow()
 {
+	FSlotStructure CurrentSlot = {};
 	
+	for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
+	{
+		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
+
+		/* Update Empty Slot */
+		if(CurrentSlot.Amount <= 0){
+			FSlotStructure EmptySlot = {};
+			//CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
+			if (i == 0)
+			{
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
+			}else if(i == 1)
+			{
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
+			}else if(i == 2)
+			{
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
+			}else if(i == 3)
+			{
+				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
+			}
+			CurrentSlot = EmptySlot;
+			PlayerController->InventoryManagerComponent->Client_SetInventorySlot(CurrentSlot, i);
+		}
+	
+		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
+	}
 }

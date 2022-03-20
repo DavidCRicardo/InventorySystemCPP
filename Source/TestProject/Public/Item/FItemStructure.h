@@ -51,6 +51,9 @@ struct TESTPROJECT_API FItemStructure : public FTableRowBase
 	bool IsDroppable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMesh* SkeletalMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMesh* WorldMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

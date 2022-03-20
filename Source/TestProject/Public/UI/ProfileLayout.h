@@ -19,10 +19,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* EquipmentGridPanel;
 	
-protected:
 	UPROPERTY()
 	TArray<USlotLayout*>EquipmentSlotsArray;
 
+	UPROPERTY()
+	AMyPlayerController* PlayerController;
+	
 private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;
