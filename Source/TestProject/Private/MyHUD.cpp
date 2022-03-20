@@ -30,13 +30,12 @@ void AMyHUD::BeginPlay()
 	const UDataTable* WidgetTable = WidgetDB;
 	FWidgetsLayoutBP* NewWidgetData = nullptr;
 	
-	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>("HUDLayout_WBP", "", true);
+	/*NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>("HUDLayout_WBP", "", true);
 	if (NewWidgetData)
 	{
 		HUDLayoutReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
-		//HUDLayoutReference->AddToViewport();
-	}
-	
+		HUDLayoutReference->AddToViewport();
+	}*/
 	
 	HUDReference = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("HUDLayout_WBP"));
 	if (HUDReference)

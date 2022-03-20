@@ -32,10 +32,10 @@ public:
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class AMyHUD* HUD_Reference_old;
+	class AMyHUD* HUD_Reference_stable;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UHUDLayout* HUDReference;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//class UHUDLayout* HUDLayoutReference;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryManagerComponent;
@@ -58,14 +58,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_OnActorUsed(AActor* Actor);
 
+	// Server Drops an Actor on World
 	UFUNCTION(Server, Reliable)
 	void Server_OnActorDropped(FSlotStructure LocalSlot);
-
-	UFUNCTION()
-	void OnActorDropped(FSlotStructure LocalSlot);
 	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -76,11 +75,13 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
-
-
+	
 	UFUNCTION()
 	void PrintInventory();
 	
 	UFUNCTION()
 	void OnActorUsed(AActor* Actor);
+
+	UFUNCTION()
+	void OnActorDropped(FSlotStructure LocalSlot);
 };
