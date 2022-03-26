@@ -36,14 +36,21 @@ void AMyHUD::BeginPlay()
 		HUDLayoutReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
 		HUDLayoutReference->AddToViewport();
 	}*/
-	
-	HUDReference = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("HUDLayout_WBP"));
-	if (HUDReference)
-	{	
-		HUDReference->AddToViewport();		
+
+	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("HUDLayout_WBP"), "", true);
+	if (NewWidgetData)
+	{
+		HUDLayoutReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
+
+		if (HUDLayoutReference)
+		{	
+			HUDLayoutReference->AddToViewport();
+		}
 	}
 	
-	ProfileLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("ProfileLayout_WBP"));
+	//HUDReference = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("HUDLayout_WBP"));
+	
+	/*ProfileLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("ProfileLayout_WBP"));
 	if (ProfileLayout)
 	{
 		ProfileLayout->AddToViewport();
@@ -57,8 +64,8 @@ void AMyHUD::BeginPlay()
 		InventoryLayout->AddToViewport();
 		InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
 		InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-	}
-
+	}*/
+	
 	InteractTextWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
 	if (InteractTextWidget)
 	{
@@ -80,28 +87,64 @@ UUserWidget* AMyHUD::GetInteractWidget()
 
 bool AMyHUD::IsAnyWidgetVisible()
 {
-	if (InventoryLayout->IsVisible() || ProfileLayout->IsVisible())
+	if (HUDLayoutReference->MainLayout->Inventory->IsVisible()
+		||
+		HUDLayoutReference->MainLayout->Profile->IsVisible())
 	{
 		return true;
 	}
+
 	return false;
+	
+	/*if (InventoryLayout->IsVisible() || ProfileLayout->IsVisible())
+	{
+		return true;
+	}
+	return false;*/
 }
 
 void AMyHUD::ToggleWindow(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
 	{
+		if (HUDLayoutReference->MainLayout->Inventory)
+		{
+			HUDLayoutReference->MainLayout->Inventory->ToggleWindow();
+		}
+		
+		//Cast<UInventoryLayout>(InventoryLayout)->ToggleWindow();
+	}
+	else if (Layout == ELayout::Equipment)
+	{
+		if(HUDLayoutReference->MainLayout->Profile)
+		{
+			HUDLayoutReference->MainLayout->Profile->ToggleWindow();
+		}
+		//Cast<UProfileLayout>(ProfileLayout)->ToggleWindow();
+	}
+	
+	/*if (Layout == ELayout::Inventory)
+	{
 		Cast<UInventoryLayout>(InventoryLayout)->ToggleWindow();
 	}
 	else if (Layout == ELayout::Equipment)
 	{
 		Cast<UProfileLayout>(ProfileLayout)->ToggleWindow();
-	}
+	}*/
 }
 
 void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
+	{
+		HUDLayoutReference->MainLayout->Inventory->RefreshWindow();
+	}
+	else if (Layout == ELayout::Equipment)
+	{
+		HUDLayoutReference->MainLayout->Profile->RefreshWindow();
+	}
+	
+	/*if (Layout == ELayout::Inventory)
 	{
 		if (UInventoryLayout* InventoryWidget = Cast<UInventoryLayout>(InventoryLayout))
 		{
@@ -114,7 +157,7 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 		{
 			ProfileWidget->RefreshWindow();
 		}
-	}
+	}*/
 }
 
 UUserWidget* AMyHUD::CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name)

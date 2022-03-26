@@ -10,9 +10,10 @@
 void UHUDLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
+
 }
 
-bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+/*bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 	
@@ -50,4 +51,4 @@ bool UHUDLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent&
 	
 		return true;
 	}
-}
+}*/

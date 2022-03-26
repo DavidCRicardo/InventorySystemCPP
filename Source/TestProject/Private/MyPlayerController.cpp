@@ -33,8 +33,11 @@ void AMyPlayerController::BeginPlay()
 	
 	if (AMyHUD* HUD_Reference = Cast<AMyHUD>(GetHUD()))
 	{
-		HUD_Reference_stable = HUD_Reference;
-		//HUDLayoutReference = HUD_Reference->HUDLayoutReference;
+		HUD_Reference = HUD_Reference;
+		if (UHUDLayout* HUDResult = Cast<UHUDLayout>(HUD_Reference->HUDLayoutReference))
+		{
+			HUDLayoutReference = HUDResult;
+		}
 	}
 }
 
@@ -42,8 +45,8 @@ void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& Invent
 {
 	InventoryManagerComponent->UseInventoryItem(InventorySlot);
 	
-	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
-	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Equipment);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
 }
 
 void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot,
@@ -51,7 +54,7 @@ void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromI
 {
 	if (InventoryManagerComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
-		HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	}
 }
 
@@ -150,31 +153,37 @@ void AMyPlayerController::OnActorDropped(FSlotStructure LocalSlot)
 
 void AMyPlayerController::ToggleProfile()
 {
-	HUD_Reference_stable->ToggleWindow(ELayout::Equipment);
+	if (IsValid(HUD_Reference))
+	{
+		HUD_Reference->ToggleWindow(ELayout::Equipment);
 	
-	if (HUD_Reference_stable->IsAnyWidgetVisible())
-	{
-		SetInputMode(FInputModeGameAndUI());
-		bShowMouseCursor = true;
-	}else
-	{
-		SetInputMode(FInputModeGameOnly());
-		bShowMouseCursor = false;
+		if (HUD_Reference->IsAnyWidgetVisible())
+		{
+			SetInputMode(FInputModeGameAndUI());
+			bShowMouseCursor = true;
+		}else
+		{
+			SetInputMode(FInputModeGameOnly());
+			bShowMouseCursor = false;
+		}
 	}
 }
 
 void AMyPlayerController::ToggleInventory()
 {
-	HUD_Reference_stable->ToggleWindow(ELayout::Inventory);
+	if (IsValid(HUD_Reference))
+	{
+		HUD_Reference->ToggleWindow(ELayout::Inventory);
 
-	if (HUD_Reference_stable->IsAnyWidgetVisible())
-	{
-		SetInputMode(FInputModeGameAndUI());
-		bShowMouseCursor = true;
-	}else
-	{
-		SetInputMode(FInputModeGameOnly());
-		bShowMouseCursor = false;
+		if (HUD_Reference->IsAnyWidgetVisible())
+		{
+			SetInputMode(FInputModeGameAndUI());
+			bShowMouseCursor = true;
+		}else
+		{
+			SetInputMode(FInputModeGameOnly());
+			bShowMouseCursor = false;
+		}
 	}
 }
 
@@ -185,7 +194,7 @@ void AMyPlayerController::ToggleMenu()
 		InventoryManagerComponent->AddItem(TEXT("Cardboard_Boots"), 1);
 		InventoryManagerComponent->AddItem(TEXT("Cardboard_Gloves"), 1);
 		
-		HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		PrintInventory();
 	}
 }
@@ -201,19 +210,19 @@ void AMyPlayerController::Interact()
 
 			InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
 		}
-		
-		HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
+				
+		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	}
 }
 
 UUserWidget* AMyPlayerController::GetInteractWidget()
 {
-	return HUD_Reference_stable->GetInteractWidget();
+	return HUD_Reference->GetInteractWidget();
 }
 void AMyPlayerController::RefreshWidgets()
 {
-	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Inventory);
-	HUD_Reference_stable->RefreshWidgetUILayout(ELayout::Equipment);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
 }
 
 void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)

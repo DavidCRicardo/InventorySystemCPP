@@ -2,6 +2,8 @@
 
 
 #include "UI/WindowLayout.h"
+
+#include "DragItem.h"
 #include "DragWidget.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Components/Border.h"
@@ -91,7 +93,7 @@ void UWindowLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoi
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
 	UDragWidget* DragDropOperation = NewObject<UDragWidget>();
-	this->SetVisibility(ESlateVisibility::HitTestInvisible);
+	SetVisibility(ESlateVisibility::HitTestInvisible);
 	
 	DragDropOperation->WidgetReference = this;
 	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
@@ -104,9 +106,44 @@ void UWindowLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoi
 
 void UWindowLayout::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	if ( Cast<UDragWidget>(InOperation) )
+	if (UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation) )
 	{
-		RemoveFromParent();
+		if (DragWidgetResult->WidgetReference->GetName() == GetName())
+		{
+			RemoveFromParent();
+		}
+	}
+}
+
+bool UWindowLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	bool Success = false;
+
+	/*
+	UDragItem* DragItemResult = Cast<UDragItem>(InOperation);
+	if (IsValid(DragItemResult))
+	{
+		if (GetVisibility() == ESlateVisibility::Visible)
+		{
+			Success = true;
+		}
+	}
+	*/
+	return Success;
+}
+
+void UWindowLayout::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragEnter(InGeometry, InDragDropEvent, InOperation);
+
+	if (UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation))
+	{
+		if (DragWidgetResult->WidgetReference->GetName() != GetName())
+		{
+			SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
 	}
 }
 

@@ -36,6 +36,8 @@ void UInventoryLayout::NativeConstruct()
 	
 	InitializeSlots();
 	RefreshWindow();
+
+	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInventoryLayout::InitializeSlots()

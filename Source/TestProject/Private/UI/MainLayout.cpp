@@ -13,8 +13,10 @@ void UMainLayout::NativeConstruct()
 
 	//InventorySlots = Profile->EquipmentSlotsArray;
 	
-	FSlotStructure NewSlot = {};
-	InventorySlots.Add(NewSlot);
+	/*FSlotStructure NewSlot = {};
+	InventorySlots.Add(NewSlot);*/
+
+	SetVisibility(ESlateVisibility::Visible);
 }
 
 bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
@@ -52,7 +54,17 @@ bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		DragWidgetResult->WidgetReference->AddToViewport();
 		DragWidgetResult->WidgetReference->SetVisibility(ESlateVisibility::Visible);
 		DragWidgetResult->WidgetReference->SetPositionInViewport(DragWindowOffsetResult, false);
-	
+
+		if (Inventory->GetVisibility() == ESlateVisibility::HitTestInvisible)
+		{
+			Inventory->SetVisibility(ESlateVisibility::Visible);
+			
+		}
+		if (Profile->GetVisibility() == ESlateVisibility::HitTestInvisible)
+		{
+			Profile->SetVisibility(ESlateVisibility::Visible);
+		}
+		
 		return true;
 	}
 }

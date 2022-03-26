@@ -32,10 +32,10 @@ public:
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class AMyHUD* HUD_Reference_stable;
+	class AMyHUD* HUD_Reference;
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//class UHUDLayout* HUDLayoutReference;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UHUDLayout* HUDLayoutReference;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryManagerComponent;
