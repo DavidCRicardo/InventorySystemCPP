@@ -31,12 +31,14 @@ void AMyPlayerController::BeginPlay()
 	CharacterReference = Cast<AMyCharacter>(GetPawn());
 	InventoryManagerComponent->CharacterReference = CharacterReference;
 	
-	if (AMyHUD* HUD_Reference = Cast<AMyHUD>(GetHUD()))
+	if (AMyHUD* HUDReferenceResult = Cast<AMyHUD>(GetHUD()))
 	{
-		HUD_Reference = HUD_Reference;
+		HUD_Reference = HUDReferenceResult;
 		if (UHUDLayout* HUDResult = Cast<UHUDLayout>(HUD_Reference->HUDLayoutReference))
 		{
 			HUDLayoutReference = HUDResult;
+
+			MainHUD = HUDLayoutReference->MainLayout;
 		}
 	}
 }

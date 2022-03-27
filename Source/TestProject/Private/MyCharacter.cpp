@@ -180,7 +180,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
 						UsableActor->BeginOutlineFocus_Implementation();
-
+						
 						if (!UsableActor->InteractUserWidget)
 						{
 							UsableActor->InteractUserWidget = MyPlayerController->GetInteractWidget();
@@ -195,7 +195,6 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 
 						SetActorTickEnabled(true);
 						UsableActorsInsideRange.Add(UsableActor);
-						
 					}
 				}
 			}

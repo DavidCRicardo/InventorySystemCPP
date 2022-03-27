@@ -136,8 +136,8 @@ void AUsableActor::SetScreenPosition(FVector2D ScreenPosition)
 	InteractUserWidget->SetPositionInViewport(ScreenPosition);
 }
 
-bool AUsableActor::OnWasUsed()	 {
-	
+bool AUsableActor::OnWasUsed()
+{
 	if (IsValid(UsedSound)) {
 		UGameplayStatics::PlaySoundAtLocation(this, UsedSound, GetActorLocation());
 	}

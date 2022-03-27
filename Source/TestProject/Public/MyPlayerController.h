@@ -36,13 +36,16 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UHUDLayout* HUDLayoutReference;
+
+	UPROPERTY()
+	UMainLayout* MainHUD;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryManagerComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* PlayerInventoryComponent;
-	
+
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleProfile();
 	

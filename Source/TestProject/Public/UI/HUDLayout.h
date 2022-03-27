@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MainLayout.h"
+#include "TertiaryHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "HUDLayout.generated.h"
 
@@ -19,6 +20,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UMainLayout* MainLayout;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UTertiaryHUD* TertiaryHUD;
+	
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
