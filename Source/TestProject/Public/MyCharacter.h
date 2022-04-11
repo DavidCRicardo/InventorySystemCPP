@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "UI/InteractiveText_Panel.h"
 #include "MyCharacter.generated.h"
 
 UCLASS()
@@ -82,6 +83,8 @@ public:
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Interaction")
 	TArray<AActor*> UsableActorsInsideRange;
+	UPROPERTY(/*Replicated,*/ EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	TArray<AActor*> WorldActorsInsideRange;
 	
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainWeaponMesh", meta=(DisplayName="Weapon Mesh", Category="Inventory|Equipment"))
 	USkeletalMesh* MainWeaponMesh;

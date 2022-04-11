@@ -29,6 +29,8 @@ void UProfileLayout::NativeConstruct()
 
 	CreateChildWidgets();
 	InitializeSlots();
+
+	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UProfileLayout::OnButtonQuitClicked()

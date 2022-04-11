@@ -98,6 +98,9 @@ public:
 	UFUNCTION()
 	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
 
+	UFUNCTION()
+	UDataTable* GetItemDB();
+	
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;

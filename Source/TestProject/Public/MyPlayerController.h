@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "InventoryInterface.h"
+#include "UsableActor.h"
+#include "WorldActor.h"
 #include "Components/EquipmentComponent.h"
 #include "Components/InventoryManagerComponent.h"
 #include "MyPlayerController.generated.h"
@@ -30,19 +32,25 @@ public:
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
 	
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	
+	UFUNCTION()
+	void CollectFromPanel(const FName& Name);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class AMyHUD* HUD_Reference_stable;
+	class AMyHUD* HUD_Reference;
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//class UHUDLayout* HUDLayoutReference;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UHUDLayout* HUDLayoutReference;
+
+	UPROPERTY()
+	UMainLayout* MainHUD;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryManagerComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* PlayerInventoryComponent;
-	
+
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleProfile();
 	
@@ -64,7 +72,19 @@ public:
 	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
-	
+
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void EnableUIMode();
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void DisableUIMode();
+
+	UFUNCTION()
+	void AddUsableActorToDropMenu(FName IDName);
+	UFUNCTION()
+	void RemoveUsableActorToDropMenu(const FName& ID);
+
+	UFUNCTION()
+	UDataTable* GetItemDB();
 protected:
 	virtual void BeginPlay() override;
 	

@@ -45,11 +45,17 @@ void AUsableActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 FText AUsableActor::GetUseActionText_Implementation()
 {
 	FText FormatInput = FText::FromName(Name);
+	
 	FFormatNamedArguments Args;
 	Args.Add("Action", Action);
 	Args.Add("Name", FormatInput);
+	
+	FText FormattedText = FText::Format(
+		NSLOCTEXT("MyNamespace", "FullTextFormat", "{Action} {Name}"),
+		Args
+	);
 
-	FText FormattedText = FText::Format(FormatInput, Args);
+	//FText FormattedText = FText::Format(FormatInput, Args);
 
 	return FormattedText;
 	// return IUsableActorInterface::GetUseActionText_Implementation();
@@ -136,8 +142,8 @@ void AUsableActor::SetScreenPosition(FVector2D ScreenPosition)
 	InteractUserWidget->SetPositionInViewport(ScreenPosition);
 }
 
-bool AUsableActor::OnWasUsed()	 {
-	
+bool AUsableActor::OnWasUsed()
+{
 	if (IsValid(UsedSound)) {
 		UGameplayStatics::PlaySoundAtLocation(this, UsedSound, GetActorLocation());
 	}

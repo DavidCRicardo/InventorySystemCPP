@@ -7,15 +7,3 @@ void UInteractText::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
-
-/*void UInteractText::ToggleVisibility()
-{
-	if (GetVisibility() == ESlateVisibility::Hidden)
-	{
-		SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		SetVisibility(ESlateVisibility::Hidden);
-	}
-}*/

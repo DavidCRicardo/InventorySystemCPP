@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FWidgetsLayoutBP.h"
+#include "UsableActor.h"
 #include "GameFramework/HUD.h"
 #include "UI/ELayout.h"
 #include "UI/HUDLayout.h"
@@ -32,9 +33,6 @@ public:
 	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
-	
-	UPROPERTY(EditAnywhere, Category = "Default")
-	UUserWidget* InventoryLayout;
 
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UHUDLayout* HUDLayoutReference;
@@ -52,17 +50,6 @@ private:
 	
 	UUserWidget* CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name);
 	
-	UPROPERTY(EditAnywhere, Category = "Default")
-	UUserWidget* HUDReference;
-	// class UHUDLayout* HUDReference;
-
-	
-	// class UInventoryLayout* InventoryLayout;
-
-	UPROPERTY(EditAnywhere, Category = "Default")
-	UUserWidget* ProfileLayout;
-	//class UProfileLayout* ProfileLayout;
-
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UUserWidget* InteractTextWidget;
 };

@@ -3,10 +3,12 @@
 
 #include "MyCharacter.h"
 
+#include "MyHUD.h"
 #include "MyPlayerController.h"
 #include "UsableActor.h"
 #include "UsableActorInterface.h"
 #include "MyPlayerController.h"
+#include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -16,6 +18,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/HUDLayout.h"
 
 
 // Sets default values
@@ -86,7 +89,6 @@ AMyCharacter::AMyCharacter()
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
 	
-
  	/*// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -121,6 +123,7 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AMyCharacter, CurrentHealth);
 
 	DOREPLIFETIME(AMyCharacter, UsableActorsInsideRange);
+	//DOREPLIFETIME(AMyCharacter, WorldActorsInsideRange);
 	
 	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
@@ -180,7 +183,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
 						UsableActor->BeginOutlineFocus_Implementation();
-
+						
 						if (!UsableActor->InteractUserWidget)
 						{
 							UsableActor->InteractUserWidget = MyPlayerController->GetInteractWidget();
@@ -191,12 +194,20 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 						FText MessageText = UsableActor->GetUseActionText_Implementation();
 						UsableActor->SetInteractText(MessageText);
 
-						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+						//UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 
 						SetActorTickEnabled(true);
 						UsableActorsInsideRange.Add(UsableActor);
-						
 					}
+
+					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
+					{
+						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
+						SetActorTickEnabled(true);
+						WorldActorsInsideRange.Add(WorldActor);
+					}
+					
 				}
 			}
 		}
@@ -220,6 +231,12 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 						
 						UsableActorsInsideRange.Remove(UsableActor);
+					}
+
+					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
+					{
+						MyPlayerController->RemoveUsableActorToDropMenu(WorldActor->ID);
+						WorldActorsInsideRange.Remove(WorldActor);
 					}
 				}
 			}
@@ -250,12 +267,41 @@ void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Tick")));
+	
 	if (UsableActorsInsideRange.Num() == 0)
 	{
 		SetActorTickEnabled(false);
 		return;
 	}
+	
+	/*
+	UInteractiveText_Panel* Widget = MyPlayerController->HUD_Reference->HUDLayoutReference->TertiaryHUD->InteractiveMenu;
+	if (Widget)
+	{
+		AActor*& UsableActor = WorldActorsInsideRange[0];
+		FVector2D ScreenPosition = {};
+		
+		MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
 
+		MyPlayerController->HUD_Reference->HUDLayoutReference->TertiaryHUD->InteractiveMenu->SetPositionInViewport(ScreenPosition);
+		Widget->SetPositionInViewport(ScreenPosition);
+
+		if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
+		{
+			if (Widget->GetVisibility() == ESlateVisibility::Hidden)
+			{
+				Widget->SetVisibility(ESlateVisibility::Visible);
+			}
+				
+			Widget->SetPositionInViewport(ScreenPosition);
+			
+		}else
+		{
+			Widget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+	*/
 	for (AActor*& UsableActor : UsableActorsInsideRange)
 	{
 		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
@@ -268,6 +314,8 @@ void AMyCharacter::Tick(float DeltaTime)
 				if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)
 				{
 					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+
 				}
 				
 				TempUsableActor->SetScreenPosition(ScreenPosition);
@@ -395,6 +443,8 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleInventory", EKeys::I));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleMenu", EKeys::M));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Interact", EKeys::F));
+
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleUIMode", EKeys::LeftAlt));
 	}
 }
 
