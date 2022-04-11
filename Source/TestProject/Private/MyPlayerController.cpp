@@ -22,6 +22,9 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleProfile", IE_Pressed, this, &AMyPlayerController::ToggleProfile);
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &AMyPlayerController::ToggleInventory);
 	InputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AMyPlayerController::ToggleMenu);
+
+	InputComponent->BindAction("ToggleUIMode", IE_Pressed, this, &AMyPlayerController::EnableUIMode);
+	InputComponent->BindAction("ToggleUIMode", IE_Released, this, &AMyPlayerController::DisableUIMode);
 }
 
 void AMyPlayerController::BeginPlay()
@@ -217,10 +220,68 @@ void AMyPlayerController::Interact()
 	}
 }
 
+void AMyPlayerController::CollectFromPanel(const FName& Name)
+{
+	for(AActor*& Actor : CharacterReference->UsableActorsInsideRange)
+	{
+		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
+		{
+			if (WorldActor->ID == Name)
+			{
+				Server_OnActorUsed(Actor);
+
+				InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+
+				HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+
+				return;
+			}
+		}
+	}
+}
+
 UUserWidget* AMyPlayerController::GetInteractWidget()
 {
 	return HUD_Reference->GetInteractWidget();
 }
+
+void AMyPlayerController::EnableUIMode()
+{
+	SetInputMode(FInputModeGameAndUI());
+	bShowMouseCursor = true;
+}
+
+void AMyPlayerController::DisableUIMode()
+{
+	if (HUD_Reference->IsAnyWidgetVisible())
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
+	}else
+	{
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+	}
+	//SetInputMode(FInputModeGameOnly());
+	//bShowMouseCursor = false;
+}
+
+void AMyPlayerController::AddUsableActorToDropMenu(FName IDName)
+{
+	if (IsValid(HUD_Reference))
+	{
+		HUD_Reference->HUDLayoutReference->TertiaryHUD->CreateInteractiveTextEntry(IDName);
+	}
+}
+
+void AMyPlayerController::RemoveUsableActorToDropMenu(const FName& ID)
+{
+	if (IsValid(HUD_Reference))
+	{
+		HUD_Reference->HUDLayoutReference->TertiaryHUD->RemoveInteractiveTextEntry(ID);
+	}
+}
+
 void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
@@ -248,4 +309,9 @@ void AMyPlayerController::PrintInventory()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"), *a.ToString(), b, c));
 	}
+}
+
+UDataTable* AMyPlayerController::GetItemDB()
+{
+	return InventoryManagerComponent->GetItemDB();
 }

@@ -49,11 +49,17 @@ void UInventoryManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
+
 void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UInventoryManagerComponent, InventorySize);
+}
+
+UDataTable* UInventoryManagerComponent::GetItemDB()
+{
+	return ItemDB;
 }
 
 /* Initializes the Inventory Array to a Specified Size */

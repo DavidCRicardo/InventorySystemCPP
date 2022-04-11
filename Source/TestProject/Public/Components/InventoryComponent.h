@@ -20,6 +20,7 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	UDataTable* GetItemDB();
 
 public:
 	// Called every frame

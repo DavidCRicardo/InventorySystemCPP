@@ -45,11 +45,17 @@ void AUsableActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 FText AUsableActor::GetUseActionText_Implementation()
 {
 	FText FormatInput = FText::FromName(Name);
+	
 	FFormatNamedArguments Args;
 	Args.Add("Action", Action);
 	Args.Add("Name", FormatInput);
+	
+	FText FormattedText = FText::Format(
+		NSLOCTEXT("MyNamespace", "FullTextFormat", "{Action} {Name}"),
+		Args
+	);
 
-	FText FormattedText = FText::Format(FormatInput, Args);
+	//FText FormattedText = FText::Format(FormatInput, Args);
 
 	return FormattedText;
 	// return IUsableActorInterface::GetUseActionText_Implementation();

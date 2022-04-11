@@ -3,9 +3,40 @@
 
 #include "UI/TertiaryHUD.h"
 
+#include "FWidgetsLayoutBP.h"
+#include "MyHUD.h"
+#include "UI/InteractiveText_Entry.h"
+
 void UTertiaryHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+}
+
+void UTertiaryHUD::CreateInteractiveTextEntry(FName IDName)
+{
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("InteractiveText_Entry_WBP");
+	if (WidgetLayout)
+	{
+		UClass* WidgetClass = WidgetLayout->Widget;
+		
+		UInteractiveText_Entry* Entry = CreateWidget<UInteractiveText_Entry>(this, WidgetClass);
+		
+		//Entry->AddToViewport();
+
+		Entry->InitializeName(IDName);
+		
+		//InteractiveMenu->InteractiveText_List->AddItem(Entry);
+		InteractiveMenu->AddEntryToList(Entry);
+		
+	}
+
+	/*UInteractiveText_Entry* Entry2 = CreateWidget<UInteractiveText_Entry>(GetWorld(), InteractiveTextWidgetClass);
+	InteractiveMenu->AddEntryToList(Entry2);*/
+}
+
+void UTertiaryHUD::RemoveInteractiveTextEntry(const FName& ID)
+{
+	InteractiveMenu->RemoveEntryFromList(ID);
 }
