@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "InteractiveText_Entry.h"
-#include "UsableActor.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ListView.h"
 #include "InteractiveText_Panel.generated.h"
@@ -17,6 +16,10 @@ public:
 	void AddEntryToList(UInteractiveText_Entry* NewEntry);
 	UFUNCTION()	
 	void RemoveEntryFromList(const FName& ID);
+	UFUNCTION()
+	void SetSelectedItemOnInteractiveList();
+	UFUNCTION()
+	uint32 GetSelectedItemOnInteractiveList();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = ( BindWidget ) )
 	UListView* InteractiveText_List;
@@ -30,7 +33,6 @@ protected:
 	UFUNCTION()
 	void ManageListVisibility();
 	
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UInteractiveText_Entry> EntryClass;
-
+	//UPROPERTY(EditDefaultsOnly)
+	//TSubclassOf<UInteractiveText_Entry> EntryClass;
 };

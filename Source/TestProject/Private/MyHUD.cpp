@@ -87,9 +87,13 @@ UUserWidget* AMyHUD::GetInteractWidget()
 
 bool AMyHUD::IsAnyWidgetVisible()
 {
-	if (HUDLayoutReference->MainLayout->Inventory->IsVisible()
+	if (
+		HUDLayoutReference->MainLayout->Inventory->IsVisible()
 		||
-		HUDLayoutReference->MainLayout->Profile->IsVisible())
+		HUDLayoutReference->MainLayout->Profile->IsVisible()
+		||
+		HUDLayoutReference->TertiaryHUD->InteractiveMenu->IsVisible()
+		)
 	{
 		return true;
 	}

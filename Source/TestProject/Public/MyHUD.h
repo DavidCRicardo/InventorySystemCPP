@@ -36,7 +36,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UHUDLayout* HUDLayoutReference;
-
+	
 protected:
 	AMyHUD();
 	

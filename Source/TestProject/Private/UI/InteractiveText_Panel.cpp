@@ -17,19 +17,13 @@ void UInteractiveText_Panel::NativeConstruct()
 	
 	FDelegateHandle DelegateHandleOnItemClicked = InteractiveText_List->OnItemClicked().AddLambda([this](UObject* Object)
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("OnItemClicked")));
-
 		if (UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(Object))
 		{
-			//Entry->OnClickByLambda();
-
 			const FName ItemName = Entry->GetIDName();
-			//MyPlayerController->InventoryManagerComponent->AddItem(ItemName, 1);
+
 			MyPlayerController->CollectFromPanel(ItemName);
 			
-			InteractiveText_List->RemoveItem(Entry);
-			
-			//ManageListVisibility();
+			//InteractiveText_List->RemoveItem(Entry);
 		}
 	});
 	//InteractiveText_List->OnItemClicked().Remove(DelegateHandle);
@@ -44,32 +38,20 @@ void UInteractiveText_Panel::NativeConstruct()
 		}
 	});
 
-	FDelegateHandle DelegateHandleOnItemDoubleClicked = InteractiveText_List->OnItemDoubleClicked().AddLambda([](UObject* Object)
-	{
-		if (UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(Object))
-		{
-			Entry->DoubleClick();
-		}
-	});
-
-	FDelegateHandle DelegateHandleOnItemSelectionChanged = InteractiveText_List->OnItemSelectionChanged().AddLambda([](UObject* Object)
-	{
-		if (UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(Object))
-		{
-			
-		}
-	});
+	ManageListVisibility();
 }
 
 void UInteractiveText_Panel::ManageListVisibility()
 {
-	if (InteractiveText_List->GetNumItems() == 0)
+	if (InteractiveText_List->GetNumItems() > 0)
 	{
-		SetVisibility(ESlateVisibility::Hidden);
-	} else
-	{
+		SetSelectedItemOnInteractiveList();
+
 		SetVisibility(ESlateVisibility::Visible);
 	}
+	else{
+		SetVisibility(ESlateVisibility::Hidden);
+	} 
 }
 
 void UInteractiveText_Panel::AddEntryToList(UInteractiveText_Entry* NewEntry)
@@ -77,8 +59,8 @@ void UInteractiveText_Panel::AddEntryToList(UInteractiveText_Entry* NewEntry)
 	if (NewEntry)
 	{
 		InteractiveText_List->AddItem(NewEntry);
-		
-		//ManageListVisibility();
+
+		ManageListVisibility();
 	}
 }
 
@@ -93,8 +75,31 @@ void UInteractiveText_Panel::RemoveEntryFromList(const FName& ID)
 			if (Entry->GetIDName() == ID)
 			{
 				InteractiveText_List->RemoveItem(Object);
+
+				ManageListVisibility();
+				
 				return;
 			}
 		}
 	}
+}
+
+void UInteractiveText_Panel::SetSelectedItemOnInteractiveList(){
+	
+	UObject* a = InteractiveText_List->GetItemAt(0);
+	InteractiveText_List->SetSelectedItem(a);
+}
+
+uint32 UInteractiveText_Panel::GetSelectedItemOnInteractiveList()
+{
+	uint32 Index = 0;
+	for (UObject* Object : InteractiveText_List->GetListItems())
+	{
+		if (Object == InteractiveText_List->GetSelectedItem<UObject>())
+		{
+			return Index;
+		}
+		Index++;
+	}
+	return Index;
 }

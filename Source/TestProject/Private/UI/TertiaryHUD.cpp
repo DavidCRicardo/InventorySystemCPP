@@ -23,8 +23,6 @@ void UTertiaryHUD::CreateInteractiveTextEntry(FName IDName)
 		
 		UInteractiveText_Entry* Entry = CreateWidget<UInteractiveText_Entry>(this, WidgetClass);
 		
-		//Entry->AddToViewport();
-
 		Entry->InitializeName(IDName);
 		
 		//InteractiveMenu->InteractiveText_List->AddItem(Entry);

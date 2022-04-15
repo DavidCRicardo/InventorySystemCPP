@@ -123,7 +123,6 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AMyCharacter, CurrentHealth);
 
 	DOREPLIFETIME(AMyCharacter, UsableActorsInsideRange);
-	//DOREPLIFETIME(AMyCharacter, WorldActorsInsideRange);
 	
 	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
@@ -267,42 +266,17 @@ void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Tick")));
 	
 	if (UsableActorsInsideRange.Num() == 0)
 	{
+		MyPlayerController->DisableUIMode();
+		
 		SetActorTickEnabled(false);
 		return;
 	}
 	
-	/*
-	UInteractiveText_Panel* Widget = MyPlayerController->HUD_Reference->HUDLayoutReference->TertiaryHUD->InteractiveMenu;
-	if (Widget)
-	{
-		AActor*& UsableActor = WorldActorsInsideRange[0];
-		FVector2D ScreenPosition = {};
-		
-		MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
 
-		MyPlayerController->HUD_Reference->HUDLayoutReference->TertiaryHUD->InteractiveMenu->SetPositionInViewport(ScreenPosition);
-		Widget->SetPositionInViewport(ScreenPosition);
-
-		if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
-		{
-			if (Widget->GetVisibility() == ESlateVisibility::Hidden)
-			{
-				Widget->SetVisibility(ESlateVisibility::Visible);
-			}
-				
-			Widget->SetPositionInViewport(ScreenPosition);
-			
-		}else
-		{
-			Widget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
-	*/
-	for (AActor*& UsableActor : UsableActorsInsideRange)
+	/*for (AActor*& UsableActor : UsableActorsInsideRange)
 	{
 		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
 		{
@@ -325,7 +299,7 @@ void AMyCharacter::Tick(float DeltaTime)
 				TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
-	}
+	}*/
 }
 
 // Server Events
@@ -445,6 +419,8 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Interact", EKeys::F));
 
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleUIMode", EKeys::LeftAlt));
+		
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("TestKey", EKeys::T));
 	}
 }
 

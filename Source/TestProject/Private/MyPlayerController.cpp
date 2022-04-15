@@ -14,6 +14,10 @@ AMyPlayerController::AMyPlayerController()
 	//PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
+void AMyPlayerController::TestMethod()
+{
+}
+
 void AMyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -25,6 +29,8 @@ void AMyPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("ToggleUIMode", IE_Pressed, this, &AMyPlayerController::EnableUIMode);
 	InputComponent->BindAction("ToggleUIMode", IE_Released, this, &AMyPlayerController::DisableUIMode);
+
+	InputComponent->BindAction("TestKey", IE_Pressed, this, &AMyPlayerController::TestMethod);
 }
 
 void AMyPlayerController::BeginPlay()
@@ -204,36 +210,46 @@ void AMyPlayerController::ToggleMenu()
 	}
 }
 
+void AMyPlayerController::GetSelectedItemIndex(uint32& Index)
+{
+	Index = HUD_Reference->HUDLayoutReference->TertiaryHUD->InteractiveMenu->GetSelectedItemOnInteractiveList();
+}
+
 void AMyPlayerController::Interact()
 {
 	if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 	{
-		AActor* Actor = CharacterReference->UsableActorsInsideRange[0];
+		// Get Selected Item
+		uint32 Index = 0;
+		GetSelectedItemIndex(Index);
+		
+		AActor* Actor = CharacterReference->UsableActorsInsideRange[Index];
+		
 		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
 		{
-			Server_OnActorUsed(Actor);
+			CollectFromPanel(WorldActor->ID);
 
-			InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		}
-				
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	}
+}
+
+void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
+{
+	Server_OnActorUsed(WorldActor);
+
+	InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
 }
 
 void AMyPlayerController::CollectFromPanel(const FName& Name)
 {
-	for(AActor*& Actor : CharacterReference->UsableActorsInsideRange)
+	for (AActor*& Actor : CharacterReference->UsableActorsInsideRange)
 	{
 		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
 		{
 			if (WorldActor->ID == Name)
 			{
-				Server_OnActorUsed(Actor);
-
-				InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-
-				HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-
+				UseWorldActor(WorldActor);
 				return;
 			}
 		}
@@ -245,10 +261,21 @@ UUserWidget* AMyPlayerController::GetInteractWidget()
 	return HUD_Reference->GetInteractWidget();
 }
 
+void AMyPlayerController::SetMouseToCenterPosition()
+{
+	int32 SizeX;
+	int32 SizeY;
+	GetViewportSize(SizeX, SizeY);
+
+	SetMouseLocation(SizeX / 2, SizeY / 2);
+}
+
 void AMyPlayerController::EnableUIMode()
 {
 	SetInputMode(FInputModeGameAndUI());
 	bShowMouseCursor = true;
+
+	SetMouseToCenterPosition();
 }
 
 void AMyPlayerController::DisableUIMode()
@@ -271,6 +298,8 @@ void AMyPlayerController::AddUsableActorToDropMenu(FName IDName)
 	if (IsValid(HUD_Reference))
 	{
 		HUD_Reference->HUDLayoutReference->TertiaryHUD->CreateInteractiveTextEntry(IDName);
+
+		EnableUIMode();
 	}
 }
 

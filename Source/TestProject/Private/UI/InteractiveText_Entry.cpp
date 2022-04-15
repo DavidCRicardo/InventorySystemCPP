@@ -32,10 +32,6 @@ void UInteractiveText_Entry::NativeConstruct()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Controller Not Valid")));
 	}
 	//SelectedBorder->SetBrushColor({1,1,1,0});
-
-	//Button_InteractiveText->OnClicked.AddUniqueDynamic(this, &UInteractiveText_Entry::OnClick);
-	//Button_InteractiveText->OnPressed.AddUniqueDynamic(this, &UInteractiveText_Entry::OnPressed);
-	//Button_InteractiveText->OnReleased.AddUniqueDynamic(this, &UInteractiveText_Entry::OnRelease);
 }
 
 void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -89,14 +85,11 @@ void UInteractiveText_Entry::NativeOnItemSelectionChanged(bool bIsSelected)
 
 		//SelectedBorder->SetBrushColor(LinearColor);
 		SelectedImage->SetOpacity(1.f);
-
-		
 	}else{
 		LinearColor = {1,1,1,0};
 		
 		//SelectedBorder->SetBrushColor(LinearColor);
 		SelectedImage->SetOpacity(0.f);
-
 	}
 }
 
@@ -130,37 +123,8 @@ FName UInteractiveText_Entry::GetIDName()
 	return ID;
 }
 
-void UInteractiveText_Entry::DoubleClick()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("NativeOnMouseButtonDoubleClick")));
-	
-	//NameLabel->SetText(FText::FromName("Double Click"));
-}
-
-void UInteractiveText_Entry::OnClick()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("OnClick")));
-
-	//NameLabel->SetText(FText::FromName("Click"));
-}
-void UInteractiveText_Entry::OnRelease()
-{
-	//NameLabel->SetText(FText::FromName("Release"));
-}
-void UInteractiveText_Entry::OnPressed()
-{
-	//NameLabel->SetText(FText::FromName("Pressed"));
-}
-void UInteractiveText_Entry::OnClickByLambda()
-{
-//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("OnClickByLambda")));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Used!")));
-
-	//NameLabel->SetText(FText::FromName("OnClickByLambda"));
-}
-
 void UInteractiveText_Entry::ResetBorder()
 {
 	//SelectedBorder->SetBrushColor({1,1,1,0});
-	
+
 }

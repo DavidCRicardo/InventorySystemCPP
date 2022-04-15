@@ -21,6 +21,9 @@ class TESTPROJECT_API AMyPlayerController : public APlayerController, public IIn
 public:
 	AMyPlayerController();
 
+	UFUNCTION()
+	void TestMethod();
+	
 	/* Interface */
 	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
@@ -35,7 +38,9 @@ public:
 	
 	UFUNCTION()
 	void CollectFromPanel(const FName& Name);
-
+	UFUNCTION()
+	void UseWorldActor(AWorldActor* WorldActor);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AMyHUD* HUD_Reference;
 	
@@ -59,7 +64,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleMenu();
-	
+	void GetSelectedItemIndex(uint32& Index);
+
 	UFUNCTION()
 	void RefreshWidgets();
 
@@ -72,6 +78,8 @@ public:
 	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
+	UFUNCTION()
+	void SetMouseToCenterPosition();
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void EnableUIMode();
