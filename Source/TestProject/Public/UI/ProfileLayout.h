@@ -6,7 +6,7 @@
 #include "ProfileLayout.generated.h"
 
 UCLASS()
-class TESTPROJECT_API UProfileLayout : public UWindowLayout
+class INVENTORYSYSTEMCPP_API UProfileLayout : public UWindowLayout
 {
 	GENERATED_BODY()
 	

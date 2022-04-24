@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API UDragItem : public UDragDropOperation
+class INVENTORYSYSTEMCPP_API UDragItem : public UDragDropOperation
 {
 	GENERATED_BODY()
 

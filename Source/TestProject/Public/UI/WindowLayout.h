@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API UWindowLayout : public UUserWidget
+class INVENTORYSYSTEMCPP_API UWindowLayout : public UUserWidget
 {
 	GENERATED_BODY()
 

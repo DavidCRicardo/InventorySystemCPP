@@ -280,6 +280,11 @@ void AMyPlayerController::EnableUIMode()
 
 void AMyPlayerController::DisableUIMode()
 {
+	if (!IsValid(HUD_Reference))
+	{
+		return;
+	}
+	
 	if (HUD_Reference->IsAnyWidgetVisible())
 	{
 		SetInputMode(FInputModeGameAndUI());
@@ -289,8 +294,6 @@ void AMyPlayerController::DisableUIMode()
 		SetInputMode(FInputModeGameOnly());
 		bShowMouseCursor = false;
 	}
-	//SetInputMode(FInputModeGameOnly());
-	//bShowMouseCursor = false;
 }
 
 void AMyPlayerController::AddUsableActorToDropMenu(FName IDName)

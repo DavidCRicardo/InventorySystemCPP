@@ -13,7 +13,7 @@
 #include "InventoryManagerComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TESTPROJECT_API UInventoryManagerComponent : public UActorComponent
+class INVENTORYSYSTEMCPP_API UInventoryManagerComponent : public UActorComponent
 {
 	GENERATED_BODY()
 

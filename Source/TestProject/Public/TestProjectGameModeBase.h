@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API ATestProjectGameModeBase : public AGameModeBase
+class INVENTORYSYSTEMCPP_API ATestProjectGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	

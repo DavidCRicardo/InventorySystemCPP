@@ -14,7 +14,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API AMyPlayerController : public APlayerController, public IInventoryInterface
+class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, public IInventoryInterface
 {
 	GENERATED_BODY()
 	

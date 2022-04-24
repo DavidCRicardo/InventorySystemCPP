@@ -13,7 +13,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API UW_ItemTooltip : public UUserWidget
+class INVENTORYSYSTEMCPP_API UW_ItemTooltip : public UUserWidget
 {
 	GENERATED_BODY()
 

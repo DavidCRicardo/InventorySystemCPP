@@ -7,7 +7,7 @@
 #include "FSlotStructure.generated.h"
 
 USTRUCT(BlueprintType)
-struct TESTPROJECT_API FSlotStructure : public FTableRowBase 
+struct INVENTORYSYSTEMCPP_API FSlotStructure : public FTableRowBase
 {
 	GENERATED_BODY();
 

@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API UInventoryLayout : public UWindowLayout
+class INVENTORYSYSTEMCPP_API UInventoryLayout : public UWindowLayout
 {
 	GENERATED_BODY()
 

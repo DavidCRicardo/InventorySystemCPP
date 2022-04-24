@@ -16,7 +16,7 @@ class UInventoryInterface : public UInterface
 /**
  * 
  */
-class TESTPROJECT_API IInventoryInterface
+class INVENTORYSYSTEMCPP_API IInventoryInterface
 {
 	GENERATED_BODY()
 

@@ -9,7 +9,7 @@
 class UInputComponent;
 
 UCLASS()
-class TESTPROJECT_API AMyPawn : public APawn
+class INVENTORYSYSTEMCPP_API AMyPawn : public APawn
 {
 	GENERATED_BODY()
 

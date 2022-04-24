@@ -15,7 +15,7 @@ class UDataTable;
  * 
  */
 UCLASS()
-class TESTPROJECT_API AMyHUD : public AHUD
+class INVENTORYSYSTEMCPP_API AMyHUD : public AHUD
 {
 	GENERATED_BODY()
 

@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API UInteractText : public UUserWidget
+class INVENTORYSYSTEMCPP_API UInteractText : public UUserWidget
 {
 	GENERATED_BODY()
 

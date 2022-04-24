@@ -9,7 +9,7 @@
 #include "UsableActor.generated.h"
 
 UCLASS()
-class TESTPROJECT_API AUsableActor : public AActor, public IUsableActorInterface
+class INVENTORYSYSTEMCPP_API AUsableActor : public AActor, public IUsableActorInterface
 {
 	GENERATED_BODY()
 

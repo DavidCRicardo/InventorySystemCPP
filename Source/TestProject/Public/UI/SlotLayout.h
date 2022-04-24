@@ -17,7 +17,7 @@ DECLARE_LOG_CATEGORY_CLASS(LogSlotLayout, Verbose, Verbose);
  * 
  */
 UCLASS()
-class TESTPROJECT_API USlotLayout : public UUserWidget
+class INVENTORYSYSTEMCPP_API USlotLayout : public UUserWidget
 {
 GENERATED_BODY()
 

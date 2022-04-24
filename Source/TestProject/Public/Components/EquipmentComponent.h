@@ -9,7 +9,7 @@
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TESTPROJECT_API UEquipmentComponent : public UInventoryComponent
+class INVENTORYSYSTEMCPP_API UEquipmentComponent : public UInventoryComponent
 {
 	GENERATED_BODY()
 

@@ -10,7 +10,7 @@ class UBorder;
 class UImage;
 
 UCLASS()
-class TESTPROJECT_API UItemDragVisual : public UUserWidget
+class INVENTORYSYSTEMCPP_API UItemDragVisual : public UUserWidget
 {
 private:
 	GENERATED_BODY()

@@ -8,7 +8,7 @@
 #include "FItemStructure.generated.h"
 
 USTRUCT()
-struct TESTPROJECT_API FItemStructure : public FTableRowBase
+struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 {
 	GENERATED_BODY()
 

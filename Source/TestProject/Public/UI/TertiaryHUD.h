@@ -14,7 +14,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API UTertiaryHUD : public UUserWidget
+class INVENTORYSYSTEMCPP_API UTertiaryHUD : public UUserWidget
 {
 	GENERATED_BODY()
 

@@ -8,7 +8,7 @@
 #include "MyCharacter.generated.h"
 
 UCLASS()
-class TESTPROJECT_API AMyCharacter : public ACharacter
+class INVENTORYSYSTEMCPP_API AMyCharacter : public ACharacter
 {
 	GENERATED_BODY()
 

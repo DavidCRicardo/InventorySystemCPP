@@ -8,7 +8,7 @@
 #include "WorldActor.generated.h"
 
 UCLASS()
-class TESTPROJECT_API AWorldActor : public AUsableActor
+class INVENTORYSYSTEMCPP_API AWorldActor : public AUsableActor
 {
 	GENERATED_BODY()
 

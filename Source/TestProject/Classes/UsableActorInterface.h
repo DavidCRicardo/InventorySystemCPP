@@ -16,7 +16,7 @@ class UUsableActorInterface : public UInterface
 /**
  * 
  */
-class TESTPROJECT_API IUsableActorInterface
+class INVENTORYSYSTEMCPP_API IUsableActorInterface
 {
 	GENERATED_BODY()
 

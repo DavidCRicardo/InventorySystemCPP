@@ -5,7 +5,7 @@
 #include "FWidgetsLayoutBP.generated.h"
 
 USTRUCT()
-struct TESTPROJECT_API FWidgetsLayoutBP : public FTableRowBase
+struct INVENTORYSYSTEMCPP_API FWidgetsLayoutBP : public FTableRowBase
 {
 	GENERATED_BODY()
 

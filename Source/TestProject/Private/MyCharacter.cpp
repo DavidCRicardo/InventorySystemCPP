@@ -269,7 +269,10 @@ void AMyCharacter::Tick(float DeltaTime)
 	
 	if (UsableActorsInsideRange.Num() == 0)
 	{
-		MyPlayerController->DisableUIMode();
+		if (IsValid(MyPlayerController))
+		{
+			MyPlayerController->DisableUIMode();
+		}
 		
 		SetActorTickEnabled(false);
 		return;

@@ -7,7 +7,7 @@
 #include "MyWeaponItem.generated.h"
 
 UCLASS()
-class TESTPROJECT_API AMyWeaponItem : public AActor
+class INVENTORYSYSTEMCPP_API AMyWeaponItem : public AActor
 {
 	GENERATED_BODY()
 

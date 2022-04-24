@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class TESTPROJECT_API UDragWidget : public UDragDropOperation
+class INVENTORYSYSTEMCPP_API UDragWidget : public UDragDropOperation
 {
 	GENERATED_BODY()
 
