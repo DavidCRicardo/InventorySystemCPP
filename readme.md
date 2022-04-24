@@ -1,11 +1,11 @@
-## Inventory System CPP
+# Inventory System CPP
 
-### About
-The Inventory System CPP project contains a basic multiplayer supported inventory system featuring equip-able and usable items. It can be used in single-player and multiplayer projects, regardless of your game theme and UI design. The project is developed essentially on C++.
+## About
+The Inventory System CPP project contains a basic multiplayer supported inventory system featuring equip-able and usable items. The project is developed essentially on C++.
 
 The technical demo included is an MMO styled example with a Drag & Drop UI. This demo showcases how quick it is to implement and use the Inventory System in your own project.
 
-### Features:                                               
+## Features:                                               
 • Single Player and Multiplayer basic support.          <br>
 • Configurable equipment and items.                     <br>
 • Customizable player equipment types and slots.        <br>
@@ -17,7 +17,15 @@ The technical demo included is an MMO styled example with a Drag & Drop UI. This
 This is not an RPG Starter Kit and the practical examples and items demonstrating how to easily use the Inventory System CPP are a bonus.
 <br> <br>
 
-#### Author 
+## Controls
+WASD : To move <br>
+I : Open Inventory <br>
+P : Open Profile <br>
+RMB : Interact w/ Items <br>
+F : Collect Items <br>
+Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode"
+
+## Author 
 Developer: David Ricardo
 <br>
 You can support me here: <a href="https://ko-fi.com/davidcricardo"> Ko-fi  </a>
