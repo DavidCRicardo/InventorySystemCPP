@@ -28,5 +28,7 @@ Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode"
 ## Author 
 Developer: David Ricardo
 <br>
-You can support me here: <a href="https://ko-fi.com/davidcricardo"> Ko-fi  </a>
+Support me on <a href="https://ko-fi.com/davidcricardo"> Ko-fi  </a>
+<br>
+You can get support on <a href="https://discord.gg/F9KTXp8"> Discord </a>
 <br>
