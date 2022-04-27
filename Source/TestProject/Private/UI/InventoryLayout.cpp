@@ -28,14 +28,11 @@ void UInventoryLayout::NativeConstruct()
 	/**/
 
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
-	
-	if (!IsValid(PlayerController))
+	if (IsValid(PlayerController))
 	{
-		return;
+		InitializeSlots();
+		RefreshWindow();
 	}
-	
-	InitializeSlots();
-	RefreshWindow();
 
 	SetVisibility(ESlateVisibility::Hidden);
 }

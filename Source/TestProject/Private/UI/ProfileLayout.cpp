@@ -13,6 +13,9 @@ UProfileLayout::UProfileLayout()
 
 void UProfileLayout::ToggleWindow()
 {
+	// Avoid null slots ( doesn't crash, purely design )
+	RefreshWindow(); 
+	
 	Super::ToggleWindow();
 }
 
@@ -26,10 +29,12 @@ void UProfileLayout::NativeConstruct()
 	NumberOfRows = 2;
 
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
-
-	CreateChildWidgets();
-	InitializeSlots();
-
+	if(IsValid(PlayerController))
+	{
+		CreateChildWidgets();
+    	InitializeSlots();
+	}
+	
 	SetVisibility(ESlateVisibility::Hidden);
 }
 
@@ -86,6 +91,17 @@ void UProfileLayout::InitializeSlots()
 
 void UProfileLayout::RefreshWindow()
 {
+	if (!IsValid(PlayerController) || !IsValid(PlayerController->InventoryManagerComponent))
+	{
+		return;
+	}
+
+	if (!PlayerController->InventoryManagerComponent->Inventory.IsValidIndex(0))
+	{
+		return;
+	}
+	
+	
 	FSlotStructure CurrentSlot = {};
 	
 	for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)

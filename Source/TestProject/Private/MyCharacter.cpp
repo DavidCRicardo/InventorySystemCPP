@@ -424,6 +424,7 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleUIMode", EKeys::LeftAlt));
 		
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("TestKey", EKeys::T));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("QuitGame", EKeys::Escape));
 	}
 }
 

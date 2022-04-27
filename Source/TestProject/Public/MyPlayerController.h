@@ -108,6 +108,9 @@ protected:
 	void PrintInventory();
 	
 	UFUNCTION()
+	void QuitGame();
+	
+	UFUNCTION()
 	void OnActorUsed(AActor* Actor);
 
 	UFUNCTION()

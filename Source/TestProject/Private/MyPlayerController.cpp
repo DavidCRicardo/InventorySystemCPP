@@ -31,6 +31,12 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleUIMode", IE_Released, this, &AMyPlayerController::DisableUIMode);
 
 	InputComponent->BindAction("TestKey", IE_Pressed, this, &AMyPlayerController::TestMethod);
+	InputComponent->BindAction("QuitGame", IE_Pressed, this, &AMyPlayerController::QuitGame);
+
+}
+void AMyPlayerController::QuitGame()
+{
+	FGenericPlatformMisc::RequestExit(false);
 }
 
 void AMyPlayerController::BeginPlay()
@@ -200,14 +206,14 @@ void AMyPlayerController::ToggleInventory()
 
 void AMyPlayerController::ToggleMenu()
 {
-	if(InventoryManagerComponent->AddItem(TEXT("Cardboard_Chest"), 1))
+	/*if(InventoryManagerComponent->AddItem(TEXT("Cardboard_Chest"), 1))
 	{
 		InventoryManagerComponent->AddItem(TEXT("Cardboard_Boots"), 1);
 		InventoryManagerComponent->AddItem(TEXT("Cardboard_Gloves"), 1);
 		
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		PrintInventory();
-	}
+	}*/
 }
 
 void AMyPlayerController::GetSelectedItemIndex(uint32& Index)
