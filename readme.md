@@ -30,6 +30,7 @@ P : Open Profile <br>
 RMB : Interact w/ Items <br>
 F : Collect Items <br>
 Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode"
+Escape : Quit Game
 
 ## Author 
 Developer: David Ricardo
