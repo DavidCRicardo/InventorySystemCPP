@@ -29,7 +29,7 @@ I : Open Inventory <br>
 P : Open Profile <br>
 RMB : Interact w/ Items <br>
 F : Collect Items <br>
-Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode"
+Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode" <br>
 Escape : Quit Game
 
 ## Author 
