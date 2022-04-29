@@ -235,7 +235,7 @@ void AMyPlayerController::Interact()
 		{
 			CollectFromPanel(WorldActor->ID);
 
-			HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+			//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 		}
 	}
 }
@@ -256,6 +256,8 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 			if (WorldActor->ID == Name)
 			{
 				UseWorldActor(WorldActor);
+				
+				HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 				return;
 			}
 		}
