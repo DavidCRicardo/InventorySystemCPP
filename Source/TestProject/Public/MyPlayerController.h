@@ -10,6 +10,8 @@
 #include "Components/InventoryManagerComponent.h"
 #include "MyPlayerController.generated.h"
 
+static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
+
 /**
  * 
  */
@@ -30,6 +32,7 @@ public:
 	virtual void UI_DropInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+	virtual void UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance) override;
 	/* Ends Interface */
 	
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);

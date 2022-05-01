@@ -94,13 +94,26 @@ public:
 
 	UFUNCTION()
 	void UpdateEquippedMeshes(const uint8& InventorySlot);
-
+	UFUNCTION()
+	void UpdateEquippedStats();
+	
 	UFUNCTION()
 	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
 
 	UFUNCTION()
 	UDataTable* GetItemDB();
-	
+
+
+	UPROPERTY()
+	uint8 Strength;
+	UPROPERTY()
+	uint8 Endurance;
+	UPROPERTY()
+	uint8 Attack;
+	UPROPERTY()
+	uint8 Defense;
+	UPROPERTY()
+	uint8 Health;
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
