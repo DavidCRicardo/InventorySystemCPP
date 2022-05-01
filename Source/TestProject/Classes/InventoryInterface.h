@@ -36,4 +36,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_UnEquipInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_GetPlayerStats(const uint8& OutStrength, const uint8& OutEndurance);
+
 };
