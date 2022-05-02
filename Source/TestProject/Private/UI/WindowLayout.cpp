@@ -16,7 +16,7 @@ void UWindowLayout::NativeConstruct()
 
 	QuitButton->OnClicked.AddUniqueDynamic(this, &UWindowLayout::OnButtonQuitClicked);
 
-	//SetTitleToWindow();
+	SetTitleToWindow();
 
 	TopBorder->OnMouseButtonDownEvent.BindUFunction(this,"MyFunction");
 }
@@ -26,9 +26,9 @@ void UWindowLayout::MyFunction(FGeometry& InGeometry, const FPointerEvent& InMou
 	//UE_LOG (LogTemp, Warning, TEXT ("Border1 - Mouse Button Down Event!"))
 }
 
-void UWindowLayout::SetTitleToWindow(FText Text)
+void UWindowLayout::SetTitleToWindow(FString Title)
 {
-	WindowTitle->SetText(Text);
+	WindowTitle->SetText(FText::FromString(Title));
 }
 
 FEventReply UWindowLayout::RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

@@ -38,12 +38,6 @@ void UInventoryManagerComponent::BeginPlay()
 	InventorySize = NumberOfSlots;
 
 	InitInventory(NumberOfSlots);
-
-	Strength = 0;
-	Endurance = 0;
-	Attack = 0;
-	Defense = 0;
-	Health = 0;
 }
 
 
@@ -258,11 +252,9 @@ bool UInventoryManagerComponent::EquipItem(const uint8& FromInventorySlot, const
 			SetInventorySlot(SwapSlot, FromInventorySlot);
 
 			UpdateEquippedMeshes(ToInventorySlot);
-			UpdateEquippedStats();
-			
+
 			return true;
 		}
-		
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ITEM CAN NOT BE EQUIPPED HERE")));
 		return false;
 	}
@@ -584,28 +576,6 @@ void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot
 		}
 	}
 }
-
-void UInventoryManagerComponent::UpdateEquippedStats()
-{
-	Strength = 0;
-	Endurance = 0;
-	Attack = 0;
-	Defense = 0;
-	Health = 0;
-	
-	for (uint8 Index = 0; Index < (uint8)EEquipmentSlot::Count; Index++)
-	{
-		FSlotStructure Slot = GetInventorySlot(Index);
-
-		Strength += Slot.ItemStructure.Strength;
-		Endurance += Slot.ItemStructure.Endurance;
-		Attack += Slot.ItemStructure.Attack;
-		Defense += Slot.ItemStructure.Defense;
-		Health += Slot.ItemStructure.Health;
-	}
-
-}
-
 
 uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot)
 {

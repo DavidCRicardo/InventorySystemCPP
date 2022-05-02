@@ -20,8 +20,7 @@ void UInventoryLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FText Text = LOCTABLE(COMMON_WORDS, "INVENTORYKey");
-	Super::SetTitleToWindow(Text);
+	Super::SetTitleToWindow("INVENTORY");
 
 	/* TODO: This info needs to be Player Controller */
 	NumberOfRows = 7;

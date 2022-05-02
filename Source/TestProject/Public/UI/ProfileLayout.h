@@ -24,18 +24,6 @@ public:
 
 	UPROPERTY()
 	AMyPlayerController* PlayerController;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* StrengthValue;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* EnduranceValue;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* DexterityValue;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* IntelligenceValue;
 	
 private:
 	virtual void NativeConstruct() override;

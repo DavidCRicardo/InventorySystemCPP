@@ -101,11 +101,6 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 	RefreshWidgets();
 }
 
-void AMyPlayerController::UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance)
-{
-	IInventoryInterface::UI_GetPlayerStats_Implementation(OutStrength, OutEndurance);
-}
-
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
 	OnActorUsed(Actor);

@@ -4,12 +4,8 @@
 #include "UI/ProfileLayout.h"
 #include "MyHUD.h"
 #include "MyPlayerController.h"
-#include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
-
-//static const FName COMMON_WORDS = "/Game/UI/Strings/CommonWords.CommonWords";
-//static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
 
 UProfileLayout::UProfileLayout()
 {
@@ -26,32 +22,9 @@ void UProfileLayout::ToggleWindow()
 void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	Super::SetTitleToWindow(FString("PROFILE"));
 
-	//Outdated - Before Localization
-	//Super::SetTitleToWindow(FString("PROFILE"));
-	
-	//FText Text = NSLOCTEXT("MyNamespace", "PROFILEKey", "PROFILE");
-	//If you're using a string table, LOCTABLE for string literals, FromStringTable otherwise.
-	//FText Text = FText::FromStringTable(LCOMMON_WORDS, "PROFILEKey");
-	FText Text = LOCTABLE(COMMON_WORDS, "PROFILEKey");
-	
-	Super::SetTitleToWindow(Text);
-
-	FFormatNamedArguments Args;
-	
-	FText FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance"), Args
-	);
-	EnduranceValue->SetText(FormattedText);
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity"), Args
-	);
-	DexterityValue->SetText(FormattedText);
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence"), Args
-	);
-	IntelligenceValue->SetText(FormattedText);
-	
 	NumberOfColumns = 2;
 	NumberOfRows = 2;
 
@@ -158,24 +131,4 @@ void UProfileLayout::RefreshWindow()
 	
 		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
 	}
-
-	// Refresh Stats
-	
-	FFormatNamedArguments Args;
-	
-	uint8 Value = 100;
-	Args.Add("Value", Value);
-	
-	FText FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
-		Args
-	);
-	StrengthValue->SetText(FormattedText);
-	
-	/**/
-	
-	/**/
-	
-	// UI Get Player Stats (target = PC)
-
 }

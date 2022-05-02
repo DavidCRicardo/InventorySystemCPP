@@ -31,6 +31,9 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EItemQuality Quality;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 Amount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint8 PriceValue;
@@ -54,33 +57,12 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 	UStaticMesh* WorldMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EEquipmentSlot EquipmentSlot;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 CurrentLevel;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 MaxLevel;
-		
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 AmountToAddPerLevel;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 Strength;
-        
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 Endurance;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 Attack;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 Defense;
-	
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 Health;
-            
 };
 

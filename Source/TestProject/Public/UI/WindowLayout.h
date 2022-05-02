@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Internationalization/StringTableRegistry.h"
 #include "WindowLayout.generated.h"
 
 /**
@@ -37,9 +36,8 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* QuitButton;
-
-	UFUNCTION()
-	virtual void SetTitleToWindow(FText Text);
+	
+	virtual void SetTitleToWindow(FString Title = FString("WINDOW"));
 	
 	virtual FEventReply RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
