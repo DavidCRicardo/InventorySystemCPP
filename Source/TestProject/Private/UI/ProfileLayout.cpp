@@ -36,21 +36,6 @@ void UProfileLayout::NativeConstruct()
 	FText Text = LOCTABLE(COMMON_WORDS, "PROFILEKey");
 	
 	Super::SetTitleToWindow(Text);
-
-	FFormatNamedArguments Args;
-	
-	FText FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance"), Args
-	);
-	EnduranceValue->SetText(FormattedText);
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity"), Args
-	);
-	DexterityValue->SetText(FormattedText);
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence"), Args
-	);
-	IntelligenceValue->SetText(FormattedText);
 	
 	NumberOfColumns = 2;
 	NumberOfRows = 2;
@@ -171,7 +156,21 @@ void UProfileLayout::RefreshWindow()
 		Args
 	);
 	StrengthValue->SetText(FormattedText);
+
+	FormattedText = FText::Format(
+		NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
+	);
+	EnduranceValue->SetText(FormattedText);
 	
+	FormattedText = FText::Format(
+		NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
+	);
+	DexterityValue->SetText(FormattedText);
+	
+	FormattedText = FText::Format(
+		NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
+	);
+	IntelligenceValue->SetText(FormattedText);
 	/**/
 	
 	/**/
