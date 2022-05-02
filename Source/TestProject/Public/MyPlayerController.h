@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EAttributes.h"
 #include "InventoryInterface.h"
 #include "UsableActor.h"
 #include "WorldActor.h"
@@ -22,7 +23,7 @@ class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, pub
 	
 public:
 	AMyPlayerController();
-
+	
 	UFUNCTION()
 	void TestMethod();
 	
@@ -32,8 +33,11 @@ public:
 	virtual void UI_DropInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
-	virtual void UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance) override;
+	virtual TMap<EAttributes, uint8> UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance) override;
 	/* Ends Interface */
+	
+	UPROPERTY()
+	TMap<EAttributes, uint8> AttributesMap;
 	
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
 	
@@ -112,7 +116,8 @@ protected:
 	
 	UFUNCTION()
 	void QuitGame();
-	
+	void InitializePlayerAttributes();
+
 	UFUNCTION()
 	void OnActorUsed(AActor* Actor);
 

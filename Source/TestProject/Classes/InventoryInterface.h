@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EAttributes.h"
 #include "UObject/Interface.h"
 #include "InventoryInterface.generated.h"
 
@@ -38,6 +39,6 @@ public:
 	void UI_UnEquipInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	void UI_GetPlayerStats(const uint8& OutStrength, const uint8& OutEndurance);
+	TMap<EAttributes, uint8> UI_GetPlayerStats(const uint8& OutStrength, const uint8& OutEndurance);
 
 };

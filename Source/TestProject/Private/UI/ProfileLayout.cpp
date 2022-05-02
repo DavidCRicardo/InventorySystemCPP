@@ -145,10 +145,12 @@ void UProfileLayout::RefreshWindow()
 	}
 
 	// Refresh Stats
+	// UI Get Player Stats (target = PC)
 	
 	FFormatNamedArguments Args;
 	
-	uint8 Value = 100;
+	uint8 Value = 0;
+	Value = PlayerController->AttributesMap[EAttributes::Strength];
 	Args.Add("Value", Value);
 	
 	FText FormattedText = FText::Format(
@@ -157,15 +159,27 @@ void UProfileLayout::RefreshWindow()
 	);
 	StrengthValue->SetText(FormattedText);
 
+	
+	Value = PlayerController->AttributesMap[EAttributes::Endurance];
+	Args.Add("Value", Value);
+	
 	FormattedText = FText::Format(
 		NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
 	);
 	EnduranceValue->SetText(FormattedText);
+
+	
+	Value = PlayerController->AttributesMap[EAttributes::Dexterity];
+	Args.Add("Value", Value);
 	
 	FormattedText = FText::Format(
 		NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
 	);
 	DexterityValue->SetText(FormattedText);
+
+
+	Value = PlayerController->AttributesMap[EAttributes::Intelligence];
+	Args.Add("Value", Value);
 	
 	FormattedText = FText::Format(
 		NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
@@ -175,6 +189,6 @@ void UProfileLayout::RefreshWindow()
 	
 	/**/
 	
-	// UI Get Player Stats (target = PC)
+	
 
 }

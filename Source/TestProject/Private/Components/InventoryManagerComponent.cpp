@@ -603,7 +603,6 @@ void UInventoryManagerComponent::UpdateEquippedStats()
 		Defense += Slot.ItemStructure.Defense;
 		Health += Slot.ItemStructure.Health;
 	}
-
 }
 
 
