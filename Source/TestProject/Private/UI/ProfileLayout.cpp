@@ -17,7 +17,7 @@ UProfileLayout::UProfileLayout()
 
 void UProfileLayout::ToggleWindow()
 {
-	// Avoid null slots ( doesn't crash, purely design )
+	// Avoid null slots (doesn't crash, purely design )
 	RefreshWindow(); 
 	
 	Super::ToggleWindow();
@@ -150,7 +150,11 @@ void UProfileLayout::RefreshWindow()
 	FFormatNamedArguments Args;
 	
 	uint8 Value = 0;
-	Value = PlayerController->AttributesMap[EAttributes::Strength];
+	Value = 0; // PlayerController->AttributesMap[EAttributes::Strength];
+	
+	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
+	Value = Attributes[0];
+	
 	Args.Add("Value", Value);
 	
 	FText FormattedText = FText::Format(
@@ -160,7 +164,8 @@ void UProfileLayout::RefreshWindow()
 	StrengthValue->SetText(FormattedText);
 
 	
-	Value = PlayerController->AttributesMap[EAttributes::Endurance];
+	Value = 0; // PlayerController->AttributesMap[EAttributes::Endurance];
+	Value = Attributes[1];
 	Args.Add("Value", Value);
 	
 	FormattedText = FText::Format(
@@ -169,7 +174,8 @@ void UProfileLayout::RefreshWindow()
 	EnduranceValue->SetText(FormattedText);
 
 	
-	Value = PlayerController->AttributesMap[EAttributes::Dexterity];
+	Value = 0; // PlayerController->AttributesMap[EAttributes::Dexterity];
+	Value = Attributes[2];
 	Args.Add("Value", Value);
 	
 	FormattedText = FText::Format(
@@ -178,7 +184,8 @@ void UProfileLayout::RefreshWindow()
 	DexterityValue->SetText(FormattedText);
 
 
-	Value = PlayerController->AttributesMap[EAttributes::Intelligence];
+	Value = 0; // PlayerController->AttributesMap[EAttributes::Intelligence];
+	Value = Attributes[3];
 	Args.Add("Value", Value);
 	
 	FormattedText = FText::Format(

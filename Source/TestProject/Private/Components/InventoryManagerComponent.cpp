@@ -38,12 +38,6 @@ void UInventoryManagerComponent::BeginPlay()
 	InventorySize = NumberOfSlots;
 
 	InitInventory(NumberOfSlots);
-
-	Strength = 0;
-	Endurance = 0;
-	Attack = 0;
-	Defense = 0;
-	Health = 0;
 }
 
 
@@ -287,6 +281,7 @@ bool UInventoryManagerComponent::UnEquipItem(const uint8& FromInventorySlot, con
 
 			UpdateEquippedMeshes(FromInventorySlot);
 			UpdateEquippedMeshes(ToInventorySlot);
+			UpdateEquippedStats();
 			
 			return true;
 		}
@@ -297,7 +292,8 @@ bool UInventoryManagerComponent::UnEquipItem(const uint8& FromInventorySlot, con
 		    if (GetEquipmentTypeBySlot(ToInventorySlot) == GetEquipmentTypeBySlot(FromInventorySlot))
 		    {
 		    	EquipItem(ToInventorySlot, FromInventorySlot);
-
+		    	UpdateEquippedStats();
+		    	
 			    return true;
 		    }
 	    }
@@ -587,24 +583,34 @@ void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot
 
 void UInventoryManagerComponent::UpdateEquippedStats()
 {
-	Strength = 0;
-	Endurance = 0;
-	Attack = 0;
-	Defense = 0;
-	Health = 0;
+	uint8 TempStrength = 0;
+	uint8 TempEndurance = 0;
+	uint8 TempDexterity = 0;
+	uint8 TempIntelligence = 0;
 	
-	for (uint8 Index = 0; Index < (uint8)EEquipmentSlot::Count; Index++)
+	for (int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
 	{
-		FSlotStructure Slot = GetInventorySlot(Index);
-
-		Strength += Slot.ItemStructure.Strength;
-		Endurance += Slot.ItemStructure.Endurance;
-		Attack += Slot.ItemStructure.Attack;
-		Defense += Slot.ItemStructure.Defense;
-		Health += Slot.ItemStructure.Health;
+		FSlotStructure TempSlot = GetInventorySlot(i);
+		TempStrength += TempSlot.ItemStructure.Strength;
+		TempEndurance += TempSlot.ItemStructure.Endurance;
+		TempDexterity += TempSlot.ItemStructure.Dexterity;
+		TempIntelligence += TempSlot.ItemStructure.Intelligence;
 	}
+	
+	
+	AttributesArray[0] = TempStrength;
+	AttributesArray[1] = TempEndurance;
+	AttributesArray[2] = TempDexterity;
+	AttributesArray[3] = TempIntelligence;
+
 }
 
+void UInventoryManagerComponent::InitializePlayerAttributes()
+{
+	AttributesArray.Init(0, 4);
+	
+	UpdateEquippedStats();
+}
 
 uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot)
 {

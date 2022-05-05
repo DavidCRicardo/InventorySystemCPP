@@ -73,6 +73,13 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
         
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     uint8 Endurance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 Dexterity;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 Intelligence;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint8 Attack;
 	
@@ -81,6 +88,5 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 	
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     uint8 Health;
-            
 };
 

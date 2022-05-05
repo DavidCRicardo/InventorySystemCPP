@@ -25,6 +25,8 @@ FItemStructure::FItemStructure()
 	AmountToAddPerLevel = 0;
 	Strength = 0;
 	Endurance  = 0;
+	Dexterity = 0;
+	Intelligence = 0;
 	Attack = 0;
 	Defense = 0;
 	Health = 0;
