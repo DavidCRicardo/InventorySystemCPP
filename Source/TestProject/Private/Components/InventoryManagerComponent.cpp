@@ -607,7 +607,7 @@ void UInventoryManagerComponent::UpdateEquippedStats()
 
 void UInventoryManagerComponent::InitializePlayerAttributes()
 {
-	AttributesArray.Init(0, 4);
+	AttributesArray.Init(0, (uint8)EAttributes::Count);
 	
 	UpdateEquippedStats();
 }

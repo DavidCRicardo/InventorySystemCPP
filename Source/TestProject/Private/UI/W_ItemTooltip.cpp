@@ -2,7 +2,20 @@
 
 
 #include "UI/W_ItemTooltip.h"
+
+#include "MyPlayerController.h"
 #include "Item/FItemType.h"
+
+void UW_ItemTooltip::NativeConstruct()
+{
+	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwningPlayer()))
+	{
+		uint8 NumberOfAttributes = PC->InventoryManagerComponent->AttributesArray.Num();
+		
+		TextAttributeArray.Init(SingleAttribute, NumberOfAttributes);
+	}
+}
+
 
 void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 {
@@ -30,4 +43,30 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 	Type->SetText(InText);
 
 	Description->SetText(Item.Description);
+
+	UTextBlock* SingleAttribute2 = NewObject<UTextBlock>();
+	
+	if ( Item.Strength != 0)
+	{
+		uint8 Value = Item.Strength;
+		FText StrengthText = FText::AsNumber(Value);
+		
+		FString String = "Strength: " + FString::FromInt(Value);
+		StrengthText = FText::FromString(String);
+		
+		//FFormatNamedArguments Args;
+		//Args.Add("Value", Value);
+		
+		/*FText FormattedText = FText::Format(
+			NSLOCTEXT("MyNamespace", "StrengthTooltipKey", "Strength: {Value}"),
+			Args
+		);*/
+	
+		SingleAttribute2->SetText(StrengthText);
+		VerticalBoxAttributes->AddChild(SingleAttribute2);
+	
+	}else
+	{
+		VerticalBoxAttributes->RemoveChild(SingleAttribute);
+	}
 }

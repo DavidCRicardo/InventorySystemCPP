@@ -107,22 +107,10 @@ public:
 	void InitializePlayerAttributes();
 	UPROPERTY()
 	TArray<uint8> AttributesArray;
-	
+
+	// Not replicable
 	/*UPROPERTY()
-	uint8 Strength;
-	UPROPERTY()
-	uint8 Endurance;
-	UPROPERTY()
-	uint8 Dexterity;
-	UPROPERTY()
-	uint8 Intelligence;
-	
-	UPROPERTY()
-	uint8 Attack;
-	UPROPERTY()
-	uint8 Defense;
-	UPROPERTY()
-	uint8 Health;*/
+	TMap<EAttributes, uint8> AttributesMap;*/
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;

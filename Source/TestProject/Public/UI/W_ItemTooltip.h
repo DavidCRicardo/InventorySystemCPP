@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
 #include "Item/FItemStructure.h"
 #include "W_ItemTooltip.generated.h"
 
@@ -36,4 +37,17 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Type;
+
+	UPROPERTY()
+	UTextBlock* SingleAttribute;
+
+	UPROPERTY()
+	TArray<UTextBlock*> TextAttributeArray;
+
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* VerticalBoxAttributes;
+
+private:
+    virtual void NativeConstruct() override;
+    	
 };
