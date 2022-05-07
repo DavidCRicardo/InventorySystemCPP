@@ -11,8 +11,10 @@ void UW_ItemTooltip::NativeConstruct()
 	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwningPlayer()))
 	{
 		uint8 NumberOfAttributes = PC->InventoryManagerComponent->AttributesArray.Num();
+
+		UTextBlock* TextBlock;
 		
-		TextAttributeArray.Init(SingleAttribute, NumberOfAttributes);
+		TextAttributeArray.Init(TextBlock, NumberOfAttributes);
 	}
 }
 
@@ -44,7 +46,7 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 
 	Description->SetText(Item.Description);
 
-	UTextBlock* SingleAttribute2 = NewObject<UTextBlock>();
+	UTextBlock* SingleAttribute = NewObject<UTextBlock>();
 	
 	if ( Item.Strength != 0)
 	{
@@ -62,11 +64,14 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 			Args
 		);*/
 	
-		SingleAttribute2->SetText(StrengthText);
-		VerticalBoxAttributes->AddChild(SingleAttribute2);
+		SingleAttribute->SetText(StrengthText);
+		SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
+		SingleAttribute->Font.Size = 12;
+		
+		VerticalBoxAttributes->AddChild(SingleAttribute);
 	
-	}else
+	}/*else
 	{
 		VerticalBoxAttributes->RemoveChild(SingleAttribute);
-	}
+	}*/
 }

@@ -37,10 +37,7 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Type;
-
-	UPROPERTY()
-	UTextBlock* SingleAttribute;
-
+	
 	UPROPERTY()
 	TArray<UTextBlock*> TextAttributeArray;
 
