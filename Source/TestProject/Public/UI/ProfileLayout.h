@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "SlotLayout.h"
 #include "WindowLayout.h"
+#include "Components/VerticalBox.h"
 #include "ProfileLayout.generated.h"
 
 UCLASS()
@@ -25,6 +26,9 @@ public:
 	UPROPERTY()
 	AMyPlayerController* PlayerController;
 
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* AttributesBox;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
 	UTextBlock* StrengthValue;
 	
@@ -42,7 +46,13 @@ private:
 	virtual void CreateChildWidgets() override;
 	virtual void InitializeSlots() override;
 	virtual void OnButtonQuitClicked() override;
+
+	UFUNCTION()
+	void InitializePlayerStatsUI();
 	
+	UFUNCTION()
+	void UpdatePlayerStatsUI();
+
 	UPROPERTY()
 	uint8 NumberOfColumns;
 	UPROPERTY()

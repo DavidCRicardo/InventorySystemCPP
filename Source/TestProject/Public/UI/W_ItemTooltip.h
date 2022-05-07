@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EAttributes.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -38,13 +39,15 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Type;
 	
-	UPROPERTY()
-	TArray<UTextBlock*> TextAttributeArray;
+	//UPROPERTY()
+	//TArray<UTextBlock*> TextAttributeArray;
 
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* VerticalBoxAttributes;
 
 private:
     virtual void NativeConstruct() override;
-    	
+
+	UFUNCTION()
+	void GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, uint8& Value);
 };

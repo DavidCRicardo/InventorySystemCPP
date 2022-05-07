@@ -5,7 +5,7 @@
 UENUM()
 enum class EAttributes : int8
 {
-	//Undefined = -1	UMETA(DisplayName="Undefined"),
+	Undefined = -1	UMETA(DisplayName="Undefined"),
 	
 	Strength		UMETA(DisplayName="Strength"),
 	Endurance		UMETA(DisplayName="Endurance"),

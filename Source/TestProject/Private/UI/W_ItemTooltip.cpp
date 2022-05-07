@@ -8,16 +8,14 @@
 
 void UW_ItemTooltip::NativeConstruct()
 {
-	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwningPlayer()))
+	/*if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwningPlayer()))
 	{
-		uint8 NumberOfAttributes = PC->InventoryManagerComponent->AttributesArray.Num();
+		const uint8 NumberOfAttributes = PC->InventoryManagerComponent->AttributesArray.Num();
 
 		UTextBlock* TextBlock;
-		
 		TextAttributeArray.Init(TextBlock, NumberOfAttributes);
-	}
+	}*/
 }
-
 
 void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 {
@@ -46,32 +44,58 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 
 	Description->SetText(Item.Description);
 
-	UTextBlock* SingleAttribute = NewObject<UTextBlock>();
-	
-	if ( Item.Strength != 0)
+	for (EAttributes Attribute : TEnumRange<EAttributes>())
 	{
-		uint8 Value = Item.Strength;
-		FText StrengthText = FText::AsNumber(Value);
+		UTextBlock* SingleAttribute = NewObject<UTextBlock>();
+		FString AttributeString = *UEnum::GetDisplayValueAsText(Attribute).ToString();
+
+		uint8 Value;
+		GetAttributeValueFromItem(Item, Attribute, Value);
+
+		if (Value != 0)
+		{
+			FString String = AttributeString + ": " + FString::FromInt(Value);
+			FText Text = FText::FromString(String);
 		
-		FString String = "Strength: " + FString::FromInt(Value);
-		StrengthText = FText::FromString(String);
+			SingleAttribute->SetText(Text);
+			SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
+			SingleAttribute->Font.Size = 12;
 		
+			VerticalBoxAttributes->AddChild(SingleAttribute);
+			//VerticalBoxAttributes->AddChildToVerticalBox(SingleAttribute);
+		}
+	}
+
+		/*Localization to be implemented on the next version*/
 		//FFormatNamedArguments Args;
 		//Args.Add("Value", Value);
 		
-		/*FText FormattedText = FText::Format(
-			NSLOCTEXT("MyNamespace", "StrengthTooltipKey", "Strength: {Value}"),
-			Args
-		);*/
-	
-		SingleAttribute->SetText(StrengthText);
-		SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
-		SingleAttribute->Font.Size = 12;
-		
-		VerticalBoxAttributes->AddChild(SingleAttribute);
-	
-	}/*else
+		//FText FormattedText = FText::Format(
+		//	NSLOCTEXT("MyNamespace", "StrengthTooltipKey", "Strength: {Value}"),
+		//	Args
+		//);
+	//}*/
+}
+
+void UW_ItemTooltip::GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, uint8& Value)
+{
+	if (Attribute == EAttributes::Strength)
 	{
-		VerticalBoxAttributes->RemoveChild(SingleAttribute);
-	}*/
+		Value = Item.Strength;
+	}
+	else if (Attribute == EAttributes::Endurance)
+	{
+		Value = Item.Endurance;
+	}
+	else if (Attribute == EAttributes::Dexterity)
+	{
+		Value = Item.Dexterity;
+	}
+	else if (Attribute == EAttributes::Intelligence)
+	{
+		Value = Item.Intelligence;
+	}else
+	{
+		Value = 0;
+	}
 }

@@ -45,6 +45,8 @@ void UProfileLayout::NativeConstruct()
 	{
 		CreateChildWidgets();
     	InitializeSlots();
+
+		//InitializePlayerStatsUI();
 	}
 	
 	SetVisibility(ESlateVisibility::Hidden);
@@ -146,25 +148,40 @@ void UProfileLayout::RefreshWindow()
 
 	// Refresh Stats
 	// UI Get Player Stats (target = PC)
+	UpdatePlayerStatsUI();
+	/**/
+}
+
+
+void UProfileLayout::UpdatePlayerStatsUI()
+{
+	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
 	
 	FFormatNamedArguments Args;
+	uint8 Value;
 	
-	uint8 Value = 0;
-	Value = 0; // PlayerController->AttributesMap[EAttributes::Strength];
-	
-	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
 	Value = Attributes[0];
-	
 	Args.Add("Value", Value);
 	
 	FText FormattedText = FText::Format(
 		NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
 		Args
 	);
+	
+	/*UWidget* SlotsFromBox = AttributesBox->GetChildAt(0);
+	
+	UTextBlock* TextBlock = Cast<UTextBlock>(SlotsFromBox->GetClass());
+	
+	if (IsValid(TextBlock))
+	{
+		TextBlock->SetText(FormattedText);
+	}else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not Valid"))
+	}*/
+	
 	StrengthValue->SetText(FormattedText);
 
-	
-	Value = 0; // PlayerController->AttributesMap[EAttributes::Endurance];
 	Value = Attributes[1];
 	Args.Add("Value", Value);
 	
@@ -173,8 +190,6 @@ void UProfileLayout::RefreshWindow()
 	);
 	EnduranceValue->SetText(FormattedText);
 
-	
-	Value = 0; // PlayerController->AttributesMap[EAttributes::Dexterity];
 	Value = Attributes[2];
 	Args.Add("Value", Value);
 	
@@ -183,8 +198,6 @@ void UProfileLayout::RefreshWindow()
 	);
 	DexterityValue->SetText(FormattedText);
 
-
-	Value = 0; // PlayerController->AttributesMap[EAttributes::Intelligence];
 	Value = Attributes[3];
 	Args.Add("Value", Value);
 	
@@ -192,10 +205,44 @@ void UProfileLayout::RefreshWindow()
 		NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
 	);
 	IntelligenceValue->SetText(FormattedText);
-	/**/
-	
-	/**/
-	
-	
+}
 
+void UProfileLayout::InitializePlayerStatsUI()
+{
+	uint8 Index = 0;
+
+	FText Text;
+	for (EAttributes Attribute : TEnumRange<EAttributes>())
+	{
+		UTextBlock* SingleAttribute = NewObject<UTextBlock>();
+		FString AttributeString = *UEnum::GetDisplayValueAsText(Attribute).ToString();
+		
+		if (Attribute == EAttributes::Strength || Attribute == EAttributes::Dexterity ||
+			Attribute == EAttributes::Endurance || Attribute == EAttributes::Intelligence)
+		{
+			//FFormatNamedArguments Args;
+			uint8 Value;
+			//GetAttributeValueFromItem(Item, Attribute, Value);
+			Value = 0;
+		
+			FString String = AttributeString + ": " + FString::FromInt(Value);
+			Text = FText::FromString(String);
+
+			//Args.Add("Value", Value);
+	
+			/*FText FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
+				Args
+			);
+			StrengthValue->SetText(FormattedText);*/
+			
+			SingleAttribute->SetText(Text);
+			SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
+			SingleAttribute->Font.Size = 12;
+
+			AttributesBox->AddChild(SingleAttribute);
+			AttributesBox->AddChildToVerticalBox(SingleAttribute);
+		}
+		Index++;
+	}
 }
