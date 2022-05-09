@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "SlotLayout.h"
 #include "WindowLayout.h"
+#include "Components/ListView.h"
 #include "Components/VerticalBox.h"
 #include "ProfileLayout.generated.h"
 
@@ -14,9 +15,14 @@ class INVENTORYSYSTEMCPP_API UProfileLayout : public UWindowLayout
 public:
 	UProfileLayout();
 
+	UFUNCTION()
+	void InitializePlayerStatsUI();
+	
 	virtual void ToggleWindow() override;
 	virtual void RefreshWindow() override;
 	
+	void InitializePlayerStatsUI2(UUserWidget* Entry2);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* EquipmentGridPanel;
 	
@@ -29,6 +35,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* AttributesBox;
 
+	UPROPERTY(meta = (BindWidget))
+	UListView* Attributes_ListView;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
 	UTextBlock* StrengthValue;
 	
@@ -40,7 +49,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
 	UTextBlock* IntelligenceValue;
-	
+
 private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;
@@ -48,7 +57,7 @@ private:
 	virtual void OnButtonQuitClicked() override;
 
 	UFUNCTION()
-	void InitializePlayerStatsUI();
+	void CreateAttributesEntry();
 	
 	UFUNCTION()
 	void UpdatePlayerStatsUI();

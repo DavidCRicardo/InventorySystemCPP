@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
+#include "UI/Attribute_Entry.h"
 
 //static const FName COMMON_WORDS = "/Game/UI/Strings/CommonWords.CommonWords";
 //static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
@@ -26,7 +27,7 @@ void UProfileLayout::ToggleWindow()
 void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
-
+	
 	//Outdated - Before Localization
 	//Super::SetTitleToWindow(FString("PROFILE"));
 	
@@ -45,8 +46,7 @@ void UProfileLayout::NativeConstruct()
 	{
 		CreateChildWidgets();
     	InitializeSlots();
-
-		//InitializePlayerStatsUI();
+		CreateAttributesEntry();
 	}
 	
 	SetVisibility(ESlateVisibility::Hidden);
@@ -60,13 +60,9 @@ void UProfileLayout::OnButtonQuitClicked()
 	}
 }
 
+
 void UProfileLayout::CreateChildWidgets()
 {
-	if (!IsValid(PlayerController))
-	{
-		return;
-	}
-	
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
 	//FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(GetOwningPlayer()->GetHUD())->GetWidgetBPClass("SlotLayout_WBP");
 	if (WidgetLayout)
@@ -95,12 +91,20 @@ void UProfileLayout::CreateChildWidgets()
 
 void UProfileLayout::InitializeSlots()
 {
-	if (!IsValid(PlayerController))
-	{
-		return;
-	}
-
 	RefreshWindow();
+}
+
+void UProfileLayout::CreateAttributesEntry()
+{
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("Attribute_Entry_WBP");
+	if (WidgetLayout)
+	{
+		for (uint8 Index = 0; Index < 4/*(uint8)EAttributes::Count*/; Index++)
+		{
+			UAttribute_Entry* Entry = CreateWidget<UAttribute_Entry>(this, WidgetLayout->Widget);
+			Attributes_ListView->AddItem(Entry);
+		}
+	}
 }
 
 void UProfileLayout::RefreshWindow()
@@ -152,59 +156,106 @@ void UProfileLayout::RefreshWindow()
 	/**/
 }
 
+void UProfileLayout::InitializePlayerStatsUI2(UUserWidget* Entry2)
+{
+	UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Entry2);
+	
+	uint8 Index = 0;
+	FText Text;
+	uint8 Value;
+	
+	for (EAttributes Attribute : TEnumRange<EAttributes>())
+	{
+		FString AttributeString = *UEnum::GetDisplayValueAsText(Attribute).ToString();
+		
+		if (Attribute == EAttributes::Strength || Attribute == EAttributes::Dexterity ||
+			Attribute == EAttributes::Endurance || Attribute == EAttributes::Intelligence)
+		{
+			FFormatNamedArguments Args;
+			
+			Value = 0;
+		
+			FString String = AttributeString + ": " + FString::FromInt(Value);
+			Text = FText::FromString(String);
+
+			Args.Add("Value", Value);
+	
+			FText FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
+				Args
+			);
+			StrengthValue->SetText(FormattedText);
+			
+			Entry->SetAttributeText(FormattedText);
+
+			Entry->AddToViewport();
+			//Attributes_ListView->AddItem(Entry);
+			
+		}
+		Index++;
+	}
+}
+
 
 void UProfileLayout::UpdatePlayerStatsUI()
 {
 	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
 	
 	FFormatNamedArguments Args;
+	FText FormattedText;
 	uint8 Value;
-	
-	Value = Attributes[0];
-	Args.Add("Value", Value);
-	
-	FText FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
-		Args
-	);
-	
-	/*UWidget* SlotsFromBox = AttributesBox->GetChildAt(0);
-	
-	UTextBlock* TextBlock = Cast<UTextBlock>(SlotsFromBox->GetClass());
-	
-	if (IsValid(TextBlock))
+
+	for (uint8 Index = 0; Index < (uint8)EAttributes::Count; Index++)
 	{
-		TextBlock->SetText(FormattedText);
-	}else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Not Valid"))
-	}*/
+		if(Index == 0)
+		{
+			/*UWidget* ChildWidget = AttributesBox->GetChildAt(4);
+			UTextBlock* TextBlock = Cast<UTextBlock>(ChildWidget);
+			if (IsValid(TextBlock))
+			{
+				FText a = TextBlock->GetText();
+				
+				TextBlock->SetText(a);
+			}*/
+			Value = Attributes[Index];
+			Args.Add("Value", Value);
 	
-	StrengthValue->SetText(FormattedText);
-
-	Value = Attributes[1];
-	Args.Add("Value", Value);
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
+				Args
+			);
+			StrengthValue->SetText(FormattedText);
+		}
+		else if(Index == 1)
+		{
+			Value = Attributes[Index];
+			Args.Add("Value", Value);
 	
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
-	);
-	EnduranceValue->SetText(FormattedText);
-
-	Value = Attributes[2];
-	Args.Add("Value", Value);
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
+			);
+			EnduranceValue->SetText(FormattedText);
+		}
+		else if(Index == 2)
+		{
+			Value = Attributes[Index];
+			Args.Add("Value", Value);
 	
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
-	);
-	DexterityValue->SetText(FormattedText);
-
-	Value = Attributes[3];
-	Args.Add("Value", Value);
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
+			);
+			DexterityValue->SetText(FormattedText);
+		}else if(Index == 3)
+		{
+			Value = Attributes[Index];
+			Args.Add("Value", Value);
 	
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
-	);
-	IntelligenceValue->SetText(FormattedText);
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
+			);
+			IntelligenceValue->SetText(FormattedText);
+		}
+	}
 }
 
 void UProfileLayout::InitializePlayerStatsUI()
@@ -214,35 +265,49 @@ void UProfileLayout::InitializePlayerStatsUI()
 	FText Text;
 	for (EAttributes Attribute : TEnumRange<EAttributes>())
 	{
-		UTextBlock* SingleAttribute = NewObject<UTextBlock>();
+		UUserWidget* Attribute_Entry = CreateWidget(this, UAttribute_Entry::StaticClass());
+
+		
 		FString AttributeString = *UEnum::GetDisplayValueAsText(Attribute).ToString();
 		
 		if (Attribute == EAttributes::Strength || Attribute == EAttributes::Dexterity ||
 			Attribute == EAttributes::Endurance || Attribute == EAttributes::Intelligence)
 		{
-			//FFormatNamedArguments Args;
+			FFormatNamedArguments Args;
+			
 			uint8 Value;
-			//GetAttributeValueFromItem(Item, Attribute, Value);
 			Value = 0;
 		
 			FString String = AttributeString + ": " + FString::FromInt(Value);
 			Text = FText::FromString(String);
 
-			//Args.Add("Value", Value);
+			Args.Add("Value", Value);
 	
-			/*FText FormattedText = FText::Format(
+			FText FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
 				Args
 			);
-			StrengthValue->SetText(FormattedText);*/
+			StrengthValue->SetText(FormattedText);
+
+			if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Attribute_Entry))
+			{
+				Entry->SetAttributeText(FormattedText);
+				Attributes_ListView->AddItem(Entry);
+
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Attribute Entry Cast Successful")));
+			}else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Attribute Entry Cast Failed")));
+			}
 			
-			SingleAttribute->SetText(Text);
+			/*SingleAttribute->SetText(FormattedText);
 			SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
 			SingleAttribute->Font.Size = 12;
 
-			AttributesBox->AddChild(SingleAttribute);
-			AttributesBox->AddChildToVerticalBox(SingleAttribute);
+			//AttributesBox->AddChild(SingleAttribute);
+			AttributesBox->AddChildToVerticalBox(SingleAttribute);*/
 		}
 		Index++;
 	}
 }
+

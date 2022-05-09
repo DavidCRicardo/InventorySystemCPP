@@ -38,9 +38,6 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Type;
-	
-	//UPROPERTY()
-	//TArray<UTextBlock*> TextAttributeArray;
 
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* VerticalBoxAttributes;
