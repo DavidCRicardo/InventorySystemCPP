@@ -4,7 +4,6 @@
 #include "SlotLayout.h"
 #include "WindowLayout.h"
 #include "Components/ListView.h"
-#include "Components/VerticalBox.h"
 #include "ProfileLayout.generated.h"
 
 UCLASS()
@@ -14,9 +13,6 @@ class INVENTORYSYSTEMCPP_API UProfileLayout : public UWindowLayout
 	
 public:
 	UProfileLayout();
-
-	UFUNCTION()
-	void InitializePlayerStatsUI();
 	
 	virtual void ToggleWindow() override;
 	virtual void RefreshWindow() override;
@@ -31,22 +27,7 @@ public:
 	AMyPlayerController* PlayerController;
 
 	UPROPERTY(meta = (BindWidget))
-	UVerticalBox* AttributesBox;
-
-	UPROPERTY(meta = (BindWidget))
 	UListView* Attributes_ListView;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* StrengthValue;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* EnduranceValue;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* DexterityValue;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(BindWidget))
-	UTextBlock* IntelligenceValue;
 
 private:
 	virtual void NativeConstruct() override;
@@ -55,7 +36,7 @@ private:
 	virtual void OnButtonQuitClicked() override;
 
 	UFUNCTION()
-	void CreateAttributesEntry(uint8 Value);
+	void CreateAttributesEntry();
 	
 	UFUNCTION()
 	void UpdatePlayerStatsUI();

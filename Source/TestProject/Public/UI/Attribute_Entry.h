@@ -24,17 +24,16 @@ public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	// IUserObjectListEntry
 
-//protected:
+protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* AttributeTextBlock;
 
 	UPROPERTY()
-	FText DebugText;
+	FText AttributeText;
 
 	UPROPERTY()
 	uint8 ID;
 
 	UFUNCTION()
 	void SetID(uint8& Index);
-	
 };
