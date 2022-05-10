@@ -20,6 +20,7 @@ void UW_ItemTooltip::NativeConstruct()
 void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 {
 	Name->SetText(Item.Name);
+	
 	Icon->SetBrushFromTexture(Item.Icon);
 
 	FText InText;
