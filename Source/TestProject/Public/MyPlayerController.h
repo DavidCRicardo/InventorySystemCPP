@@ -33,13 +33,15 @@ public:
 	virtual void UI_DropInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
-	virtual TMap<EAttributes, uint8> UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance) override;
 	/* Ends Interface */
+
+	UFUNCTION()
+	TArray<uint8> GetPlayerAttributes();
 	
-	UPROPERTY()
-	TMap<EAttributes, uint8> AttributesMap;
-	
+	UFUNCTION()
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
+	UFUNCTION()
+	FSlotStructure GetItemFromInventory(const int8& SlotIndex);
 	
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
