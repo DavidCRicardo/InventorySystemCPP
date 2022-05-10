@@ -11,9 +11,9 @@ enum class EAttributes : int8
 	Endurance		UMETA(DisplayName="Endurance"),
 	Dexterity		UMETA(DisplayName="Dexterity"),
 	Intelligence	UMETA(DisplayName="Intelligence"),
-	Attack			UMETA(DisplayName="Attack"),
-	Armor			UMETA(DisplayName="Armor"),
-	Health			UMETA(DisplayName="Health"),
+	//Attack			UMETA(DisplayName="Attack"),
+	//Armor			UMETA(DisplayName="Armor"),
+	//Health			UMETA(DisplayName="Health"),
 	Count			UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EAttributes, EAttributes::Count);

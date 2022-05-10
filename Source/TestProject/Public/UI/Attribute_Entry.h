@@ -18,17 +18,23 @@ class INVENTORYSYSTEMCPP_API UAttribute_Entry : public UUserWidget, public IUser
 
 public:
 	UFUNCTION()
-	void SetAttributeText(FText& Text);
+	void SetAttributeText(const FText& Text);
 
 	// IUserObjectListEntry
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	// IUserObjectListEntry
 
-protected:
+//protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* AttributeTextBlock;
 
-private:
-	virtual void NativeConstruct() override;
+	UPROPERTY()
+	FText DebugText;
+
+	UPROPERTY()
+	uint8 ID;
+
+	UFUNCTION()
+	void SetID(uint8& Index);
 	
 };

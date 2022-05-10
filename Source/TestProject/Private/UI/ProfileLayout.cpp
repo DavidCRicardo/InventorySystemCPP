@@ -46,7 +46,14 @@ void UProfileLayout::NativeConstruct()
 	{
 		CreateChildWidgets();
     	InitializeSlots();
-		CreateAttributesEntry();
+		CreateAttributesEntry(1);
+
+		//FDelegateHandle DelegateHandle = Attributes_ListView->OnListViewScrolled().AddLambda([this](float a, float b)
+		//FDelegateHandle DelegateHandle = Attributes_ListView->OnItemScrolledIntoView().AddLambda([this](UObject* Item, UUserWidget* Widget)
+		/*FDelegateHandle DelegateHandle = Attributes_ListView->OnItemScrolledIntoView().AddLambda([this](UObject* Item, UUserWidget& EntryWidget)
+		{
+			InitializePlayerStatsUI();
+		});*/
 	}
 	
 	SetVisibility(ESlateVisibility::Hidden);
@@ -94,15 +101,33 @@ void UProfileLayout::InitializeSlots()
 	RefreshWindow();
 }
 
-void UProfileLayout::CreateAttributesEntry()
+void UProfileLayout::CreateAttributesEntry(uint8 Value)
 {
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("Attribute_Entry_WBP");
 	if (WidgetLayout)
 	{
-		for (uint8 Index = 0; Index < 4/*(uint8)EAttributes::Count*/; Index++)
+		//uint8 Index = 0;
+		for (EAttributes Attribute : TEnumRange<EAttributes>())
 		{
 			UAttribute_Entry* Entry = CreateWidget<UAttribute_Entry>(this, WidgetLayout->Widget);
+			
+			/*FFormatNamedArguments Args;
+			FText FormattedText;
+			uint8 Value2 = 55;
+			Args.Add("Value", Value2);
+
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
+				Args
+			);
+
+			// working both ways
+			Entry->SetAttributeText(FormattedText);*/
+			Entry->SetID(Value);
+			
 			Attributes_ListView->AddItem(Entry);
+			
+			//Index++;
 		}
 	}
 }
@@ -156,47 +181,6 @@ void UProfileLayout::RefreshWindow()
 	/**/
 }
 
-void UProfileLayout::InitializePlayerStatsUI2(UUserWidget* Entry2)
-{
-	UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Entry2);
-	
-	uint8 Index = 0;
-	FText Text;
-	uint8 Value;
-	
-	for (EAttributes Attribute : TEnumRange<EAttributes>())
-	{
-		FString AttributeString = *UEnum::GetDisplayValueAsText(Attribute).ToString();
-		
-		if (Attribute == EAttributes::Strength || Attribute == EAttributes::Dexterity ||
-			Attribute == EAttributes::Endurance || Attribute == EAttributes::Intelligence)
-		{
-			FFormatNamedArguments Args;
-			
-			Value = 0;
-		
-			FString String = AttributeString + ": " + FString::FromInt(Value);
-			Text = FText::FromString(String);
-
-			Args.Add("Value", Value);
-	
-			FText FormattedText = FText::Format(
-				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
-				Args
-			);
-			StrengthValue->SetText(FormattedText);
-			
-			Entry->SetAttributeText(FormattedText);
-
-			Entry->AddToViewport();
-			//Attributes_ListView->AddItem(Entry);
-			
-		}
-		Index++;
-	}
-}
-
-
 void UProfileLayout::UpdatePlayerStatsUI()
 {
 	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
@@ -204,19 +188,11 @@ void UProfileLayout::UpdatePlayerStatsUI()
 	FFormatNamedArguments Args;
 	FText FormattedText;
 	uint8 Value;
-
+	
 	for (uint8 Index = 0; Index < (uint8)EAttributes::Count; Index++)
 	{
 		if(Index == 0)
 		{
-			/*UWidget* ChildWidget = AttributesBox->GetChildAt(4);
-			UTextBlock* TextBlock = Cast<UTextBlock>(ChildWidget);
-			if (IsValid(TextBlock))
-			{
-				FText a = TextBlock->GetText();
-				
-				TextBlock->SetText(a);
-			}*/
 			Value = Attributes[Index];
 			Args.Add("Value", Value);
 	
@@ -225,6 +201,20 @@ void UProfileLayout::UpdatePlayerStatsUI()
 				Args
 			);
 			StrengthValue->SetText(FormattedText);
+
+			/**/
+			TArray<UObject*> Array = Attributes_ListView->GetListItems();
+			if (Array.Num() > 0)
+			{
+				if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Array[0]))
+				{
+					Entry->SetAttributeText(FormattedText);
+					Array[0] = Entry;
+					
+					Attributes_ListView->RegenerateAllEntries();
+				}
+			}
+			/**/
 		}
 		else if(Index == 1)
 		{
@@ -258,56 +248,48 @@ void UProfileLayout::UpdatePlayerStatsUI()
 	}
 }
 
+// usages not found
 void UProfileLayout::InitializePlayerStatsUI()
 {
-	uint8 Index = 0;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ListView Scrolled")));
 
-	FText Text;
+
+	/*uint8 Index = 0;
+
 	for (EAttributes Attribute : TEnumRange<EAttributes>())
 	{
-		UUserWidget* Attribute_Entry = CreateWidget(this, UAttribute_Entry::StaticClass());
+		//UUserWidget* Attribute_Entry = CreateWidget(this, UAttribute_Entry::StaticClass());
 
-		
 		FString AttributeString = *UEnum::GetDisplayValueAsText(Attribute).ToString();
-		
-		if (Attribute == EAttributes::Strength || Attribute == EAttributes::Dexterity ||
-			Attribute == EAttributes::Endurance || Attribute == EAttributes::Intelligence)
-		{
-			FFormatNamedArguments Args;
-			
-			uint8 Value;
-			Value = 0;
-		
-			FString String = AttributeString + ": " + FString::FromInt(Value);
-			Text = FText::FromString(String);
 
-			Args.Add("Value", Value);
-	
-			FText FormattedText = FText::Format(
-				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
-				Args
-			);
-			StrengthValue->SetText(FormattedText);
+		FFormatNamedArguments Args;
+		uint8 Value = 0;
+		FString String = AttributeString + ": " + FString::FromInt(Value);
+		FText Text = FText::FromString(String);
 
-			if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Attribute_Entry))
-			{
-				Entry->SetAttributeText(FormattedText);
-				Attributes_ListView->AddItem(Entry);
+		Args.Add("Value", Value);
 
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Attribute Entry Cast Successful")));
-			}else
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Attribute Entry Cast Failed")));
-			}
-			
-			/*SingleAttribute->SetText(FormattedText);
-			SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
-			SingleAttribute->Font.Size = 12;
+		FText FormattedText = FText::Format(
+			NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
+			Args
+		);
+		StrengthValue->SetText(FormattedText);
 
-			//AttributesBox->AddChild(SingleAttribute);
-			AttributesBox->AddChildToVerticalBox(SingleAttribute);*/
-		}
+		//if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Attribute_Entry))
+		//{
+		//	Entry->SetAttributeText(FormattedText);
+		//	//Attributes_ListView->AddItem(Entry);
+
+		//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+		//	                                 FString::Printf(TEXT("Attribute Entry Cast Successful")));
+		//}
+		//else
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+		//	                                 FString::Printf(TEXT("Attribute Entry Cast Failed")));
+		//}
+
 		Index++;
-	}
+	}*/
 }
 

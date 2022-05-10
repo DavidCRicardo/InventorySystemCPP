@@ -21,8 +21,6 @@ public:
 	virtual void ToggleWindow() override;
 	virtual void RefreshWindow() override;
 	
-	void InitializePlayerStatsUI2(UUserWidget* Entry2);
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* EquipmentGridPanel;
 	
@@ -57,7 +55,7 @@ private:
 	virtual void OnButtonQuitClicked() override;
 
 	UFUNCTION()
-	void CreateAttributesEntry();
+	void CreateAttributesEntry(uint8 Value);
 	
 	UFUNCTION()
 	void UpdatePlayerStatsUI();
