@@ -103,17 +103,14 @@ public:
 	UFUNCTION()
 	UDataTable* GetItemDB();
 
+	UFUNCTION()
+	void InitializePlayerAttributes();
+	UPROPERTY()
+	TArray<uint8> AttributesArray;
 
-	UPROPERTY()
-	uint8 Strength;
-	UPROPERTY()
-	uint8 Endurance;
-	UPROPERTY()
-	uint8 Attack;
-	UPROPERTY()
-	uint8 Defense;
-	UPROPERTY()
-	uint8 Health;
+	// Not replicable
+	/*UPROPERTY()
+	TMap<EAttributes, uint8> AttributesMap;*/
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;

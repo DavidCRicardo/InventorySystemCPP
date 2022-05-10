@@ -39,16 +39,6 @@ void AMyPlayerController::QuitGame()
 	FGenericPlatformMisc::RequestExit(false);
 }
 
-void AMyPlayerController::InitializePlayerAttributes()
-{
-	uint8 Index = 0;
-	for (EAttributes Attribute : TEnumRange<EAttributes>())
-	{
-		AttributesMap.Add(Attribute, Index);
-		Index++;
-	}
-}
-
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -67,7 +57,8 @@ void AMyPlayerController::BeginPlay()
 		}
 	}
 
-	InitializePlayerAttributes();
+	//InventoryManagerComponent->UpdateEquippedStats();
+	InventoryManagerComponent->InitializePlayerAttributes();
 }
 
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
@@ -113,12 +104,12 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 	RefreshWidgets();
 }
 
-TMap<EAttributes, uint8> AMyPlayerController::UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance)
+/*TMap<EAttributes, uint8> AMyPlayerController::UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance)
 {
 	IInventoryInterface::UI_GetPlayerStats_Implementation(OutStrength, OutEndurance);
 
 	return AttributesMap;
-}
+}*/
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
@@ -352,9 +343,19 @@ void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> In
 	Inventory[InventorySlot] = ContentToAdd;
 }
 
+TArray<uint8> AMyPlayerController::GetPlayerAttributes()
+{
+	return InventoryManagerComponent->AttributesArray;
+}
+
 FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
 {
 	return Inventory[SlotIndex];
+}
+
+FSlotStructure AMyPlayerController::GetItemFromInventory(const int8& SlotIndex)
+{
+	return InventoryManagerComponent->Inventory[SlotIndex];
 }
 
 void AMyPlayerController::PrintInventory()

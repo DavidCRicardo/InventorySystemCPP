@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
+#include "UI/Attribute_Entry.h"
 
 //static const FName COMMON_WORDS = "/Game/UI/Strings/CommonWords.CommonWords";
 //static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
@@ -17,7 +18,7 @@ UProfileLayout::UProfileLayout()
 
 void UProfileLayout::ToggleWindow()
 {
-	// Avoid null slots ( doesn't crash, purely design )
+	// Avoid null slots (doesn't crash, purely design )
 	RefreshWindow(); 
 	
 	Super::ToggleWindow();
@@ -26,7 +27,7 @@ void UProfileLayout::ToggleWindow()
 void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
-
+	
 	//Outdated - Before Localization
 	//Super::SetTitleToWindow(FString("PROFILE"));
 	
@@ -45,6 +46,7 @@ void UProfileLayout::NativeConstruct()
 	{
 		CreateChildWidgets();
     	InitializeSlots();
+		CreateAttributesEntry();
 	}
 	
 	SetVisibility(ESlateVisibility::Hidden);
@@ -58,13 +60,9 @@ void UProfileLayout::OnButtonQuitClicked()
 	}
 }
 
+
 void UProfileLayout::CreateChildWidgets()
 {
-	if (!IsValid(PlayerController))
-	{
-		return;
-	}
-	
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
 	//FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(GetOwningPlayer()->GetHUD())->GetWidgetBPClass("SlotLayout_WBP");
 	if (WidgetLayout)
@@ -93,12 +91,22 @@ void UProfileLayout::CreateChildWidgets()
 
 void UProfileLayout::InitializeSlots()
 {
-	if (!IsValid(PlayerController))
-	{
-		return;
-	}
-
 	RefreshWindow();
+}
+
+void UProfileLayout::CreateAttributesEntry()
+{
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("Attribute_Entry_WBP");
+	if (WidgetLayout)
+	{
+		for (EAttributes Attribute : TEnumRange<EAttributes>())
+		{
+			UAttribute_Entry* Entry = CreateWidget<UAttribute_Entry>(this, WidgetLayout->Widget);
+			
+			Attributes_ListView->AddItem(Entry);
+		}
+	}
+	//UpdatePlayerStatsUI();
 }
 
 void UProfileLayout::RefreshWindow()
@@ -144,51 +152,59 @@ void UProfileLayout::RefreshWindow()
 		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
 	}
 
-	// Refresh Stats
-	// UI Get Player Stats (target = PC)
+	UpdatePlayerStatsUI();
+}
+
+void UProfileLayout::UpdatePlayerStatsUI()
+{
+	TArray<UObject*> Array = Attributes_ListView->GetListItems();
+	if (Array.Num() <= 0)
+	{
+		return;
+	}
+	
+	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
 	
 	FFormatNamedArguments Args;
+	FText FormattedText;
+	uint8 Value;
 	
-	uint8 Value = 0;
-	Value = PlayerController->AttributesMap[EAttributes::Strength];
-	Args.Add("Value", Value);
-	
-	FText FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
-		Args
-	);
-	StrengthValue->SetText(FormattedText);
-
-	
-	Value = PlayerController->AttributesMap[EAttributes::Endurance];
-	Args.Add("Value", Value);
-	
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
-	);
-	EnduranceValue->SetText(FormattedText);
-
-	
-	Value = PlayerController->AttributesMap[EAttributes::Dexterity];
-	Args.Add("Value", Value);
-	
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
-	);
-	DexterityValue->SetText(FormattedText);
-
-
-	Value = PlayerController->AttributesMap[EAttributes::Intelligence];
-	Args.Add("Value", Value);
-	
-	FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
-	);
-	IntelligenceValue->SetText(FormattedText);
-	/**/
-	
-	/**/
-	
-	
-
+	for (uint8 Index = 0; Index < (uint8)EAttributes::Count; Index++)
+	{
+		Value = Attributes[Index];
+		Args.Add("Value", Value);
+		
+		if(Index == 0)
+		{
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
+				Args
+			);
+		}
+		else if(Index == 1)
+		{
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
+			);
+		}
+		else if(Index == 2)
+		{
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
+			);
+		}
+		else if(Index == 3)
+		{
+			FormattedText = FText::Format(
+				NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
+			);
+		}
+		
+		if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Array[Index]))
+		{
+			Entry->SetAttributeText(FormattedText);
+			Array[Index] = Entry;
+		}
+	}
+	Attributes_ListView->RegenerateAllEntries();
 }

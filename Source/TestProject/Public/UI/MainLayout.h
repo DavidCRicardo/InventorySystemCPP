@@ -24,7 +24,7 @@ public:
 
 	UPROPERTY()
 	TArray<FSlotStructure> InventorySlots;
-	
+
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
@@ -33,6 +33,4 @@ protected:
 
 	UPROPERTY()
 	TArray<USlotLayout*> InventorySlotsLayouts;
-
-
 };
