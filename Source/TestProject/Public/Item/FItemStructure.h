@@ -15,7 +15,7 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 	FItemStructure();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGuid ID;
+	FName ID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Icon;
@@ -24,7 +24,7 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 	FText Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText Description;
+	FName Description;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EItemType ItemType;
