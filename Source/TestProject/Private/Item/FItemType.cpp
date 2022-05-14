@@ -1,6 +1,6 @@
 ﻿#include "Item/FItemType.h"
 
-FText FItemType::Undefined = FText::FromString("Undefined");
-FText FItemType::Miscellanious = FText::FromString("Miscellanious");;
-FText FItemType::Equipment = FText::FromString("Equipment");;
-FText FItemType::Consumable = FText::FromString("Consumable");;
+FName FItemType::Undefined = "Undefined";
+FName FItemType::Miscellanious = "Miscellanious";
+FName FItemType::Equipment = "Equipment";
+FName FItemType::Consumable = "Consumable";

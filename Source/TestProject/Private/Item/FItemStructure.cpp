@@ -2,13 +2,10 @@
 
 FItemStructure::FItemStructure()
 {
-	//ID = FGuid();
-	
-	ID = FGuid::NewGuid();
-	
+	ID = "None";
 	Icon = nullptr;
 	Name = FText::FromString("None");
-	Description = FText::FromString("None");
+	Description = "None";
 	ItemType = EItemType::Undefined;
 	Quality = EItemQuality::Undefined;
 	PriceValue = 0;

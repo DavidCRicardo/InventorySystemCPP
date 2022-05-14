@@ -52,7 +52,11 @@ void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 				if (NewItemData)
 				{
 					IconImage->SetBrushFromTexture(NewItemData->Icon);
-					NameLabel->SetText(NewItemData->Name);
+					
+					FString LItemName = NewItemData->ID.ToString();
+					FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
+					NameLabel->SetText(ItemNameText);
+					//NameLabel->SetText(NewItemData->Name);
 				}
 			}		
 		}

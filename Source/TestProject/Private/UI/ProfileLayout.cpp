@@ -106,7 +106,6 @@ void UProfileLayout::CreateAttributesEntry()
 			Attributes_ListView->AddItem(Entry);
 		}
 	}
-	//UpdatePlayerStatsUI();
 }
 
 void UProfileLayout::RefreshWindow()
