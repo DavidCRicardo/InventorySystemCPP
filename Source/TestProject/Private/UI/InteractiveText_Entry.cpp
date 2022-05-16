@@ -56,7 +56,6 @@ void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 					FString LItemName = NewItemData->ID.ToString();
 					FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
 					NameLabel->SetText(ItemNameText);
-					//NameLabel->SetText(NewItemData->Name);
 				}
 			}		
 		}
@@ -68,18 +67,11 @@ void UInteractiveText_Entry::NativeOnEntryReleased()
 	IUserObjectListEntry::NativeOnEntryReleased();
 
 	const FLinearColor LinearColor = {1,1,1,1};
-
-	//SelectedBorder->SetBrushColor(LinearColor);
-
-	//SelectedImage->SetOpacity(1.f);
-
 }
 
 void UInteractiveText_Entry::NativeOnItemSelectionChanged(bool bIsSelected)
 {
 	IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("NativeOnItemSelectionChanged")));
 	
 	FLinearColor LinearColor;
 	

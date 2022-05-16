@@ -12,15 +12,26 @@ void UW_ItemTooltip::NativeConstruct()
 
 void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 {
-	// Set Item Name
-	FString LItemName = Item.ID.ToString();
-	FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
-	Name->SetText(ItemNameText);
+	SetItemName(Item);
 
-	// Set Item Icon
 	Icon->SetBrushFromTexture(Item.Icon);
 
-	// Set Item Type
+	SetItemType(Item);
+
+	SetDescription(Item);
+
+	SetAttributes(Item);	
+}
+
+void UW_ItemTooltip::SetDescription(const FItemStructure& Item)
+{
+	FString LItemDescription = Item.Description.ToString();
+	FText ItemDescriptionText = LOCTABLE(COMMON_WORDS, ItemDescription);
+	Description->SetText(ItemDescriptionText);
+}
+
+void UW_ItemTooltip::SetItemType(const FItemStructure& Item)
+{
 	FName LItemType;
 	switch (Item.ItemType)
 	{
@@ -40,14 +51,18 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 	}
 	FText ItemTypeText = LOCTABLE(COMMON_WORDS, ItemType.ToString());
 	Type->SetText(ItemTypeText);
+}
 
-	// Set Description
-	FString LItemDescription = Item.Description.ToString();
-	FText ItemDescriptionText = LOCTABLE(COMMON_WORDS, ItemDescription);
-    Description->SetText(ItemDescriptionText);
+void UW_ItemTooltip::SetItemName(const FItemStructure& Item)
+{
+	FString LItemName = Item.ID.ToString();
+	FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
+	Name->SetText(ItemNameText);
+}
 
+void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
+{
 	uint8 TempIndex = 0;
-	// Set Attributes
 	for (EAttributes Attribute : TEnumRange<EAttributes>())
 	{
 		UTextBlock* SingleAttribute = NewObject<UTextBlock>();
@@ -102,7 +117,7 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 		SingleAttribute->SetText(FormattedText);
 		
 		TempIndex++;
-	}	
+	}
 }
 
 void UW_ItemTooltip::GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, uint8& Value)

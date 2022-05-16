@@ -44,6 +44,10 @@ protected:
 
 private:
     virtual void NativeConstruct() override;
+	void SetDescription(const FItemStructure& Item);
+	void SetItemType(const FItemStructure& Item);
+	void SetItemName(const FItemStructure& Item);
+	void SetAttributes(const FItemStructure& Item);
 
 	UFUNCTION()
 	void GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, uint8& Value);
