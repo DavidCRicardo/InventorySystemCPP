@@ -26,7 +26,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 	UPROPERTY()
 	TArray<FSlotStructure> Inventory;
 	
@@ -36,6 +36,12 @@ public:
 	void InitInventory(const uint8& Size);
 
 	UFUNCTION()
+	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Array);
+	
+	UFUNCTION()
 	void GetInventoryItems(TArray<FSlotStructure>& InventoryItems);
 
+	UFUNCTION()
+	void SetInventoryItem(uint8& Index, FSlotStructure& Item);
+	
 };

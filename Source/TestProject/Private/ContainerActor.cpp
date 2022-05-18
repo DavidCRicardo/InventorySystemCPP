@@ -42,6 +42,15 @@ bool AContainerActor::InitializeInventory()
 	return false;
 }
 
-void AContainerActor::LoadInventoryItems()
+bool AContainerActor::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> InventoryItems)
 {
+	if (HasAuthority())
+	{
+		InventorySize = Size;
+		InventoryComponent->LoadInventoryItems(InventorySize, InventoryItems);
+
+		return true;
+	}
+	
+	return false;
 }

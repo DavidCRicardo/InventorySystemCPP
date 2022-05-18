@@ -33,5 +33,5 @@ public:
 	bool InitializeInventory();
 	
 	UFUNCTION()
-	void LoadInventoryItems();
+	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> InventoryItems);
 };
