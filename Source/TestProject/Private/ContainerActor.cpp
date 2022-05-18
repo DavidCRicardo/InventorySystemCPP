@@ -9,6 +9,14 @@ AContainerActor::AContainerActor()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	// InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	InventorySize = 4;
+}
+
+bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
+{
+	return Super::OnActorUsed_Implementation(Controller);
 }
 
 // Called when the game starts or when spawned
@@ -16,10 +24,24 @@ void AContainerActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (HasAuthority())
+	{
+		InitializeInventory();
+	}
 }
 
-// Called every frame
-void AContainerActor::Tick(float DeltaTime)
+bool AContainerActor::InitializeInventory()
 {
-	Super::Tick(DeltaTime);
+	if (HasAuthority())
+	{
+		InventoryComponent->Server_InitInventory(InventorySize);
+		
+		return true;
+	}
+	
+	return false;
+}
+
+void AContainerActor::LoadInventoryItems()
+{
 }

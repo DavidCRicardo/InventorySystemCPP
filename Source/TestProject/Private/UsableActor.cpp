@@ -109,7 +109,7 @@ bool AUsableActor::OnActorUsed_Implementation(APlayerController* Controller)
 void AUsableActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
