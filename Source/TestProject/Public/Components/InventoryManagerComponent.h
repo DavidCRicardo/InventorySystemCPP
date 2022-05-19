@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ContainerActor.h"
 #include "EquipmentComponent.h"
 #include "InventoryComponent.h"
 #include "Tuples.h"
@@ -44,6 +45,13 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+
+	// UseContainer = OpenContainer
+	UFUNCTION(Server, Reliable)
+	void Server_UseContainer(AActor* Container);
+
+	UFUNCTION(Server, Reliable)
+	void Server_CloseContainer();
 	
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
@@ -108,9 +116,6 @@ public:
 	UPROPERTY()
 	TArray<uint8> AttributesArray;
 
-	// Not replicable
-	/*UPROPERTY()
-	TMap<EAttributes, uint8> AttributesMap;*/
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
@@ -153,10 +158,20 @@ private:
 
 	UFUNCTION()
 	void DropItem(const uint8& InventorySlot);
-
 	
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void ClearInventorySlot(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	
+	UPROPERTY()
+	AActor* CurrentContainer;
+	
+	void OpenContainer(AActor* Container);
+
+	// UseContainer = OpenContainer
+	UFUNCTION(Category = "Manager|Private|Container")
+	void UseContainer(AActor* Container);
+	UFUNCTION(Category = "Manager|Private|Container")
+	void CloseContainer();
 };

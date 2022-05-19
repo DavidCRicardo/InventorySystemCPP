@@ -30,7 +30,7 @@ protected:
 
 public:
 	UFUNCTION()
-	bool InitializeInventory();
+	virtual bool InitializeInventory();
 	
 	UFUNCTION()
 	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> InventoryItems);

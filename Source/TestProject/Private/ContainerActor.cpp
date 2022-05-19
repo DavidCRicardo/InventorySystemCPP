@@ -4,6 +4,8 @@
 
 #include "ContainerActor.h"
 
+#include "MyPlayerController.h"
+
 // Sets default values
 AContainerActor::AContainerActor()
 {
@@ -16,7 +18,24 @@ AContainerActor::AContainerActor()
 
 bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 {
-	return Super::OnActorUsed_Implementation(Controller);
+	if (HasAuthority())
+	{
+		if (IsUsable)
+		{
+			if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(Controller))
+			{
+				//Server: Use Container And Add Player To Viewers List
+				// Add Player State to Players Viewing
+				// PlayerController->PlayerState;
+				
+				PlayerController->InventoryManagerComponent->Server_UseContainer(this);
+				
+				return Super::OnActorUsed_Implementation(Controller);
+			}
+		}
+	}
+	
+	return false;
 }
 
 // Called when the game starts or when spawned

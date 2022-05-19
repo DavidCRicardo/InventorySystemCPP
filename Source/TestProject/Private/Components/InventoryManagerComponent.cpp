@@ -331,6 +331,34 @@ void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 	}
 }
 
+void UInventoryManagerComponent::UseContainer(AActor* Container)
+{
+	if(Container->Implements<UInventoryInterface>())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has implemented Inventory Interface..."))
+
+		if (CurrentContainer != Container)
+		{
+			OpenContainer(Container);
+		}else
+		{
+			//Server_CloseContainer()
+		}
+	}else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Is Not A Valid Inventory Container Actor"))
+	}
+}
+
+void UInventoryManagerComponent::OpenContainer(AActor* Container)
+{
+	CurrentContainer = Container;
+}
+
+void UInventoryManagerComponent::CloseContainer()
+{
+}
+
 bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 	if (FromInventorySlot != ToInventorySlot)
@@ -650,4 +678,14 @@ void UInventoryManagerComponent::Server_UnEquipFromInventory_Implementation(cons
 	const uint8& ToInventorySlot)
 {
 	UnEquipItem(FromInventorySlot, ToInventorySlot);
+}
+
+void UInventoryManagerComponent::Server_UseContainer_Implementation(AActor* Container)
+{
+	UseContainer(Container);
+}
+
+void UInventoryManagerComponent::Server_CloseContainer_Implementation()
+{
+	CloseContainer();
 }
