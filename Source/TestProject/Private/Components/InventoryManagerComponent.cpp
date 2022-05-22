@@ -352,7 +352,14 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 
 void UInventoryManagerComponent::OpenContainer(AActor* Container)
 {
+	/*if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
+	{
+		CurrentContainer2->GetContainerProperties_Implementation();
+	}*/
+
 	CurrentContainer = Container;
+
+	
 }
 
 void UInventoryManagerComponent::CloseContainer()

@@ -179,6 +179,16 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 			{
 				if (IsValid(OtherActor))
 				{
+					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
+					{
+						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
+						SetActorTickEnabled(true);
+						WorldActorsInsideRange.Add(WorldActor);
+						UsableActorsInsideRange.Add(WorldActor);
+						
+						return;
+					}
+
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
 						UsableActor->BeginOutlineFocus_Implementation();
@@ -193,20 +203,14 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 						FText MessageText = UsableActor->GetUseActionText_Implementation();
 						UsableActor->SetInteractText(MessageText);
 
-						//UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
-						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+						//UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 
 						SetActorTickEnabled(true);
 						UsableActorsInsideRange.Add(UsableActor);
+						
+						return;
 					}
-
-					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
-					{
-						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
-						SetActorTickEnabled(true);
-						WorldActorsInsideRange.Add(WorldActor);
-					}
-					
 				}
 			}
 		}
@@ -224,18 +228,23 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 			{
 				if (IsValid(OtherActor))
 				{
+					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
+					{
+						MyPlayerController->RemoveUsableActorToDropMenu(WorldActor->ID);
+						WorldActorsInsideRange.Remove(WorldActor);
+						UsableActorsInsideRange.Remove(WorldActor);
+
+						return;
+					}
+					
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
 						UsableActor->EndOutlineFocus_Implementation();
 						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 						
 						UsableActorsInsideRange.Remove(UsableActor);
-					}
 
-					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
-					{
-						MyPlayerController->RemoveUsableActorToDropMenu(WorldActor->ID);
-						WorldActorsInsideRange.Remove(WorldActor);
+						return;
 					}
 				}
 			}
@@ -258,7 +267,6 @@ void AMyCharacter::BeginPlay()
 	/* Overlap Events */
 	InteractionField->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnBeginOverlap);
 	InteractionField->OnComponentEndOverlap.AddDynamic(this, &AMyCharacter::OnEndOverlap);
-	
 }
 
 // Called every frame
@@ -279,8 +287,13 @@ void AMyCharacter::Tick(float DeltaTime)
 	}
 	
 
-	/*for (AActor*& UsableActor : UsableActorsInsideRange)
+	for (AActor*& UsableActor : UsableActorsInsideRange)
 	{
+		if (AWorldActor* TempAWorldActor = Cast<AWorldActor>(UsableActor))
+		{
+			return;
+		}
+
 		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
 		{
 			FVector2D ScreenPosition = {};
@@ -296,13 +309,12 @@ void AMyCharacter::Tick(float DeltaTime)
 				}
 				
 				TempUsableActor->SetScreenPosition(ScreenPosition);
-			
 			}else
 			{
 				TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
-	}*/
+	}
 }
 
 // Server Events

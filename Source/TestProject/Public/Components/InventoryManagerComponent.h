@@ -46,7 +46,6 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
-	// UseContainer = OpenContainer
 	UFUNCTION(Server, Reliable)
 	void Server_UseContainer(AActor* Container);
 
@@ -169,7 +168,6 @@ private:
 	
 	void OpenContainer(AActor* Container);
 
-	// UseContainer = OpenContainer
 	UFUNCTION(Category = "Manager|Private|Container")
 	void UseContainer(AActor* Container);
 	UFUNCTION(Category = "Manager|Private|Container")

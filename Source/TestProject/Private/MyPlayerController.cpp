@@ -104,13 +104,6 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 	RefreshWidgets();
 }
 
-/*TMap<EAttributes, uint8> AMyPlayerController::UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance)
-{
-	IInventoryInterface::UI_GetPlayerStats_Implementation(OutStrength, OutEndurance);
-
-	return AttributesMap;
-}*/
-
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
 	OnActorUsed(Actor);
@@ -216,14 +209,6 @@ void AMyPlayerController::ToggleInventory()
 
 void AMyPlayerController::ToggleMenu()
 {
-	/*if(InventoryManagerComponent->AddItem(TEXT("Cardboard_Chest"), 1))
-	{
-		InventoryManagerComponent->AddItem(TEXT("Cardboard_Boots"), 1);
-		InventoryManagerComponent->AddItem(TEXT("Cardboard_Gloves"), 1);
-		
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		PrintInventory();
-	}*/
 }
 
 void AMyPlayerController::GetSelectedItemIndex(uint32& Index)
@@ -240,13 +225,28 @@ void AMyPlayerController::Interact()
 		GetSelectedItemIndex(Index);
 		
 		AActor* Actor = CharacterReference->UsableActorsInsideRange[Index];
-		
-		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
-		{
-			CollectFromPanel(WorldActor->ID);
+		//if (CharacterReference->WorldActorsInsideRange.Num() > 0)
+		//{
+		//	Actor = CharacterReference->WorldActorsInsideRange[Index];
+			if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
+			{
+				CollectFromPanel(WorldActor->ID);
 
-			//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		}
+				//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+				return;
+			}
+		//}
+		
+		//if (CharacterReference->UsableActorsInsideRange.Num() > 0)
+		//{
+		//	Actor = CharacterReference->UsableActorsInsideRange[Index];
+			if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("UsableActor")));
+
+				return;
+			}
+		//}
 	}
 }
 

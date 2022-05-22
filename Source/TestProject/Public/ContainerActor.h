@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InventoryInterface.h"
 #include "UsableActor.h"
 #include "Components/InventoryComponent.h"
 #include "ContainerActor.generated.h"
 
 UCLASS()
-class INVENTORYSYSTEMCPP_API AContainerActor : public AUsableActor
+class INVENTORYSYSTEMCPP_API AContainerActor : public AUsableActor, public IInventoryInterface
 {
 	GENERATED_BODY()
 
