@@ -120,6 +120,19 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 				
 				//InventoryManagerComponent->Server_RefreshInventorySlots();
 				//InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+
+				return;
+			}
+
+			/*if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
+			{	
+				UsableActor->OnActorUsed_Implementation(this);
+				return;
+			}*/
+			
+			if (AContainerActor* ContainerActor = Cast<AContainerActor>(Actor))
+			{	
+				ContainerActor->OnActorUsed_Implementation(this);
 			}
 		}
 	}
@@ -242,9 +255,7 @@ void AMyPlayerController::Interact()
 		//	Actor = CharacterReference->UsableActorsInsideRange[Index];
 			if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("UsableActor")));
-
-				return;
+				Server_OnActorUsed(UsableActor);
 			}
 		//}
 	}

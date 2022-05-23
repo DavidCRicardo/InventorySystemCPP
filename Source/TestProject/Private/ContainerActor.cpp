@@ -13,7 +13,11 @@ AContainerActor::AContainerActor()
 	PrimaryActorTick.bCanEverTick = false;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	InventorySize = 4;
+	
+	C_Name = "NULL";
+	C_SlotsPerRow = 4;
+	C_CanStoreItems = false;
+	C_InventorySize = 4;
 }
 
 bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
@@ -38,6 +42,17 @@ bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 	return false;
 }
 
+void AContainerActor::GetContainerProperties_Implementation(FName& Name, uint8& SlotsPerRow, bool& IsStorageContainer,
+	uint8& InventorySize)
+{
+	IInventoryInterface::GetContainerProperties_Implementation(Name, SlotsPerRow, IsStorageContainer, InventorySize);
+
+	Name = C_Name;
+	SlotsPerRow = C_SlotsPerRow;
+	IsStorageContainer = C_CanStoreItems;
+	InventorySize = C_InventorySize;
+}
+
 // Called when the game starts or when spawned
 void AContainerActor::BeginPlay()
 {
@@ -53,7 +68,7 @@ bool AContainerActor::InitializeInventory()
 {
 	if (HasAuthority())
 	{
-		InventoryComponent->Server_InitInventory(InventorySize);
+		InventoryComponent->Server_InitInventory(C_InventorySize);
 		
 		return true;
 	}
@@ -65,8 +80,8 @@ bool AContainerActor::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Inve
 {
 	if (HasAuthority())
 	{
-		InventorySize = Size;
-		InventoryComponent->LoadInventoryItems(InventorySize, InventoryItems);
+		C_InventorySize = Size;
+		InventoryComponent->LoadInventoryItems(C_InventorySize, InventoryItems);
 
 		return true;
 	}

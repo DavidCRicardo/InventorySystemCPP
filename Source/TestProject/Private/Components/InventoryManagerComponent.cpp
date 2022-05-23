@@ -335,8 +335,6 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 {
 	if(Container->Implements<UInventoryInterface>())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Has implemented Inventory Interface..."))
-
 		if (CurrentContainer != Container)
 		{
 			OpenContainer(Container);
@@ -344,22 +342,38 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 		{
 			//Server_CloseContainer()
 		}
-	}else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Is Not A Valid Inventory Container Actor"))
 	}
 }
 
 void UInventoryManagerComponent::OpenContainer(AActor* Container)
 {
-	/*if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
-	{
-		CurrentContainer2->GetContainerProperties_Implementation();
-	}*/
-
 	CurrentContainer = Container;
-
 	
+	if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
+	{
+		FName LocalName;
+		uint8 LocalSlotsPerRow;
+		bool LocalIsStorageContainer;
+		uint8 LocalInventorySize;
+		
+		CurrentContainer2->GetContainerProperties_Implementation(LocalName, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
+
+		struct ContainerInfo
+		{
+			FName Name;
+			uint8 SlotsPerRow;
+			bool IsStorageContainer;
+			uint8 StorageInventorySize;
+		};
+
+		ContainerInfo* C_Info = NewObject<ContainerInfo>();
+		C_Info->Name = LocalName;
+		C_Info->SlotsPerRow = LocalSlotsPerRow;
+		C_Info->IsStorageContainer = LocalIsStorageContainer;
+		C_Info->StorageInventorySize = LocalInventorySize;
+
+		// Client Open Container
+	}
 }
 
 void UInventoryManagerComponent::CloseContainer()

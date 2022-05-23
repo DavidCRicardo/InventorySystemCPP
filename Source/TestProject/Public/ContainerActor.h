@@ -16,14 +16,13 @@ class INVENTORYSYSTEMCPP_API AContainerActor : public AUsableActor, public IInve
 public:
 	// Sets default values for this actor's properties
 	AContainerActor();
-
+	
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
 
-	UPROPERTY()
-	UInventoryComponent* InventoryComponent;
+	virtual void GetContainerProperties_Implementation(FName& Name, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
 	
 	UPROPERTY()
-	uint8 InventorySize;
+	UInventoryComponent* InventoryComponent;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -35,4 +34,13 @@ public:
 	
 	UFUNCTION()
 	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> InventoryItems);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Name", Category="Properties"))
+	FName C_Name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
+	uint8 C_SlotsPerRow;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Can Store Items", Category="Properties"))
+	bool C_CanStoreItems;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory Size", Category="Properties"))
+	uint8 C_InventorySize;
 };
