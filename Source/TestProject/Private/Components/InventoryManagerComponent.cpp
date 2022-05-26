@@ -6,6 +6,7 @@
 #include "MyPlayerController.h"
 #include "WorldActor.h"
 #include "Components/UniformGridPanel.h"
+#include "Inventory/FContainerInfo.h"
 #include "UI/InventoryLayout.h"
 #include "Net/UnrealNetwork.h"
 
@@ -347,37 +348,44 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 
 void UInventoryManagerComponent::OpenContainer(AActor* Container)
 {
-	CurrentContainer = Container;
-	
 	if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
 	{
+		CurrentContainer = Container;
+
 		FName LocalName;
 		uint8 LocalSlotsPerRow;
 		bool LocalIsStorageContainer;
 		uint8 LocalInventorySize;
 		
 		CurrentContainer2->GetContainerProperties_Implementation(LocalName, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
+		
+		UInventoryComponent* ContainerInventory = CurrentContainer2->GetContainerInventory_Implementation();
 
-		struct ContainerInfo
+		TArray<FSlotStructure>* LocalInventory {};
+		for (FSlotStructure Slot : ContainerInventory->Inventory)
 		{
-			FName Name;
-			uint8 SlotsPerRow;
-			bool IsStorageContainer;
-			uint8 StorageInventorySize;
-		};
-
-		ContainerInfo* C_Info = NewObject<ContainerInfo>();
-		C_Info->Name = LocalName;
+			LocalInventory->Add(Slot);
+		}
+		
+		FContainerInfo* C_Info = {};
+		C_Info->ContainerName = LocalName;
 		C_Info->SlotsPerRow = LocalSlotsPerRow;
 		C_Info->IsStorageContainer = LocalIsStorageContainer;
 		C_Info->StorageInventorySize = LocalInventorySize;
 
-		// Client Open Container
+		Client_OpenContainer(*C_Info, *LocalInventory);
+		
 	}
 }
 
 void UInventoryManagerComponent::CloseContainer()
 {
+}
+
+void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& ContainerProperties,
+	const TArray<FSlotStructure>& ContainerInventory)
+{
+	// ...
 }
 
 bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
@@ -672,6 +680,12 @@ uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot Equipmen
 		}
 	}
 	return 0;
+}
+
+void UInventoryManagerComponent::Client_OpenContainer_Implementation(const FContainerInfo& ContainerProperties,
+	const TArray<FSlotStructure>& ContainerInventory)
+{
+	// LoadContainerSlots(ContainerProperties, ContainerInventory)
 }
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)

@@ -42,15 +42,20 @@ bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 	return false;
 }
 
-void AContainerActor::GetContainerProperties_Implementation(FName& Name, uint8& SlotsPerRow, bool& IsStorageContainer,
+void AContainerActor::GetContainerProperties_Implementation(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer,
 	uint8& InventorySize)
 {
-	IInventoryInterface::GetContainerProperties_Implementation(Name, SlotsPerRow, IsStorageContainer, InventorySize);
+	IInventoryInterface::GetContainerProperties_Implementation(Namee, SlotsPerRow, IsStorageContainer, InventorySize);
 
-	Name = C_Name;
+	Namee = C_Name;
 	SlotsPerRow = C_SlotsPerRow;
 	IsStorageContainer = C_CanStoreItems;
 	InventorySize = C_InventorySize;
+}
+
+UInventoryComponent* AContainerActor::GetContainerInventory_Implementation()
+{
+	return InventoryComponent;
 }
 
 // Called when the game starts or when spawned

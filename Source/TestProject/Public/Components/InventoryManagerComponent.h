@@ -13,6 +13,8 @@
 #include "UI/MainLayout.h"
 #include "InventoryManagerComponent.generated.h"
 
+struct FContainerInfo;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORYSYSTEMCPP_API UInventoryManagerComponent : public UActorComponent
 {
@@ -51,6 +53,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void Server_CloseContainer();
+
+	UFUNCTION(Client, Reliable)
+	void Client_OpenContainer(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
 	
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
@@ -172,4 +177,6 @@ private:
 	void UseContainer(AActor* Container);
 	UFUNCTION(Category = "Manager|Private|Container")
 	void CloseContainer();
+	UFUNCTION(Category = "Manager|Private|Container")
+	void LoadContainerSlots(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
 };

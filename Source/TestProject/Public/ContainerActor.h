@@ -19,7 +19,8 @@ public:
 	
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
 
-	virtual void GetContainerProperties_Implementation(FName& Name, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
+	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
+	virtual UInventoryComponent* GetContainerInventory_Implementation() override;
 	
 	UPROPERTY()
 	UInventoryComponent* InventoryComponent;

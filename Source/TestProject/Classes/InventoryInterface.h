@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EAttributes.h"
+#include "Components/InventoryComponent.h"
 #include "UObject/Interface.h"
 #include "InventoryInterface.generated.h"
 
@@ -40,6 +41,8 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	void GetContainerProperties(FName& Name, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize);
+	void GetContainerProperties(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	UInventoryComponent* GetContainerInventory(); 
 };
