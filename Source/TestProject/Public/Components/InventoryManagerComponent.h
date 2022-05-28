@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Inventory/FContainerInfo.h"
 #include "ContainerActor.h"
 #include "EquipmentComponent.h"
 #include "InventoryComponent.h"
@@ -69,7 +70,7 @@ public:
 	EItemType GetItemTypeBySlot(const uint8& ItemSlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 NumberOfSlots;
+	uint8 NumberOfSlots;
 	
 	UPROPERTY(Replicated)
 	uint8 InventorySize;
@@ -82,7 +83,7 @@ public:
 	UPROPERTY()
 	AMyCharacter* CharacterReference;
 	
-	virtual void InitInventory(int32 NumberSlots = 32);
+	virtual void InitInventory(uint8 NumberSlots = 32);
 	
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);

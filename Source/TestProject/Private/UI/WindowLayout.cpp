@@ -19,6 +19,8 @@ void UWindowLayout::NativeConstruct()
 	//SetTitleToWindow();
 
 	TopBorder->OnMouseButtonDownEvent.BindUFunction(this,"MyFunction");
+	
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 }
 
 void UWindowLayout::MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -74,6 +76,10 @@ void UWindowLayout::SetIndexToChilds(uint8& IndexStart)
 
 void UWindowLayout::OnButtonQuitClicked()
 {
+	if (IsValid(PlayerController))
+	{
+		ToggleWindow();
+	}
 }
 
 FReply UWindowLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

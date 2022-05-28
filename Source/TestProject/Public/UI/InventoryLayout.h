@@ -31,14 +31,9 @@ public:
 	
 	UPROPERTY()
 	TArray<USlotLayout*>InventorySlotsArray;
-
-protected:
-	UPROPERTY()
-	AMyPlayerController* PlayerController;
 	
 private:
 	virtual void NativeConstruct() override;
-	virtual void OnButtonQuitClicked() override;
 	virtual void InitializeSlots() override;
 	virtual void CreateChildWidgets() override;
 	virtual void SetIndexToChilds(uint8& IndexStart) override;

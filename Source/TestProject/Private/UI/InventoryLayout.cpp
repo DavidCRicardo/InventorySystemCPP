@@ -11,9 +11,6 @@ UInventoryLayout::UInventoryLayout()
 {
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/UI/Textures/T_UI_Slot"));
 	Background_Slot = ObjectFind.Object;
-	
-	/*static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectItemBorder(TEXT("/Game/Textures/T_UI_Item_Border"));
-	DefaultBorder = ObjectItemBorder.Object;*/
 }
 
 void UInventoryLayout::NativeConstruct()
@@ -28,7 +25,6 @@ void UInventoryLayout::NativeConstruct()
 	NumberOfColumns = 4;
 	/**/
 
-	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		InitializeSlots();
@@ -109,13 +105,5 @@ void UInventoryLayout::RefreshWindow()
 
 		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count;
 		InventorySlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
-	}
-}
-
-void UInventoryLayout::OnButtonQuitClicked()
-{
-	if (IsValid(PlayerController))
-	{
-		PlayerController->ToggleInventory();
 	}
 }

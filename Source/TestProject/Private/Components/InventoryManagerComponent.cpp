@@ -64,7 +64,7 @@ UDataTable* UInventoryManagerComponent::GetItemDB()
 }
 
 /* Initializes the Inventory Array to a Specified Size */
-void UInventoryManagerComponent::InitInventory(const int32 NumberSlots)
+void UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
 {
 	Inventory.Reserve(NumberSlots);
 
