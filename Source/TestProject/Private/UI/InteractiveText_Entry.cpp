@@ -7,6 +7,7 @@
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "Item/FItemStructure.h"
 
 void UInteractiveText_Entry::NativeConstruct()

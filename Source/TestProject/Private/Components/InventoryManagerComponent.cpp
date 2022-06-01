@@ -5,10 +5,12 @@
 #include "MyHUD.h"
 #include "MyPlayerController.h"
 #include "WorldActor.h"
+#include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "Inventory/FContainerInfo.h"
 #include "UI/InventoryLayout.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/ContainerLayout.h"
 
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
 
@@ -33,8 +35,9 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 void UInventoryManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count;
+
+	// Inventory + Equipment + Container
+	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count + 9;
 	
 	InventorySize = NumberOfSlots;
 
@@ -348,10 +351,10 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 
 void UInventoryManagerComponent::OpenContainer(AActor* Container)
 {
+	//CurrentContainer = Container;	// Crash on this line
+
 	if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
 	{
-		CurrentContainer = Container;
-
 		FName LocalName;
 		uint8 LocalSlotsPerRow;
 		bool LocalIsStorageContainer;
@@ -360,21 +363,31 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 		CurrentContainer2->GetContainerProperties_Implementation(LocalName, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
 		
 		UInventoryComponent* ContainerInventory = CurrentContainer2->GetContainerInventory_Implementation();
+		
+		TArray<FSlotStructure> LocalInventory {};
+		LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),9);
 
-		TArray<FSlotStructure>* LocalInventory {};
-		for (FSlotStructure Slot : ContainerInventory->Inventory)
+		for(uint8 i = 0; i < 9; i++)
 		{
-			LocalInventory->Add(Slot);
+			LocalInventory[i] = Inventory[28 + i + 1];	
 		}
 		
-		FContainerInfo* C_Info = {};
-		C_Info->ContainerName = LocalName;
-		C_Info->SlotsPerRow = LocalSlotsPerRow;
-		C_Info->IsStorageContainer = LocalIsStorageContainer;
-		C_Info->StorageInventorySize = LocalInventorySize;
-
-		Client_OpenContainer(*C_Info, *LocalInventory);
+		/*for (FSlotStructure Slot : ContainerInventory->Inventory)
+		{
+			LocalInventory->Add(Slot);
+		}*/
 		
+		FContainerInfo C_Info;
+		C_Info.ContainerName = LocalName;
+		C_Info.SlotsPerRow = LocalSlotsPerRow;
+		C_Info.IsStorageContainer = LocalIsStorageContainer;
+		C_Info.StorageInventorySize = LocalInventorySize;
+
+		//Client_OpenContainer(C_Info, LocalInventory);
+
+		AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+		PC->RefreshWidgets();
+		PC->ToggleContainer();
 	}
 }
 
@@ -386,6 +399,93 @@ void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& Contai
 	const TArray<FSlotStructure>& ContainerInventory)
 {
 	// ...
+
+	// SetName
+	//InventoryUI->Container->WindowTitle->SetText(FText::FromName(ContainerProperties.ContainerName));
+
+	InventoryUI->Container->RefreshWindow();
+	/*
+	// SetIsStorageContainer
+	InventoryUI->Container->IsStorageContainer = ContainerProperties.IsStorageContainer;
+
+	uint8 ContainerSize;
+	if (InventoryUI->Container->IsStorageContainer)
+	{
+		ContainerSize = ContainerProperties.StorageInventorySize;
+	}else
+	{
+		ContainerSize = ContainerInventory.Num();
+	}
+	
+	CreateContainerSlots(ContainerSize, ContainerProperties.SlotsPerRow);
+
+	for (uint8 Index = 0; Index < ContainerInventory.Num(); Index++)
+	{
+		SetContainerSlotItem(Index, ContainerInventory[Index]);
+	}
+
+	//OpenContainerWindow();
+	*/
+
+	InventoryUI->Container->SetVisibility(ESlateVisibility::Visible);
+
+}
+
+void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage)
+{
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(GetOwner())->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
+	{
+		USlotLayout* W_Slot = nullptr;
+		
+		W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+
+		W_Slot->IsStorageSlot = IsStorage;
+		
+		InventoryUI->Container->ContainerGridPanel->AddChildToUniformGrid(W_Slot, Row, Column);
+		
+		InventoryUI->Container->ContainerSlots.Add(W_Slot);
+		
+	}
+}
+
+void UInventoryManagerComponent::CreateContainerSlots(uint8 ContainerSize, uint8 SlotsPerRow)
+{
+	// Clear Container Slots
+	
+	if (ContainerSize <= 0)
+	{
+		return;
+	}
+
+	//
+	uint8 LocalContainerSize = ContainerSize;
+	bool LocalIsStorageContainer = InventoryUI->Container->IsStorageContainer;
+	uint8 LocalMaxRowSize = SlotsPerRow;
+
+	float NumberOfRows = FMath::CeilToFloat(LocalContainerSize / LocalMaxRowSize) - 1;
+	float LastIndex = FMath::Max(NumberOfRows, 0.f);
+	uint8 LocalLoopCount = 0;
+	
+	for(uint8 i = 0; i < LastIndex; i++)
+	{
+		for (uint8 j = 0; j < LocalMaxRowSize - 1; j++)
+		{
+			AddContainerSlot(i, j, LocalLoopCount, LocalIsStorageContainer);
+			LocalLoopCount++;
+
+			if (LocalLoopCount == LocalContainerSize)
+			{
+				return;
+			}
+		}
+	}
+
+}
+
+void UInventoryManagerComponent::SetContainerSlotItem(uint8 ContainerSlot, FSlotStructure SlotInformation)
+{
+	
 }
 
 bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
@@ -685,7 +785,7 @@ uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot Equipmen
 void UInventoryManagerComponent::Client_OpenContainer_Implementation(const FContainerInfo& ContainerProperties,
 	const TArray<FSlotStructure>& ContainerInventory)
 {
-	// LoadContainerSlots(ContainerProperties, ContainerInventory)
+	LoadContainerSlots(ContainerProperties, ContainerInventory);
 }
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)

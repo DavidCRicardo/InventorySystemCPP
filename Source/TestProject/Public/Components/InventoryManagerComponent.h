@@ -121,6 +121,8 @@ public:
 	UPROPERTY()
 	TArray<uint8> AttributesArray;
 
+	UPROPERTY()
+	AActor* CurrentContainer;
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
@@ -169,9 +171,6 @@ private:
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
-	UPROPERTY()
-	AActor* CurrentContainer;
-	
 	void OpenContainer(AActor* Container);
 
 	UFUNCTION(Category = "Manager|Private|Container")
@@ -180,4 +179,12 @@ private:
 	void CloseContainer();
 	UFUNCTION(Category = "Manager|Private|Container")
 	void LoadContainerSlots(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
+
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage);
+	
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void CreateContainerSlots(uint8 ContainerSize, uint8 SlotsPerRow);
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void SetContainerSlotItem(uint8 ContainerSlot, FSlotStructure SlotInformation);
 };

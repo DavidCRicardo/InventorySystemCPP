@@ -18,6 +18,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/ContainerLayout.h"
 #include "UI/HUDLayout.h"
 
 
@@ -243,6 +244,9 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 						
 						UsableActorsInsideRange.Remove(UsableActor);
+
+						// At the moment, Containers are the only that run the code until here
+						MyPlayerController->ToggleContainer();
 
 						return;
 					}

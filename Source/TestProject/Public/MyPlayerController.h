@@ -64,13 +64,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* PlayerInventoryComponent;
-
-	UFUNCTION(BlueprintCallable, Category="Character")
-	void ToggleProfile();
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();
-
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void ToggleProfile();
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void ToggleContainer();
+	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleMenu();
 	void GetSelectedItemIndex(uint32& Index);
@@ -118,7 +119,6 @@ protected:
 	
 	UFUNCTION()
 	void QuitGame();
-	void InitializePlayerAttributes();
 
 	UFUNCTION()
 	void OnActorUsed(AActor* Actor);

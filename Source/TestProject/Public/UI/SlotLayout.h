@@ -28,12 +28,16 @@ public:
 	bool NativeFromInventory = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	bool NativeFromEquipment = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
+	bool NativeFromContainer = false;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlotStructure SlotStructure;
 
-
-UFUNCTION()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ContainerSlots")
+	bool IsStorageSlot = false;
+	
+	UFUNCTION()
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
 	
 	UFUNCTION()

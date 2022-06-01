@@ -184,6 +184,24 @@ void AMyPlayerController::OnActorDropped(FSlotStructure LocalSlot)
 	}
 }
 
+void AMyPlayerController::ToggleInventory()
+{
+	if (IsValid(HUD_Reference))
+	{
+		HUD_Reference->ToggleWindow(ELayout::Inventory);
+
+		if (HUD_Reference->IsAnyWidgetVisible())
+		{
+			SetInputMode(FInputModeGameAndUI());
+			bShowMouseCursor = true;
+		}else
+		{
+			SetInputMode(FInputModeGameOnly());
+			bShowMouseCursor = false;
+		}
+	}
+}
+
 void AMyPlayerController::ToggleProfile()
 {
 	if (IsValid(HUD_Reference))
@@ -202,12 +220,12 @@ void AMyPlayerController::ToggleProfile()
 	}
 }
 
-void AMyPlayerController::ToggleInventory()
+void AMyPlayerController::ToggleContainer()
 {
 	if (IsValid(HUD_Reference))
 	{
-		HUD_Reference->ToggleWindow(ELayout::Inventory);
-
+		HUD_Reference->ToggleWindow(ELayout::Container);
+	
 		if (HUD_Reference->IsAnyWidgetVisible())
 		{
 			SetInputMode(FInputModeGameAndUI());
@@ -347,6 +365,7 @@ void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)

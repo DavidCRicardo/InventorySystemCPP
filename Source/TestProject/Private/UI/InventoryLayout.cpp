@@ -20,7 +20,7 @@ void UInventoryLayout::NativeConstruct()
 	FText Text = LOCTABLE(COMMON_WORDS, "INVENTORYKey");
 	Super::SetTitleToWindow(Text);
 
-	/* TODO: This info needs to be Player Controller */
+	/* TODO: This info needs to be Inventory Manager Component */
 	NumberOfRows = 7;
 	NumberOfColumns = 4;
 	/**/
@@ -30,8 +30,6 @@ void UInventoryLayout::NativeConstruct()
 		InitializeSlots();
 		RefreshWindow();
 	}
-
-	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInventoryLayout::InitializeSlots()
@@ -93,7 +91,7 @@ void UInventoryLayout::RefreshWindow()
 	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 
 	// for(int i = 0; i < InventoryLimit; i++)
-	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit; i++)
+	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit - 9; i++)
 	{
 		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
 		

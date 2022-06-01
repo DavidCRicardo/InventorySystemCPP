@@ -15,12 +15,12 @@ void UWindowLayout::NativeConstruct()
 	Super::NativeConstruct();
 
 	QuitButton->OnClicked.AddUniqueDynamic(this, &UWindowLayout::OnButtonQuitClicked);
-
-	//SetTitleToWindow();
-
+	
 	TopBorder->OnMouseButtonDownEvent.BindUFunction(this,"MyFunction");
 	
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+
+	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UWindowLayout::MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

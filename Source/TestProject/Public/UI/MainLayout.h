@@ -21,6 +21,8 @@ public:
 	class UInventoryLayout* Inventory;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UProfileLayout* Profile;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UContainerLayout* Container;
 
 	UPROPERTY()
 	TArray<FSlotStructure> InventorySlots;

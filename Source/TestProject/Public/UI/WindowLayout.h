@@ -28,6 +28,9 @@ public:
 
 	UPROPERTY()
 	AMyPlayerController* PlayerController;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* WindowTitle;
 	
 protected:
 	UFUNCTION()
@@ -35,9 +38,6 @@ protected:
 
 	UFUNCTION()
 	virtual void OnButtonQuitClicked();
-	
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* WindowTitle;
 	
 	UPROPERTY(meta = (BindWidget))	
 	class UBorder* TopBorder;

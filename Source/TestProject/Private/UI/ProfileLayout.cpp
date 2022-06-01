@@ -46,8 +46,6 @@ void UProfileLayout::NativeConstruct()
     	InitializeSlots();
 		CreateAttributesEntry();
 	}
-	
-	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UProfileLayout::CreateChildWidgets()
