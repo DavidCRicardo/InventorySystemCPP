@@ -30,11 +30,31 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (HasItem())
+	/*if (NativeFromContainer)
 	{
-		PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
-	}
+		TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->Inventory;
+		uint8 EmptySlotIndex = 0;
+		
+		for (uint8 Index = 0; Index < (uint8)EEquipmentSlot::Count + 9; Index++)
+		{
+			if (LocalInventory[Index].Amount == 0)
+			{
+				EmptySlotIndex = Index;
 
+				break;
+			}
+		}
+		
+		PlayerController->UI_TakeContainerItem_Implementation(InventorySlotIndex, EmptySlotIndex);
+	}
+	else
+	{*/
+		if (HasItem())
+		{
+			PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
+		}
+	//}
+	
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
 
@@ -137,22 +157,24 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		HideTooltip();
 		
 		return true;
-	}else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Not From Inventory? Returned False")));
-
-		// Container Stuff
-		return false;
 	}
-
-	/*if (DragDropOperation->IsDraggedFromInventory)
+	
+	if (DragDropOperation->IsDraggedFromContainer)
 	{
-		PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
+		// Are we Equipping
+		if (IsEquipping(InventorySlotIndex))
+		{
+			PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 
-		HideTooltip();
-		
-		return true;
-	}*/
+			return true;
+		}
+		else
+		{
+			PlayerController->UI_TakeContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+
+			return true;
+		}
+	}
 	
 	return false;
 }

@@ -369,7 +369,7 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 
 		for(uint8 i = 0; i < 9; i++)
 		{
-			LocalInventory[i] = Inventory[28 + i + 1];	
+			LocalInventory[i] = Inventory[28 + i];	
 		}
 		
 		/*for (FSlotStructure Slot : ContainerInventory->Inventory)
@@ -786,6 +786,12 @@ void UInventoryManagerComponent::Client_OpenContainer_Implementation(const FCont
 	const TArray<FSlotStructure>& ContainerInventory)
 {
 	LoadContainerSlots(ContainerProperties, ContainerInventory);
+}
+
+void UInventoryManagerComponent::Server_Take_ContainerItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	MoveInventoryItem(FromInventorySlot, ToInventorySlot);
 }
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)

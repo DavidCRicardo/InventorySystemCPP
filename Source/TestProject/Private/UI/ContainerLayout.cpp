@@ -20,29 +20,6 @@ void UContainerLayout::ToggleWindow()
 	Super::ToggleWindow();
 }
 
-void UContainerLayout::RefreshWindow()
-{
-	const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->NumberOfSlots;
-
-	FSlotStructure CurrentSlot = {};
-	FSlotStructure EmptySlot = {};
-	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
-
-	for(int i = 32; i < InventoryLimit; i++)
-	{
-		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
-		
-		/* Update Empty Slot */
-		if(CurrentSlot.Amount <= 0){
-			PlayerController->InventoryManagerComponent->Client_SetInventorySlot(EmptySlot, i);
-			CurrentSlot = EmptySlot;
-		}
-
-		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count - 28;
-		ContainerSlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
-	}
-}
-
 void UContainerLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -68,7 +45,7 @@ void UContainerLayout::NativeConstruct()
 void UContainerLayout::InitializeSlots()
 {
 	CreateChildWidgets();
-	uint8 FirstIndex = 28 + 4 + 1 ;
+	uint8 FirstIndex = 28 + 4 ;
 	SetIndexToChilds(FirstIndex);
 }
 
@@ -104,5 +81,28 @@ void UContainerLayout::SetIndexToChilds(uint8& IndexStart)
 		ContainerSlotsArray[i]->IsStorageSlot = true;
 		
 		IndexStart++;
+	}
+}
+
+void UContainerLayout::RefreshWindow()
+{
+	const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->NumberOfSlots;
+
+	FSlotStructure CurrentSlot = {};
+	FSlotStructure EmptySlot = {};
+	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+
+	for(int i = 32; i < InventoryLimit; i++)
+	{
+		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
+		
+		/* Update Empty Slot */
+		if(CurrentSlot.Amount <= 0){
+			PlayerController->InventoryManagerComponent->Client_SetInventorySlot(EmptySlot, i);
+			CurrentSlot = EmptySlot;
+		}
+
+		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count - 28;
+		ContainerSlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
 	}
 }

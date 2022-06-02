@@ -75,6 +75,7 @@ void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromI
 	if (InventoryManagerComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+		RefreshWidgets();
 	}
 }
 
@@ -102,6 +103,17 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 
 	InventoryManagerComponent->Server_UnEquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
 	RefreshWidgets();
+}
+
+void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	IInventoryInterface::UI_TakeContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
+
+	InventoryManagerComponent->Server_Take_ContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
+	RefreshWidgets();
+
+	// HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
@@ -133,6 +145,8 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 			if (AContainerActor* ContainerActor = Cast<AContainerActor>(Actor))
 			{	
 				ContainerActor->OnActorUsed_Implementation(this);
+				
+				return;
 			}
 		}
 	}
@@ -263,7 +277,6 @@ void AMyPlayerController::Interact()
 			{
 				CollectFromPanel(WorldActor->ID);
 
-				//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 				return;
 			}
 		//}
@@ -274,6 +287,8 @@ void AMyPlayerController::Interact()
 			if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
 			{
 				Server_OnActorUsed(UsableActor);
+
+				return;
 			}
 		//}
 	}

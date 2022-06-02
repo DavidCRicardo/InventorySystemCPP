@@ -15,9 +15,9 @@ AContainerActor::AContainerActor()
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	
 	C_Name = "NULL";
-	C_SlotsPerRow = 4;
-	C_CanStoreItems = false;
-	C_InventorySize = 4;
+	C_SlotsPerRow = 3;
+	C_CanStoreItems = true;
+	C_InventorySize = 9;
 }
 
 bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)

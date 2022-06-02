@@ -24,7 +24,7 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* ContainerGridPanel;
-
+	
 	UPROPERTY()
 	bool IsStorageContainer;
 

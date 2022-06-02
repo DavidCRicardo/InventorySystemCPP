@@ -27,7 +27,6 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -57,7 +56,10 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_OpenContainer(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
-	
+
+	UFUNCTION(Server, Reliable)
+	void Server_Take_ContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
 
