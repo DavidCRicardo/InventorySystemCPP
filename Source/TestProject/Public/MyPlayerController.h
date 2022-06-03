@@ -3,9 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EAttributes.h"
 #include "InventoryInterface.h"
-#include "UsableActor.h"
 #include "WorldActor.h"
 #include "Components/EquipmentComponent.h"
 #include "Components/InventoryManagerComponent.h"
@@ -23,9 +21,6 @@ class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, pub
 	
 public:
 	AMyPlayerController();
-	
-	UFUNCTION()
-	void TestMethod();
 	
 	/* Interface */
 	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;

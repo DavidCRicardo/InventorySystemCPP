@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/TextBlock.h"
 #include "InteractText.generated.h"
 
 /**
@@ -15,14 +16,11 @@ class INVENTORYSYSTEMCPP_API UInteractText : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* KeyToInteract;
+	//UPROPERTY(meta = (BindWidget))
+	//class UTextBlock* KeyToInteract;
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* InteractText;
-
-	//UFUNCTION()
-	//void ToggleVisibility();
 	
 protected:
 	UFUNCTION()

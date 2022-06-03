@@ -24,10 +24,9 @@ void UContainerLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// FText Text = LOCTABLE(COMMON_WORDS, "CONTAINERKey");
-	// Super::SetTitleToWindow(Text);
+	FText Text = LOCTABLE(COMMON_WORDS, "CONTAINERKey");
 
-	FText Text = FText::FromString("Container");
+	//FText Text = FText::FromString("Container");
 	Super::SetTitleToWindow(Text);
 	
 	/* TODO: This info needs to be Inventory Manager Component */

@@ -14,10 +14,6 @@ AMyPlayerController::AMyPlayerController()
 	//PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
-void AMyPlayerController::TestMethod()
-{
-}
-
 void AMyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -30,7 +26,6 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleUIMode", IE_Pressed, this, &AMyPlayerController::EnableUIMode);
 	InputComponent->BindAction("ToggleUIMode", IE_Released, this, &AMyPlayerController::DisableUIMode);
 
-	InputComponent->BindAction("TestKey", IE_Pressed, this, &AMyPlayerController::TestMethod);
 	InputComponent->BindAction("QuitGame", IE_Pressed, this, &AMyPlayerController::QuitGame);
 
 }

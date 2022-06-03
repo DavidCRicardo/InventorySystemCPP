@@ -58,8 +58,7 @@ protected:
 	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
 	
-	UFUNCTION()
-	virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
+	//virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	
 private:
 	UFUNCTION()
