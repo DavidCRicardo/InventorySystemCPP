@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Inventory/FContainerInfo.h"
+#include "ContainerActor.h"
 #include "EquipmentComponent.h"
 #include "InventoryComponent.h"
 #include "Tuples.h"
@@ -11,6 +13,8 @@
 #include "MyCharacter.h"
 #include "UI/MainLayout.h"
 #include "InventoryManagerComponent.generated.h"
+
+struct FContainerInfo;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORYSYSTEMCPP_API UInventoryManagerComponent : public UActorComponent
@@ -22,7 +26,6 @@ public:
 	UInventoryManagerComponent();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 
 protected:
 	// Called when the game starts
@@ -44,7 +47,19 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
-	
+
+	UFUNCTION(Server, Reliable)
+	void Server_UseContainer(AActor* Container);
+
+	UFUNCTION(Server, Reliable)
+	void Server_CloseContainer();
+
+	UFUNCTION(Client, Reliable)
+	void Client_OpenContainer(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
+
+	UFUNCTION(Server, Reliable)
+	void Server_Take_ContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
 
@@ -57,7 +72,7 @@ public:
 	EItemType GetItemTypeBySlot(const uint8& ItemSlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 NumberOfSlots;
+	uint8 NumberOfSlots;
 	
 	UPROPERTY(Replicated)
 	uint8 InventorySize;
@@ -70,7 +85,7 @@ public:
 	UPROPERTY()
 	AMyCharacter* CharacterReference;
 	
-	virtual void InitInventory(int32 NumberSlots = 32);
+	virtual void InitInventory(uint8 NumberSlots = 32);
 	
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);
@@ -94,13 +109,22 @@ public:
 
 	UFUNCTION()
 	void UpdateEquippedMeshes(const uint8& InventorySlot);
-
+	UFUNCTION()
+	void UpdateEquippedStats();
+	
 	UFUNCTION()
 	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
 
 	UFUNCTION()
 	UDataTable* GetItemDB();
-	
+
+	UFUNCTION()
+	void InitializePlayerAttributes();
+	UPROPERTY()
+	TArray<uint8> AttributesArray;
+
+	UPROPERTY()
+	AActor* CurrentContainer;
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
@@ -143,10 +167,26 @@ private:
 
 	UFUNCTION()
 	void DropItem(const uint8& InventorySlot);
-
 	
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void ClearInventorySlot(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	
+	void OpenContainer(AActor* Container);
+
+	UFUNCTION(Category = "Manager|Private|Container")
+	void UseContainer(AActor* Container);
+	UFUNCTION(Category = "Manager|Private|Container")
+	void CloseContainer();
+	UFUNCTION(Category = "Manager|Private|Container")
+	void LoadContainerSlots(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
+
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage);
+	
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void CreateContainerSlots(uint8 ContainerSize, uint8 SlotsPerRow);
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void SetContainerSlotItem(uint8 ContainerSlot, FSlotStructure SlotInformation);
 };

@@ -36,7 +36,7 @@ protected:
 	UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
-	FName Name;
+	FText Name;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Action; 

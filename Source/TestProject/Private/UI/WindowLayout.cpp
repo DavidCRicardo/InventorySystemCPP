@@ -15,20 +15,22 @@ void UWindowLayout::NativeConstruct()
 	Super::NativeConstruct();
 
 	QuitButton->OnClicked.AddUniqueDynamic(this, &UWindowLayout::OnButtonQuitClicked);
+	
+	//TopBorder->OnMouseButtonDownEvent.BindUFunction(this,"MyFunction");
+	
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 
-	SetTitleToWindow();
-
-	TopBorder->OnMouseButtonDownEvent.BindUFunction(this,"MyFunction");
+	SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UWindowLayout::MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+/*void UWindowLayout::MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	//UE_LOG (LogTemp, Warning, TEXT ("Border1 - Mouse Button Down Event!"))
-}
+}*/
 
-void UWindowLayout::SetTitleToWindow(FString Title)
+void UWindowLayout::SetTitleToWindow(FText Text)
 {
-	WindowTitle->SetText(FText::FromString(Title));
+	WindowTitle->SetText(Text);
 }
 
 FEventReply UWindowLayout::RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -74,6 +76,10 @@ void UWindowLayout::SetIndexToChilds(uint8& IndexStart)
 
 void UWindowLayout::OnButtonQuitClicked()
 {
+	if (IsValid(PlayerController))
+	{
+		ToggleWindow();
+	}
 }
 
 FReply UWindowLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

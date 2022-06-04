@@ -2,16 +2,12 @@
 
 FItemStructure::FItemStructure()
 {
-	//ID = FGuid();
-	
-	ID = FGuid::NewGuid();
-	
+	ID = "None";
 	Icon = nullptr;
 	Name = FText::FromString("None");
-	Description = FText::FromString("None");
+	Description = "None";
 	ItemType = EItemType::Undefined;
 	Quality = EItemQuality::Undefined;
-	Amount = 0;
 	PriceValue = 0;
 	IsStackable = false;
 	MaxStackSize = 0;
@@ -19,7 +15,16 @@ FItemStructure::FItemStructure()
 	IsDroppable = false;
 	SkeletalMesh = nullptr;
 	WorldMesh = nullptr;
-	Health = 0;
 	Duration = 0.f;
 	EquipmentSlot = EEquipmentSlot::Undefined;
+	CurrentLevel = 0;
+	MaxLevel = 0;
+	AmountToAddPerLevel = 0;
+	Strength = 0;
+	Endurance  = 0;
+	Dexterity = 0;
+	Intelligence = 0;
+	Attack = 0;
+	Defense = 0;
+	Health = 0;
 }

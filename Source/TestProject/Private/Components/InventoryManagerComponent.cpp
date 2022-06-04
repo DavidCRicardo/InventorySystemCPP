@@ -4,10 +4,10 @@
 #include "Components/InventoryManagerComponent.h"
 #include "MyHUD.h"
 #include "MyPlayerController.h"
-#include "WorldActor.h"
 #include "Components/UniformGridPanel.h"
-#include "UI/InventoryLayout.h"
+#include "Inventory/FContainerInfo.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/ContainerLayout.h"
 
 DECLARE_LOG_CATEGORY_CLASS(LogInventory, Verbose, Verbose);
 
@@ -32,8 +32,9 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 void UInventoryManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count;
+
+	// Inventory + Equipment + Container
+	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count + 9;
 	
 	InventorySize = NumberOfSlots;
 
@@ -63,7 +64,7 @@ UDataTable* UInventoryManagerComponent::GetItemDB()
 }
 
 /* Initializes the Inventory Array to a Specified Size */
-void UInventoryManagerComponent::InitInventory(const int32 NumberSlots)
+void UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
 {
 	Inventory.Reserve(NumberSlots);
 
@@ -252,9 +253,11 @@ bool UInventoryManagerComponent::EquipItem(const uint8& FromInventorySlot, const
 			SetInventorySlot(SwapSlot, FromInventorySlot);
 
 			UpdateEquippedMeshes(ToInventorySlot);
-
+			UpdateEquippedStats();
+			
 			return true;
 		}
+		
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ITEM CAN NOT BE EQUIPPED HERE")));
 		return false;
 	}
@@ -279,6 +282,7 @@ bool UInventoryManagerComponent::UnEquipItem(const uint8& FromInventorySlot, con
 
 			UpdateEquippedMeshes(FromInventorySlot);
 			UpdateEquippedMeshes(ToInventorySlot);
+			UpdateEquippedStats();
 			
 			return true;
 		}
@@ -289,7 +293,8 @@ bool UInventoryManagerComponent::UnEquipItem(const uint8& FromInventorySlot, con
 		    if (GetEquipmentTypeBySlot(ToInventorySlot) == GetEquipmentTypeBySlot(FromInventorySlot))
 		    {
 		    	EquipItem(ToInventorySlot, FromInventorySlot);
-
+		    	UpdateEquippedStats();
+		    	
 			    return true;
 		    }
 	    }
@@ -325,6 +330,131 @@ void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You cannot drop this..."))
 	}
+}
+
+void UInventoryManagerComponent::UseContainer(AActor* Container)
+{
+	if(Container->Implements<UInventoryInterface>())
+	{
+		if (CurrentContainer != Container)
+		{
+			OpenContainer(Container);
+		}else
+		{
+			//Server_CloseContainer()
+		}
+	}
+}
+
+void UInventoryManagerComponent::OpenContainer(AActor* Container)
+{
+	//CurrentContainer = Container;	// Crash on this line
+
+	if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
+	{
+		FName LocalName;
+		uint8 LocalSlotsPerRow;
+		bool LocalIsStorageContainer;
+		uint8 LocalInventorySize;
+		
+		CurrentContainer2->GetContainerProperties_Implementation(LocalName, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
+		
+		UInventoryComponent* ContainerInventory = CurrentContainer2->GetContainerInventory_Implementation();
+		
+		TArray<FSlotStructure> LocalInventory {};
+		LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),9);
+
+		for(uint8 i = 0; i < 9; i++)
+		{
+			LocalInventory[i] = Inventory[28 + i];	
+		}
+		
+		/*for (FSlotStructure Slot : ContainerInventory->Inventory)
+		{
+			LocalInventory->Add(Slot);
+		}*/
+		
+		FContainerInfo C_Info;
+		C_Info.ContainerName = LocalName;
+		C_Info.SlotsPerRow = LocalSlotsPerRow;
+		C_Info.IsStorageContainer = LocalIsStorageContainer;
+		C_Info.StorageInventorySize = LocalInventorySize;
+
+		//Client_OpenContainer(C_Info, LocalInventory);
+
+		AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+		PC->RefreshWidgets();
+		PC->ToggleContainer();
+	}
+}
+
+void UInventoryManagerComponent::CloseContainer()
+{
+}
+
+void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& ContainerProperties,
+	const TArray<FSlotStructure>& ContainerInventory)
+{
+	InventoryUI->Container->RefreshWindow();
+
+	//InventoryUI->Container->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage)
+{
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(GetOwner())->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
+	{
+		USlotLayout* W_Slot = nullptr;
+		
+		W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+
+		W_Slot->IsStorageSlot = IsStorage;
+		
+		InventoryUI->Container->ContainerGridPanel->AddChildToUniformGrid(W_Slot, Row, Column);
+		
+		InventoryUI->Container->ContainerSlots.Add(W_Slot);
+		
+	}
+}
+
+void UInventoryManagerComponent::CreateContainerSlots(uint8 ContainerSize, uint8 SlotsPerRow)
+{
+	// Clear Container Slots
+	
+	if (ContainerSize <= 0)
+	{
+		return;
+	}
+
+	//
+	uint8 LocalContainerSize = ContainerSize;
+	bool LocalIsStorageContainer = InventoryUI->Container->IsStorageContainer;
+	uint8 LocalMaxRowSize = SlotsPerRow;
+
+	float NumberOfRows = FMath::CeilToFloat(LocalContainerSize / LocalMaxRowSize) - 1;
+	float LastIndex = FMath::Max(NumberOfRows, 0.f);
+	uint8 LocalLoopCount = 0;
+	
+	for(uint8 i = 0; i < LastIndex; i++)
+	{
+		for (uint8 j = 0; j < LocalMaxRowSize - 1; j++)
+		{
+			AddContainerSlot(i, j, LocalLoopCount, LocalIsStorageContainer);
+			LocalLoopCount++;
+
+			if (LocalLoopCount == LocalContainerSize)
+			{
+				return;
+			}
+		}
+	}
+
+}
+
+void UInventoryManagerComponent::SetContainerSlotItem(uint8 ContainerSlot, FSlotStructure SlotInformation)
+{
+	
 }
 
 bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
@@ -577,6 +707,37 @@ void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot
 	}
 }
 
+void UInventoryManagerComponent::UpdateEquippedStats()
+{
+	uint8 TempStrength = 0;
+	uint8 TempEndurance = 0;
+	uint8 TempDexterity = 0;
+	uint8 TempIntelligence = 0;
+	
+	for (int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
+	{
+		FSlotStructure TempSlot = GetInventorySlot(i);
+		TempStrength += TempSlot.ItemStructure.Strength;
+		TempEndurance += TempSlot.ItemStructure.Endurance;
+		TempDexterity += TempSlot.ItemStructure.Dexterity;
+		TempIntelligence += TempSlot.ItemStructure.Intelligence;
+	}
+	
+	
+	AttributesArray[0] = TempStrength;
+	AttributesArray[1] = TempEndurance;
+	AttributesArray[2] = TempDexterity;
+	AttributesArray[3] = TempIntelligence;
+
+}
+
+void UInventoryManagerComponent::InitializePlayerAttributes()
+{
+	AttributesArray.Init(0, (uint8)EAttributes::Count);
+	
+	UpdateEquippedStats();
+}
+
 uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot)
 {
 	for(uint8 Index = 0; Index < (uint8)EEquipmentSlot::Count; Index++)
@@ -588,6 +749,18 @@ uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot Equipmen
 		}
 	}
 	return 0;
+}
+
+void UInventoryManagerComponent::Client_OpenContainer_Implementation(const FContainerInfo& ContainerProperties,
+	const TArray<FSlotStructure>& ContainerInventory)
+{
+	LoadContainerSlots(ContainerProperties, ContainerInventory);
+}
+
+void UInventoryManagerComponent::Server_Take_ContainerItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	MoveInventoryItem(FromInventorySlot, ToInventorySlot);
 }
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
@@ -615,4 +788,14 @@ void UInventoryManagerComponent::Server_UnEquipFromInventory_Implementation(cons
 	const uint8& ToInventorySlot)
 {
 	UnEquipItem(FromInventorySlot, ToInventorySlot);
+}
+
+void UInventoryManagerComponent::Server_UseContainer_Implementation(AActor* Container)
+{
+	UseContainer(Container);
+}
+
+void UInventoryManagerComponent::Server_CloseContainer_Implementation()
+{
+	CloseContainer();
 }

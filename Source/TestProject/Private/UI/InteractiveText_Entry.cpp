@@ -7,6 +7,7 @@
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "Item/FItemStructure.h"
 
 void UInteractiveText_Entry::NativeConstruct()
@@ -52,7 +53,10 @@ void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 				if (NewItemData)
 				{
 					IconImage->SetBrushFromTexture(NewItemData->Icon);
-					NameLabel->SetText(NewItemData->Name);
+					
+					FString LItemName = NewItemData->ID.ToString();
+					FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
+					NameLabel->SetText(ItemNameText);
 				}
 			}		
 		}
@@ -64,18 +68,11 @@ void UInteractiveText_Entry::NativeOnEntryReleased()
 	IUserObjectListEntry::NativeOnEntryReleased();
 
 	const FLinearColor LinearColor = {1,1,1,1};
-
-	//SelectedBorder->SetBrushColor(LinearColor);
-
-	//SelectedImage->SetOpacity(1.f);
-
 }
 
 void UInteractiveText_Entry::NativeOnItemSelectionChanged(bool bIsSelected)
 {
 	IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("NativeOnItemSelectionChanged")));
 	
 	FLinearColor LinearColor;
 	
