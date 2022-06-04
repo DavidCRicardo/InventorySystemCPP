@@ -5,6 +5,7 @@
 #include "FWidgetsLayoutBP.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
+#include "UI/ContainerLayout.h"
 #include "UI/InteractText.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
@@ -80,9 +81,6 @@ UUserWidget* AMyHUD::GetInteractWidget()
 	FWidgetsLayoutBP* NewWidgetData = nullptr;
 	
 	return CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
-
-	//UUserWidget* TempWidget = InteractTextWidget;
-	//return TempWidget;
 }
 
 bool AMyHUD::IsAnyWidgetVisible()
@@ -92,6 +90,8 @@ bool AMyHUD::IsAnyWidgetVisible()
 		||
 		HUDLayoutReference->MainLayout->Profile->IsVisible()
 		||
+		HUDLayoutReference->MainLayout->Container->IsVisible()
+		||
 		HUDLayoutReference->TertiaryHUD->InteractiveMenu->IsVisible()
 		)
 	{
@@ -99,12 +99,6 @@ bool AMyHUD::IsAnyWidgetVisible()
 	}
 
 	return false;
-	
-	/*if (InventoryLayout->IsVisible() || ProfileLayout->IsVisible())
-	{
-		return true;
-	}
-	return false;*/
 }
 
 void AMyHUD::ToggleWindow(const ELayout Layout)
@@ -115,8 +109,6 @@ void AMyHUD::ToggleWindow(const ELayout Layout)
 		{
 			HUDLayoutReference->MainLayout->Inventory->ToggleWindow();
 		}
-		
-		//Cast<UInventoryLayout>(InventoryLayout)->ToggleWindow();
 	}
 	else if (Layout == ELayout::Equipment)
 	{
@@ -124,17 +116,14 @@ void AMyHUD::ToggleWindow(const ELayout Layout)
 		{
 			HUDLayoutReference->MainLayout->Profile->ToggleWindow();
 		}
-		//Cast<UProfileLayout>(ProfileLayout)->ToggleWindow();
 	}
-	
-	/*if (Layout == ELayout::Inventory)
+	else if (Layout == ELayout::Container)
 	{
-		Cast<UInventoryLayout>(InventoryLayout)->ToggleWindow();
+		if(HUDLayoutReference->MainLayout->Container)
+		{
+			HUDLayoutReference->MainLayout->Container->ToggleWindow();
+		}
 	}
-	else if (Layout == ELayout::Equipment)
-	{
-		Cast<UProfileLayout>(ProfileLayout)->ToggleWindow();
-	}*/
 }
 
 void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
@@ -147,21 +136,10 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 	{
 		HUDLayoutReference->MainLayout->Profile->RefreshWindow();
 	}
-	
-	/*if (Layout == ELayout::Inventory)
+	else if (Layout == ELayout::Container)
 	{
-		if (UInventoryLayout* InventoryWidget = Cast<UInventoryLayout>(InventoryLayout))
-		{
-			InventoryWidget->RefreshWindow();
-		}
+		HUDLayoutReference->MainLayout->Container->RefreshWindow();
 	}
-	else if (Layout == ELayout::Equipment)
-	{
-		if (UProfileLayout* ProfileWidget = Cast<UProfileLayout>(ProfileLayout))
-		{
-			ProfileWidget->RefreshWindow();
-		}
-	}*/
 }
 
 UUserWidget* AMyHUD::CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name)

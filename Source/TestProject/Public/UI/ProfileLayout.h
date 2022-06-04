@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "SlotLayout.h"
 #include "WindowLayout.h"
+#include "Components/ListView.h"
 #include "ProfileLayout.generated.h"
 
 UCLASS()
@@ -12,7 +13,7 @@ class INVENTORYSYSTEMCPP_API UProfileLayout : public UWindowLayout
 	
 public:
 	UProfileLayout();
-
+	
 	virtual void ToggleWindow() override;
 	virtual void RefreshWindow() override;
 	
@@ -22,15 +23,20 @@ public:
 	UPROPERTY()
 	TArray<USlotLayout*>EquipmentSlotsArray;
 
-	UPROPERTY()
-	AMyPlayerController* PlayerController;
-	
+	UPROPERTY(meta = (BindWidget))
+	UListView* Attributes_ListView;
+
 private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;
 	virtual void InitializeSlots() override;
-	virtual void OnButtonQuitClicked() override;
+
+	UFUNCTION()
+	void CreateAttributesEntry();
 	
+	UFUNCTION()
+	void UpdatePlayerStatsUI();
+
 	UPROPERTY()
 	uint8 NumberOfColumns;
 	UPROPERTY()

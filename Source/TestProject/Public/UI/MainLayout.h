@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryLayout.h"
-#include "ProfileLayout.h"
 #include "Blueprint/UserWidget.h"
 #include "MainLayout.generated.h"
 
+class USlotLayout;
+struct FSlotStructure;
 /**
  * 
  */
@@ -18,13 +18,15 @@ class INVENTORYSYSTEMCPP_API UMainLayout : public UUserWidget
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	UInventoryLayout* Inventory;
+	class UInventoryLayout* Inventory;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	UProfileLayout* Profile;
+	class UProfileLayout* Profile;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UContainerLayout* Container;
 
 	UPROPERTY()
 	TArray<FSlotStructure> InventorySlots;
-	
+
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
@@ -33,6 +35,4 @@ protected:
 
 	UPROPERTY()
 	TArray<USlotLayout*> InventorySlotsLayouts;
-
-
 };

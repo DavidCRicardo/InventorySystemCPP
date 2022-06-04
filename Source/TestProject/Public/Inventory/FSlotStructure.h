@@ -20,4 +20,5 @@ struct INVENTORYSYSTEMCPP_API FSlotStructure : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	uint8 Amount;
+	
 };

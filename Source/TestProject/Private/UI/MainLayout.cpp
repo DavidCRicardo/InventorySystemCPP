@@ -7,15 +7,16 @@
 #include "DragWidget.h"
 #include "MyPlayerController.h"
 
+#include "UI/Attribute_Entry.h"
+#include "FWidgetsLayoutBP.h"
+#include "MyHUD.h"
+#include "UI/InventoryLayout.h"
+#include "UI/ProfileLayout.h"
+
 void UMainLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	//InventorySlots = Profile->EquipmentSlotsArray;
 	
-	/*FSlotStructure NewSlot = {};
-	InventorySlots.Add(NewSlot);*/
-
 	SetVisibility(ESlateVisibility::Visible);
 }
 

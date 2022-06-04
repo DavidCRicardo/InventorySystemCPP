@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "WindowLayout.generated.h"
 
 /**
@@ -23,21 +25,28 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UUserWidget> WidgetClass;
+
+	UPROPERTY()
+	AMyPlayerController* PlayerController;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* WindowTitle;
 	
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
-	
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* WindowTitle;
+
+	UFUNCTION()
+	virtual void OnButtonQuitClicked();
 	
 	UPROPERTY(meta = (BindWidget))	
 	class UBorder* TopBorder;
 	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* QuitButton;
-	
-	virtual void SetTitleToWindow(FString Title = FString("WINDOW"));
+
+	UFUNCTION()
+	virtual void SetTitleToWindow(FText Text);
 	
 	virtual FEventReply RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -49,13 +58,9 @@ protected:
 	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
 	
-	UFUNCTION()
-	virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
+	//virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	
 private:
-	UFUNCTION()
-	virtual void OnButtonQuitClicked();
-	
 	UFUNCTION()
 	virtual void InitializeSlots();
 

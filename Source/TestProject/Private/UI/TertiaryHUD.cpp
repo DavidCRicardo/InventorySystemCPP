@@ -25,9 +25,7 @@ void UTertiaryHUD::CreateInteractiveTextEntry(FName IDName)
 		
 		Entry->InitializeName(IDName);
 		
-		//InteractiveMenu->InteractiveText_List->AddItem(Entry);
 		InteractiveMenu->AddEntryToList(Entry);
-		
 	}
 
 	/*UInteractiveText_Entry* Entry2 = CreateWidget<UInteractiveText_Entry>(GetWorld(), InteractiveTextWidgetClass);

@@ -11,30 +11,25 @@ UInventoryLayout::UInventoryLayout()
 {
 	static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectFind(TEXT("/Game/UI/Textures/T_UI_Slot"));
 	Background_Slot = ObjectFind.Object;
-	
-	/*static ConstructorHelpers::FObjectFinder<UTexture2D> ObjectItemBorder(TEXT("/Game/Textures/T_UI_Item_Border"));
-	DefaultBorder = ObjectItemBorder.Object;*/
 }
 
 void UInventoryLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	Super::SetTitleToWindow("INVENTORY");
+	FText Text = LOCTABLE(COMMON_WORDS, "INVENTORYKey");
+	Super::SetTitleToWindow(Text);
 
-	/* TODO: This info needs to be Player Controller */
+	/* TODO: This info needs to be Inventory Manager Component */
 	NumberOfRows = 7;
 	NumberOfColumns = 4;
 	/**/
 
-	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	if (IsValid(PlayerController))
 	{
 		InitializeSlots();
 		RefreshWindow();
 	}
-
-	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInventoryLayout::InitializeSlots()
@@ -96,7 +91,7 @@ void UInventoryLayout::RefreshWindow()
 	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 
 	// for(int i = 0; i < InventoryLimit; i++)
-	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit; i++)
+	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit - 9; i++)
 	{
 		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
 		
@@ -108,13 +103,5 @@ void UInventoryLayout::RefreshWindow()
 
 		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count;
 		InventorySlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
-	}
-}
-
-void UInventoryLayout::OnButtonQuitClicked()
-{
-	if (IsValid(PlayerController))
-	{
-		PlayerController->ToggleInventory();
 	}
 }

@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "InventoryInterface.h"
-#include "UsableActor.h"
 #include "WorldActor.h"
 #include "Components/EquipmentComponent.h"
 #include "Components/InventoryManagerComponent.h"
 #include "MyPlayerController.generated.h"
+
+static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
 
 /**
  * 
@@ -20,9 +21,6 @@ class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, pub
 	
 public:
 	AMyPlayerController();
-
-	UFUNCTION()
-	void TestMethod();
 	
 	/* Interface */
 	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
@@ -30,9 +28,16 @@ public:
 	virtual void UI_DropInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+	virtual void UI_TakeContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	/* Ends Interface */
+
+	UFUNCTION()
+	TArray<uint8> GetPlayerAttributes();
 	
+	UFUNCTION()
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
+	UFUNCTION()
+	FSlotStructure GetItemFromInventory(const int8& SlotIndex);
 	
 	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
@@ -40,7 +45,10 @@ public:
 	void CollectFromPanel(const FName& Name);
 	UFUNCTION()
 	void UseWorldActor(AWorldActor* WorldActor);
-	
+
+	UFUNCTION()
+	bool IsContainerVisible();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AMyHUD* HUD_Reference;
 	
@@ -55,13 +63,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* PlayerInventoryComponent;
-
-	UFUNCTION(BlueprintCallable, Category="Character")
-	void ToggleProfile();
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();
-
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void ToggleProfile();
+	UFUNCTION(BlueprintCallable, Category="Character")
+	void ToggleContainer();
+	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleMenu();
 	void GetSelectedItemIndex(uint32& Index);
@@ -109,7 +118,7 @@ protected:
 	
 	UFUNCTION()
 	void QuitGame();
-	
+
 	UFUNCTION()
 	void OnActorUsed(AActor* Actor);
 

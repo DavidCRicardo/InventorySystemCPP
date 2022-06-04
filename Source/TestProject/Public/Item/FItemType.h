@@ -8,8 +8,8 @@ struct FItemType
 {
 	GENERATED_BODY();
 
-	static FText Undefined;
-	static FText Miscellanious;
-	static FText Equipment;
-	static FText Consumable;
+	static FName Undefined;
+	static FName Miscellanious;
+	static FName Equipment;
+	static FName Consumable;
 };

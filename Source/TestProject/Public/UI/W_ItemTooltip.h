@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EAttributes.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
 #include "Item/FItemStructure.h"
 #include "W_ItemTooltip.generated.h"
 
@@ -36,4 +38,17 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Type;
+
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* VerticalBoxAttributes;
+
+private:
+    virtual void NativeConstruct() override;
+	void SetDescription(const FItemStructure& Item);
+	void SetItemType(const FItemStructure& Item);
+	void SetItemName(const FItemStructure& Item);
+	void SetAttributes(const FItemStructure& Item);
+
+	UFUNCTION()
+	void GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, uint8& Value);
 };
