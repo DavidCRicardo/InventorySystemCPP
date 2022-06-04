@@ -4,11 +4,8 @@
 #include "Components/InventoryManagerComponent.h"
 #include "MyHUD.h"
 #include "MyPlayerController.h"
-#include "WorldActor.h"
-#include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "Inventory/FContainerInfo.h"
-#include "UI/InventoryLayout.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/ContainerLayout.h"
 
@@ -398,37 +395,9 @@ void UInventoryManagerComponent::CloseContainer()
 void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& ContainerProperties,
 	const TArray<FSlotStructure>& ContainerInventory)
 {
-	// ...
-
-	// SetName
-	//InventoryUI->Container->WindowTitle->SetText(FText::FromName(ContainerProperties.ContainerName));
-
 	InventoryUI->Container->RefreshWindow();
-	/*
-	// SetIsStorageContainer
-	InventoryUI->Container->IsStorageContainer = ContainerProperties.IsStorageContainer;
 
-	uint8 ContainerSize;
-	if (InventoryUI->Container->IsStorageContainer)
-	{
-		ContainerSize = ContainerProperties.StorageInventorySize;
-	}else
-	{
-		ContainerSize = ContainerInventory.Num();
-	}
-	
-	CreateContainerSlots(ContainerSize, ContainerProperties.SlotsPerRow);
-
-	for (uint8 Index = 0; Index < ContainerInventory.Num(); Index++)
-	{
-		SetContainerSlotItem(Index, ContainerInventory[Index]);
-	}
-
-	//OpenContainerWindow();
-	*/
-
-	InventoryUI->Container->SetVisibility(ESlateVisibility::Visible);
-
+	//InventoryUI->Container->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage)

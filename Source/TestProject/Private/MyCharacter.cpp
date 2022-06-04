@@ -246,7 +246,10 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 						UsableActorsInsideRange.Remove(UsableActor);
 
 						// At the moment, Containers are the only that run the code until here
-						MyPlayerController->ToggleContainer();
+						if(MyPlayerController->IsContainerVisible())
+						{
+							MyPlayerController->ToggleContainer();
+						}
 
 						return;
 					}

@@ -45,7 +45,10 @@ public:
 	void CollectFromPanel(const FName& Name);
 	UFUNCTION()
 	void UseWorldActor(AWorldActor* WorldActor);
-	
+
+	UFUNCTION()
+	bool IsContainerVisible();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AMyHUD* HUD_Reference;
 	

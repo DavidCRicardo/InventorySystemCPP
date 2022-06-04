@@ -5,6 +5,7 @@
 #include "MyHUD.h"
 #include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/ContainerLayout.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -52,7 +53,6 @@ void AMyPlayerController::BeginPlay()
 		}
 	}
 
-	//InventoryManagerComponent->UpdateEquippedStats();
 	InventoryManagerComponent->InitializePlayerAttributes();
 }
 
@@ -107,8 +107,6 @@ void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromI
 
 	InventoryManagerComponent->Server_Take_ContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
 	RefreshWidgets();
-
-	// HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
@@ -294,6 +292,11 @@ void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
 	Server_OnActorUsed(WorldActor);
 
 	InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+}
+
+bool AMyPlayerController::IsContainerVisible()
+{
+	return HUD_Reference->HUDLayoutReference->MainLayout->Container->IsVisible();
 }
 
 void AMyPlayerController::CollectFromPanel(const FName& Name)

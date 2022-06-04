@@ -30,12 +30,13 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	/*if (NativeFromContainer)
+	if (NativeFromContainer)
 	{
 		TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->Inventory;
+		uint8 NumberSlotsWithoutCountWithCurrentContainer = PlayerController->InventoryManagerComponent->NumberOfSlots - 9;
 		uint8 EmptySlotIndex = 0;
 		
-		for (uint8 Index = 0; Index < (uint8)EEquipmentSlot::Count + 9; Index++)
+		for (uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberSlotsWithoutCountWithCurrentContainer; Index++)
 		{
 			if (LocalInventory[Index].Amount == 0)
 			{
@@ -48,12 +49,12 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 		PlayerController->UI_TakeContainerItem_Implementation(InventorySlotIndex, EmptySlotIndex);
 	}
 	else
-	{*/
+	{
 		if (HasItem())
 		{
 			PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
 		}
-	//}
+	}
 	
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
