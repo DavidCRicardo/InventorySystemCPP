@@ -4,7 +4,6 @@
 #include "UI/ProfileLayout.h"
 #include "MyHUD.h"
 #include "MyPlayerController.h"
-#include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
 #include "UI/Attribute_Entry.h"
@@ -41,25 +40,13 @@ void UProfileLayout::NativeConstruct()
 	NumberOfColumns = 2;
 	NumberOfRows = 2;
 
-	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	if(IsValid(PlayerController))
 	{
 		CreateChildWidgets();
     	InitializeSlots();
 		CreateAttributesEntry();
 	}
-	
-	SetVisibility(ESlateVisibility::Hidden);
 }
-
-void UProfileLayout::OnButtonQuitClicked()
-{
-	if (IsValid(PlayerController))
-	{
-		PlayerController->ToggleProfile();
-	}
-}
-
 
 void UProfileLayout::CreateChildWidgets()
 {

@@ -54,3 +54,29 @@ void UInventoryComponent::GetInventoryItems(TArray<FSlotStructure>& InventoryIte
 {
 	InventoryItems = Inventory;
 }
+
+bool UInventoryComponent::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Array)
+{
+	Inventory.Reset();
+	FSlotStructure TempSlot = {};
+	
+	for (uint8 i = 0; i < Size - 1; i++)
+	{
+		Inventory.Add(TempSlot);
+	}
+
+	uint8 ArrayIndex = 0;
+	for (FSlotStructure Slot : Array)
+	{
+		SetInventoryItem(ArrayIndex, Slot);
+		ArrayIndex++;
+		//Inventory[ArrayIndex] = Slot;
+	}
+
+	return true;
+}
+
+void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
+{
+	Inventory[Index] = Item;
+}

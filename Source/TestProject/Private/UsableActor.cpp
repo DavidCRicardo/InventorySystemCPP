@@ -2,9 +2,10 @@
 
 
 #include "UsableActor.h"
-
+#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/InteractText.h"
@@ -23,7 +24,7 @@ AUsableActor::AUsableActor()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(Scene);
 	
-	Name = FName(TEXT("NULL"));
+	Name = FText::FromString("NULL");
 	Action = FText::FromString("Use");
 	IsUsable = true;
 	UsedSound = nullptr;
@@ -44,19 +45,15 @@ void AUsableActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 FText AUsableActor::GetUseActionText_Implementation()
 {
-	FText FormatInput = FText::FromName(Name);
-	
 	FFormatNamedArguments Args;
 	Args.Add("Action", Action);
-	Args.Add("Name", FormatInput);
+	Args.Add("Name", Name);
 	
 	FText FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "FullTextFormat", "{Action} {Name}"),
+		NSLOCTEXT("MyNamespace", "MyKey", "[F] {Action} {Name}"),
 		Args
 	);
-
-	//FText FormattedText = FText::Format(FormatInput, Args);
-
+	
 	return FormattedText;
 	// return IUsableActorInterface::GetUseActionText_Implementation();
 }
@@ -109,7 +106,7 @@ bool AUsableActor::OnActorUsed_Implementation(APlayerController* Controller)
 void AUsableActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame

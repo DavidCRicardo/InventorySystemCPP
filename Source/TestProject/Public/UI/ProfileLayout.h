@@ -23,9 +23,6 @@ public:
 	UPROPERTY()
 	TArray<USlotLayout*>EquipmentSlotsArray;
 
-	UPROPERTY()
-	AMyPlayerController* PlayerController;
-
 	UPROPERTY(meta = (BindWidget))
 	UListView* Attributes_ListView;
 
@@ -33,7 +30,6 @@ private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;
 	virtual void InitializeSlots() override;
-	virtual void OnButtonQuitClicked() override;
 
 	UFUNCTION()
 	void CreateAttributesEntry();

@@ -10,6 +10,8 @@
 #include "UI/Attribute_Entry.h"
 #include "FWidgetsLayoutBP.h"
 #include "MyHUD.h"
+#include "UI/InventoryLayout.h"
+#include "UI/ProfileLayout.h"
 
 void UMainLayout::NativeConstruct()
 {

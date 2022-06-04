@@ -24,21 +24,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* InventoryGridPanel;
 	
-	UPROPERTY(meta = (BindWidget))
-	UButton* SortButton;
+	//UPROPERTY(meta = (BindWidget))
+	//UButton* SortButton;
 	UPROPERTY()
 	UTexture2D* Background_Slot;
 	
 	UPROPERTY()
 	TArray<USlotLayout*>InventorySlotsArray;
-
-protected:
-	UPROPERTY()
-	AMyPlayerController* PlayerController;
 	
 private:
 	virtual void NativeConstruct() override;
-	virtual void OnButtonQuitClicked() override;
 	virtual void InitializeSlots() override;
 	virtual void CreateChildWidgets() override;
 	virtual void SetIndexToChilds(uint8& IndexStart) override;

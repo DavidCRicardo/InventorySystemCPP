@@ -5,6 +5,7 @@
 #include "MyHUD.h"
 #include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/ContainerLayout.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -12,10 +13,6 @@ AMyPlayerController::AMyPlayerController()
 	InventoryManagerComponent->SetIsReplicated(true);
 	
 	//PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
-}
-
-void AMyPlayerController::TestMethod()
-{
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -30,7 +27,6 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleUIMode", IE_Pressed, this, &AMyPlayerController::EnableUIMode);
 	InputComponent->BindAction("ToggleUIMode", IE_Released, this, &AMyPlayerController::DisableUIMode);
 
-	InputComponent->BindAction("TestKey", IE_Pressed, this, &AMyPlayerController::TestMethod);
 	InputComponent->BindAction("QuitGame", IE_Pressed, this, &AMyPlayerController::QuitGame);
 
 }
@@ -57,7 +53,6 @@ void AMyPlayerController::BeginPlay()
 		}
 	}
 
-	//InventoryManagerComponent->UpdateEquippedStats();
 	InventoryManagerComponent->InitializePlayerAttributes();
 }
 
@@ -75,6 +70,7 @@ void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromI
 	if (InventoryManagerComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+		RefreshWidgets();
 	}
 }
 
@@ -104,12 +100,14 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 	RefreshWidgets();
 }
 
-/*TMap<EAttributes, uint8> AMyPlayerController::UI_GetPlayerStats_Implementation(const uint8& OutStrength, const uint8& OutEndurance)
+void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
 {
-	IInventoryInterface::UI_GetPlayerStats_Implementation(OutStrength, OutEndurance);
+	IInventoryInterface::UI_TakeContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
 
-	return AttributesMap;
-}*/
+	InventoryManagerComponent->Server_Take_ContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
+	RefreshWidgets();
+}
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
@@ -127,6 +125,21 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 				
 				//InventoryManagerComponent->Server_RefreshInventorySlots();
 				//InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+
+				return;
+			}
+
+			/*if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
+			{	
+				UsableActor->OnActorUsed_Implementation(this);
+				return;
+			}*/
+			
+			if (AContainerActor* ContainerActor = Cast<AContainerActor>(Actor))
+			{	
+				ContainerActor->OnActorUsed_Implementation(this);
+				
+				return;
 			}
 		}
 	}
@@ -178,24 +191,6 @@ void AMyPlayerController::OnActorDropped(FSlotStructure LocalSlot)
 	}
 }
 
-void AMyPlayerController::ToggleProfile()
-{
-	if (IsValid(HUD_Reference))
-	{
-		HUD_Reference->ToggleWindow(ELayout::Equipment);
-	
-		if (HUD_Reference->IsAnyWidgetVisible())
-		{
-			SetInputMode(FInputModeGameAndUI());
-			bShowMouseCursor = true;
-		}else
-		{
-			SetInputMode(FInputModeGameOnly());
-			bShowMouseCursor = false;
-		}
-	}
-}
-
 void AMyPlayerController::ToggleInventory()
 {
 	if (IsValid(HUD_Reference))
@@ -214,16 +209,44 @@ void AMyPlayerController::ToggleInventory()
 	}
 }
 
+void AMyPlayerController::ToggleProfile()
+{
+	if (IsValid(HUD_Reference))
+	{
+		HUD_Reference->ToggleWindow(ELayout::Equipment);
+	
+		if (HUD_Reference->IsAnyWidgetVisible())
+		{
+			SetInputMode(FInputModeGameAndUI());
+			bShowMouseCursor = true;
+		}else
+		{
+			SetInputMode(FInputModeGameOnly());
+			bShowMouseCursor = false;
+		}
+	}
+}
+
+void AMyPlayerController::ToggleContainer()
+{
+	if (IsValid(HUD_Reference))
+	{
+		HUD_Reference->ToggleWindow(ELayout::Container);
+	
+		if (HUD_Reference->IsAnyWidgetVisible())
+		{
+			SetInputMode(FInputModeGameAndUI());
+			bShowMouseCursor = true;
+		}else
+		{
+			SetInputMode(FInputModeGameOnly());
+			bShowMouseCursor = false;
+		}
+	}
+}
+
 void AMyPlayerController::ToggleMenu()
 {
-	/*if(InventoryManagerComponent->AddItem(TEXT("Cardboard_Chest"), 1))
-	{
-		InventoryManagerComponent->AddItem(TEXT("Cardboard_Boots"), 1);
-		InventoryManagerComponent->AddItem(TEXT("Cardboard_Gloves"), 1);
-		
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		PrintInventory();
-	}*/
 }
 
 void AMyPlayerController::GetSelectedItemIndex(uint32& Index)
@@ -240,13 +263,27 @@ void AMyPlayerController::Interact()
 		GetSelectedItemIndex(Index);
 		
 		AActor* Actor = CharacterReference->UsableActorsInsideRange[Index];
-		
-		if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
-		{
-			CollectFromPanel(WorldActor->ID);
+		//if (CharacterReference->WorldActorsInsideRange.Num() > 0)
+		//{
+		//	Actor = CharacterReference->WorldActorsInsideRange[Index];
+			if (AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
+			{
+				CollectFromPanel(WorldActor->ID);
 
-			//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		}
+				return;
+			}
+		//}
+		
+		//if (CharacterReference->UsableActorsInsideRange.Num() > 0)
+		//{
+		//	Actor = CharacterReference->UsableActorsInsideRange[Index];
+			if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
+			{
+				Server_OnActorUsed(UsableActor);
+
+				return;
+			}
+		//}
 	}
 }
 
@@ -255,6 +292,11 @@ void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
 	Server_OnActorUsed(WorldActor);
 
 	InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
+}
+
+bool AMyPlayerController::IsContainerVisible()
+{
+	return HUD_Reference->HUDLayoutReference->MainLayout->Container->IsVisible();
 }
 
 void AMyPlayerController::CollectFromPanel(const FName& Name)
@@ -336,6 +378,7 @@ void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)

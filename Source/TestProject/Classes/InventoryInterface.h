@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EAttributes.h"
+#include "Components/InventoryComponent.h"
 #include "UObject/Interface.h"
 #include "InventoryInterface.generated.h"
 
@@ -38,7 +39,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_UnEquipInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
-	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	//TMap<EAttributes, uint8> UI_GetPlayerStats(const uint8& OutStrength, const uint8& OutEndurance);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_TakeContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void GetContainerProperties(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	UInventoryComponent* GetContainerInventory(); 
 };
