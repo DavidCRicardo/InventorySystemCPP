@@ -32,7 +32,8 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 {
 	if (NativeFromContainer)
 	{
-		TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->Inventory;
+		//TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->Inventory;
+		TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->PlayerInventory->Inventory;
 		uint8 NumberSlotsWithoutCountWithCurrentContainer = PlayerController->InventoryManagerComponent->NumberOfSlots - 9;
 		uint8 EmptySlotIndex = 0;
 		

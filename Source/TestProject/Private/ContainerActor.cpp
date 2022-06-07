@@ -13,11 +13,24 @@ AContainerActor::AContainerActor()
 	PrimaryActorTick.bCanEverTick = false;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	
+
 	C_Name = "NULL";
 	C_SlotsPerRow = 3;
 	C_CanStoreItems = true;
-	C_InventorySize = 9;
+	
+	// C_InventorySize = 9;
+	C_InventorySize = InventoryComponent->NumberOfRowsInventory * InventoryComponent->RowsPerSlotInventory;
+}
+
+// Called when the game starts or when spawned
+void AContainerActor::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (HasAuthority())
+	{
+		InitializeInventory();
+	}
 }
 
 bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
@@ -56,17 +69,6 @@ void AContainerActor::GetContainerProperties_Implementation(FName& Namee, uint8&
 UInventoryComponent* AContainerActor::GetContainerInventory_Implementation()
 {
 	return InventoryComponent;
-}
-
-// Called when the game starts or when spawned
-void AContainerActor::BeginPlay()
-{
-	Super::BeginPlay();
-	
-	if (HasAuthority())
-	{
-		InitializeInventory();
-	}
 }
 
 bool AContainerActor::InitializeInventory()

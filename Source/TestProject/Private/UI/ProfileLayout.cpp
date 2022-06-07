@@ -102,7 +102,8 @@ void UProfileLayout::RefreshWindow()
 		return;
 	}
 
-	if (!PlayerController->InventoryManagerComponent->Inventory.IsValidIndex(0))
+	//if (!PlayerController->InventoryManagerComponent->Inventory.IsValidIndex(0))
+	if (!PlayerController->InventoryManagerComponent->PlayerInventory->Inventory.IsValidIndex(0))
 	{
 		return;
 	}

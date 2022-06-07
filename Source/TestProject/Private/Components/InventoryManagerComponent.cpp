@@ -17,6 +17,7 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicated(true);
 	
 	// Get ItemDB 
 	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
@@ -26,6 +27,9 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	}else{
 	UE_LOG(LogInventory, Warning, TEXT ("ItemDB DataTable not found!!"));
 	}
+	
+	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count + 9;
+	//InventorySize = 28 + (uint8)EEquipmentSlot::Count + 9;;
 }
 
 // Called when the game starts
@@ -34,11 +38,8 @@ void UInventoryManagerComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Inventory + Equipment + Container
-	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count + 9;
-	
-	InventorySize = NumberOfSlots;
-
-	InitInventory(NumberOfSlots);
+	//NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count + 9;
+	//InitInventory(NumberOfSlots);
 }
 
 
@@ -55,7 +56,13 @@ void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UInventoryManagerComponent, InventorySize);
+	//DOREPLIFETIME(UInventoryManagerComponent, InventorySize);
+	DOREPLIFETIME(UInventoryManagerComponent, NumberOfSlots);
+}
+
+void UInventoryManagerComponent::InitializeInventoryManager(UInventoryComponent* EquipmentComponent)
+{
+	PlayerInventory = EquipmentComponent;
 }
 
 UDataTable* UInventoryManagerComponent::GetItemDB()
@@ -64,15 +71,19 @@ UDataTable* UInventoryManagerComponent::GetItemDB()
 }
 
 /* Initializes the Inventory Array to a Specified Size */
-void UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
+bool UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
 {
-	Inventory.Reserve(NumberSlots);
+	//Inventory.Reserve(NumberSlots);
+	PlayerInventory->Inventory.Reserve(NumberSlots);
 
 	FSlotStructure SlotStructure = {};
-	Inventory.Init(SlotStructure, NumberSlots);
-	
+	//Inventory.Init(SlotStructure, NumberSlots);
+	PlayerInventory->Inventory.Init(SlotStructure, NumberSlots);
+
+	// Add Customized Icons to Slots
 	uint8 Index = 0;
-	for (FSlotStructure& CurrentSlot : Inventory)
+	//for (FSlotStructure& CurrentSlot : Inventory)
+	for (FSlotStructure& CurrentSlot : PlayerInventory->Inventory)
 	{
 		if (Index == 0)
 		{
@@ -92,12 +103,20 @@ void UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
 		}
 		else
 		{
+			// Default Icon
 			SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
 		}
 		
 		CurrentSlot = SlotStructure;
 		Index++;
 	}
+	
+	return true;
+}
+
+void UInventoryManagerComponent::Server_InitInventory_Implementation()
+{
+	PlayerInventory->Server_InitInventory_Implementation(NumberOfSlots);
 }
 
 bool UInventoryManagerComponent::AddItem(FName ID, uint8 Amount)
@@ -145,9 +164,9 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 	uint8 IdentifiedIndex = 0;
 
 	// for (size_t i = 0; i < NumberOfSlots; i++)
-	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
+	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots - 9; i++)
 	{
-		const FSlotStructure& CurrentSlot = Inventory[i];
+		const FSlotStructure& CurrentSlot = PlayerInventory->Inventory[i]; //Inventory[i];
 		if (CurrentSlot.Amount <= 0)
 		{
 			HasSpace = true;
@@ -158,7 +177,7 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 	
 	if (HasSpace)
 	{
-		Inventory[IdentifiedIndex] = ContentToAdd;
+		PlayerInventory->Inventory[IdentifiedIndex] = ContentToAdd; //Inventory[IdentifiedIndex]; = ContentToAdd;
 
 		/**/
 		const uint8 MaxStackSize = ContentToAdd.ItemStructure.MaxStackSize;
@@ -166,7 +185,7 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 	
 		if (FinalQuantity > MaxStackSize)
 		{
-			Inventory[IdentifiedIndex].Amount = MaxStackSize;
+			PlayerInventory->Inventory[IdentifiedIndex].Amount = MaxStackSize; // Inventory[IdentifiedIndex];
 		
 			const uint8 RestAmountToAdd = (FinalQuantity - MaxStackSize);
 
@@ -175,7 +194,8 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 			AddItemToInventory(ContentToAdd);
 		}else
 		{
-			Inventory[IdentifiedIndex].Amount = FinalQuantity;
+			PlayerInventory->Inventory[IdentifiedIndex].Amount = FinalQuantity;
+			//Inventory[IdentifiedIndex].Amount = FinalQuantity;
 		}
 		/**/
 		return true;
@@ -186,14 +206,15 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 
 bool UInventoryManagerComponent::AddToStack(FSlotStructure& ContentToAdd, const int8& Index)
 {
-	const FSlotStructure& CurrentSlot = Inventory[Index];
+	const FSlotStructure& CurrentSlot = PlayerInventory->Inventory[Index]; //Inventory[Index]
 	const uint8 MaxStackSize = CurrentSlot.ItemStructure.MaxStackSize;
 	
 	const uint8 FinalQuantity = CurrentSlot.Amount + ContentToAdd.Amount;
 	
 	if (FinalQuantity > MaxStackSize)
 	{
-		Inventory[Index].Amount = MaxStackSize;
+		PlayerInventory->Inventory[Index].Amount = MaxStackSize;
+		//Inventory[Index].Amount = MaxStackSize;
 		
 		const uint8 RestAmountToAdd = (FinalQuantity - MaxStackSize);
 
@@ -202,7 +223,8 @@ bool UInventoryManagerComponent::AddToStack(FSlotStructure& ContentToAdd, const 
 		AddItemToInventory(ContentToAdd);
 	}else
 	{
-		Inventory[Index].Amount = FinalQuantity;
+		PlayerInventory->Inventory[Index].Amount = FinalQuantity;
+		//Inventory[Index].Amount = FinalQuantity;
 	}
 	
 	return true;
@@ -216,9 +238,11 @@ FReturnTupleBoolInt UInventoryManagerComponent::HasPartialStack(const FSlotStruc
 	// for (size_t i = 0; i < NumberOfSlots; i++)
 	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
 	{
-		const bool SameID = Inventory[i].ItemStructure.ID == ContentToAdd.ItemStructure.ID;
+		//const bool SameID = Inventory[i].ItemStructure.ID == ContentToAdd.ItemStructure.ID;
+		const bool SameID = PlayerInventory->Inventory[i].ItemStructure.ID == ContentToAdd.ItemStructure.ID;
 		
-		const bool InsideStackLimit = Inventory[i].Amount < ContentToAdd.ItemStructure.MaxStackSize;
+		//const bool InsideStackLimit = Inventory[i].Amount < ContentToAdd.ItemStructure.MaxStackSize;
+		const bool InsideStackLimit = PlayerInventory->Inventory[i].Amount < ContentToAdd.ItemStructure.MaxStackSize;
 		
 		if (SameID && InsideStackLimit)
 		{
@@ -348,7 +372,7 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 
 void UInventoryManagerComponent::OpenContainer(AActor* Container)
 {
-	//CurrentContainer = Container;	// Crash on this line
+	//CurrentContainer = Container;	// Crash on this line on multiplayer
 
 	if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
 	{
@@ -359,14 +383,15 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 		
 		CurrentContainer2->GetContainerProperties_Implementation(LocalName, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
 		
-		UInventoryComponent* ContainerInventory = CurrentContainer2->GetContainerInventory_Implementation();
+		UInventoryComponent* ContainerInventory2 = CurrentContainer2->GetContainerInventory_Implementation();
 		
 		TArray<FSlotStructure> LocalInventory {};
 		LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),9);
 
 		for(uint8 i = 0; i < 9; i++)
 		{
-			LocalInventory[i] = Inventory[28 + i];	
+			//LocalInventory[i] = Inventory[28 + i];	
+			LocalInventory[i] = PlayerInventory->Inventory[28 + i];	
 		}
 		
 		/*for (FSlotStructure Slot : ContainerInventory->Inventory)
@@ -393,7 +418,7 @@ void UInventoryManagerComponent::CloseContainer()
 }
 
 void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& ContainerProperties,
-	const TArray<FSlotStructure>& ContainerInventory)
+	const TArray<FSlotStructure>& InContainerInventory)
 {
 	InventoryUI->Container->RefreshWindow();
 
@@ -474,9 +499,11 @@ bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlo
 
 FSlotStructure UInventoryManagerComponent::GetInventorySlot(const uint8& InventorySlot)
 {
-	if (Inventory[InventorySlot].Amount > 0)
+	//if (Inventory[InventorySlot].Amount > 0)
+	if (PlayerInventory->Inventory[InventorySlot].Amount > 0)
 	{
-		return Inventory[InventorySlot];
+		//return Inventory[InventorySlot];
+		return PlayerInventory->Inventory[InventorySlot];
 	}
 	
 	return GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
@@ -553,7 +580,8 @@ void UInventoryManagerComponent::UseConsumableItem(const uint8& InventorySlot, F
 		RemoveItem(InventorySlot);
 	}else
 	{
-		Inventory[InventorySlot] = InventoryItem;
+		//Inventory[InventorySlot] = InventoryItem;
+		PlayerInventory->Inventory[InventorySlot] = InventoryItem;
 	}
 }
 
@@ -594,7 +622,8 @@ bool UInventoryManagerComponent::GetEmptyInventorySpace(uint8& OutIndex)
 {
 	for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberOfSlots; Index++)
 	{
-		FSlotStructure Slot = Inventory[Index];
+		// FSlotStructure Slot = Inventory[Index];
+		FSlotStructure Slot = PlayerInventory->Inventory[Index];
 		if (!ItemIsValid(Slot))
 		{
 			OutIndex = Index;
@@ -656,7 +685,8 @@ void UInventoryManagerComponent::RemoveFromItemAmount(FSlotStructure& InventoryI
 void UInventoryManagerComponent::RemoveItem(const uint8& InventorySlot)
 {
 	// Clear Inventory Item
-	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+	// Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+	PlayerInventory->Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
 }
 
 void UInventoryManagerComponent::Client_SetInventorySlot_Implementation(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
@@ -666,12 +696,16 @@ void UInventoryManagerComponent::Client_SetInventorySlot_Implementation(const FS
 
 void UInventoryManagerComponent::SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
-	Inventory[InventorySlot] = ContentToAdd;
+	//Inventory[InventorySlot] = ContentToAdd;
+	PlayerInventory->Inventory[InventorySlot] = ContentToAdd;
+
+	//InventoryUI->InventorySlots[InventorySlot] = ContentToAdd;
 }
 
 void UInventoryManagerComponent::ClearInventorySlot(const uint8& InventorySlot)
 {
-	Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+	//Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+	PlayerInventory->Inventory[InventorySlot] = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
 }
 
 void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot)
@@ -713,10 +747,14 @@ void UInventoryManagerComponent::UpdateEquippedStats()
 	uint8 TempEndurance = 0;
 	uint8 TempDexterity = 0;
 	uint8 TempIntelligence = 0;
+
 	
 	for (int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
 	{
-		FSlotStructure TempSlot = GetInventorySlot(i);
+		//FSlotStructure TempSlot = GetInventorySlot(i);
+		
+		FSlotStructure TempSlot = PlayerInventory->GetInventorySlot(i);
+		
 		TempStrength += TempSlot.ItemStructure.Strength;
 		TempEndurance += TempSlot.ItemStructure.Endurance;
 		TempDexterity += TempSlot.ItemStructure.Dexterity;
@@ -728,7 +766,6 @@ void UInventoryManagerComponent::UpdateEquippedStats()
 	AttributesArray[1] = TempEndurance;
 	AttributesArray[2] = TempDexterity;
 	AttributesArray[3] = TempIntelligence;
-
 }
 
 void UInventoryManagerComponent::InitializePlayerAttributes()
@@ -752,9 +789,9 @@ uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot Equipmen
 }
 
 void UInventoryManagerComponent::Client_OpenContainer_Implementation(const FContainerInfo& ContainerProperties,
-	const TArray<FSlotStructure>& ContainerInventory)
+	const TArray<FSlotStructure>& InContainerInventory)
 {
-	LoadContainerSlots(ContainerProperties, ContainerInventory);
+	LoadContainerSlots(ContainerProperties, InContainerInventory);
 }
 
 void UInventoryManagerComponent::Server_Take_ContainerItem_Implementation(const uint8& FromInventorySlot,
@@ -765,12 +802,14 @@ void UInventoryManagerComponent::Server_Take_ContainerItem_Implementation(const 
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
 {
-	return Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
+	//return Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
+	return PlayerInventory->Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
 }
 
 EItemType UInventoryManagerComponent::GetItemTypeBySlot(const uint8& ItemSlot)
 {
-	return Inventory[ItemSlot].ItemStructure.ItemType;
+	//return Inventory[ItemSlot].ItemStructure.ItemType;
+	return PlayerInventory->Inventory[ItemSlot].ItemStructure.ItemType;
 }
 
 void UInventoryManagerComponent::Server_DropItemFromInventory_Implementation(const uint8& InventorySlot)

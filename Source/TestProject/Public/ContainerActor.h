@@ -22,7 +22,7 @@ public:
 	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
 	virtual UInventoryComponent* GetContainerInventory_Implementation() override;
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
 	
 protected:

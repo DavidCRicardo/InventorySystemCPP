@@ -10,9 +10,8 @@
 AMyPlayerController::AMyPlayerController()
 {
 	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>(TEXT("InventoryComponent"));
-	InventoryManagerComponent->SetIsReplicated(true);
 	
-	//PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+	PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -40,7 +39,13 @@ void AMyPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	CharacterReference = Cast<AMyCharacter>(GetPawn());
+	
 	InventoryManagerComponent->CharacterReference = CharacterReference;
+
+	// 
+	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
+	InventoryManagerComponent->Server_InitInventory_Implementation();
+	//
 	
 	if (AMyHUD* HUDReferenceResult = Cast<AMyHUD>(GetHUD()))
 	{
@@ -381,9 +386,11 @@ void AMyPlayerController::RefreshWidgets()
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
+
 void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
-	Inventory[InventorySlot] = ContentToAdd;
+	//Inventory[InventorySlot] = ContentToAdd;
+	InventoryManagerComponent->PlayerInventory->Inventory[InventorySlot] = ContentToAdd;
 }
 
 TArray<uint8> AMyPlayerController::GetPlayerAttributes()
@@ -393,15 +400,17 @@ TArray<uint8> AMyPlayerController::GetPlayerAttributes()
 
 FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
 {
-	return Inventory[SlotIndex];
+	//return Inventory[SlotIndex];
+	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
 }
 
 FSlotStructure AMyPlayerController::GetItemFromInventory(const int8& SlotIndex)
 {
-	return InventoryManagerComponent->Inventory[SlotIndex];
+	//return InventoryManagerComponent->Inventory[SlotIndex];
+	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
 }
 
-void AMyPlayerController::PrintInventory()
+/*void AMyPlayerController::PrintInventory()
 {
 	for (int i = 0; i < InventoryManagerComponent->NumberOfSlots; i++)
 	{
@@ -412,7 +421,7 @@ void AMyPlayerController::PrintInventory()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"), *a.ToString(), b, c));
 	}
-}
+}*/
 
 UDataTable* AMyPlayerController::GetItemDB()
 {

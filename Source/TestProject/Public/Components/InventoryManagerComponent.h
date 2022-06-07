@@ -34,7 +34,33 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	UFUNCTION()
+	void InitializeInventoryManager(UInventoryComponent* EquipmentComponent);
+	
+	virtual bool InitInventory(uint8 NumberSlots);
 
+	UFUNCTION(Server, Reliable)
+	void Server_InitInventory();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Player Inventory", Category="Default", OverrideNativeName="PlayerInventory"))
+	UInventoryComponent* PlayerInventory;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Container Inventory", Category="Default", OverrideNativeName="ContainerInventory"))
+	UInventoryComponent* ContainerInventory;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	uint8 NumberOfSlots;
+	//UPROPERTY(Replicated)
+	//uint8 InventorySize;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//TArray<FSlotStructure> Inventory;
+	UPROPERTY()
+	AMyPlayerController* ControllerReference;
+	UPROPERTY()
+	UMainLayout* InventoryUI;
+	UPROPERTY()
+	AMyCharacter* CharacterReference;
 	
 	UFUNCTION(Server, Reliable)
 	void Server_EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
@@ -55,37 +81,15 @@ public:
 	void Server_CloseContainer();
 
 	UFUNCTION(Client, Reliable)
-	void Client_OpenContainer(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
+	void Client_OpenContainer(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
 
 	UFUNCTION(Server, Reliable)
 	void Server_Take_ContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
-
-	UPROPERTY()
-	AMyPlayerController* ControllerReference;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Player Inventory", Category="Default", OverrideNativeName="PlayerInventory"))
-	UInventoryComponent* PlayerInventory;
 	
 	UFUNCTION()
 	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
 	UFUNCTION()
 	EItemType GetItemTypeBySlot(const uint8& ItemSlot);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 NumberOfSlots;
-	
-	UPROPERTY(Replicated)
-	uint8 InventorySize;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FSlotStructure> Inventory;
-
-	UPROPERTY()
-	UMainLayout* InventoryUI;
-	UPROPERTY()
-	AMyCharacter* CharacterReference;
-	
-	virtual void InitInventory(uint8 NumberSlots = 32);
 	
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);
@@ -125,6 +129,7 @@ public:
 
 	UPROPERTY()
 	AActor* CurrentContainer;
+	
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
@@ -180,7 +185,7 @@ private:
 	UFUNCTION(Category = "Manager|Private|Container")
 	void CloseContainer();
 	UFUNCTION(Category = "Manager|Private|Container")
-	void LoadContainerSlots(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& ContainerInventory);
+	void LoadContainerSlots(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
 
 	UFUNCTION(Category = "UserInterface|Private|Container")
 	void AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage);

@@ -31,6 +31,12 @@ public:
 	virtual void UI_TakeContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	/* Ends Interface */
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="InventoryComponent"))
+	UInventoryManagerComponent* InventoryManagerComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="EquipmentComponent"))
+	UEquipmentComponent* PlayerInventoryComponent;
+	
 	UFUNCTION()
 	TArray<uint8> GetPlayerAttributes();
 	
@@ -57,12 +63,6 @@ public:
 
 	UPROPERTY()
 	UMainLayout* MainHUD;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="InventoryComponent"))
-	UInventoryManagerComponent* InventoryManagerComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Default", OverrideNativeName="EquipmentComponent"))
-	UEquipmentComponent* PlayerInventoryComponent;
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();
@@ -113,8 +113,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
 	
-	UFUNCTION()
-	void PrintInventory();
+	//UFUNCTION()
+	//void PrintInventory();
 	
 	UFUNCTION()
 	void QuitGame();
