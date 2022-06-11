@@ -13,7 +13,9 @@ AContainerActor::AContainerActor()
 	PrimaryActorTick.bCanEverTick = false;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-
+	InventoryComponent->NumberOfRowsInventory = 3;
+	InventoryComponent->RowsPerSlotInventory = 3;
+	
 	C_Name = "NULL";
 	C_SlotsPerRow = 3;
 	C_CanStoreItems = true;

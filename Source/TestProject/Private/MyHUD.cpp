@@ -83,6 +83,11 @@ UUserWidget* AMyHUD::GetInteractWidget()
 	return CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
 }
 
+void AMyHUD::RefreshContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
+{
+	HUDLayoutReference->MainLayout->Container->UpdateSlotsUI(SlotsPerSow, NumberOfRows);
+}
+
 bool AMyHUD::IsAnyWidgetVisible()
 {
 	if (

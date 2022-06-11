@@ -39,6 +39,9 @@ public:
 	
 	UFUNCTION()
 	TArray<uint8> GetPlayerAttributes();
+
+	UFUNCTION()
+	void RefreshContainerUI(uint8 SlotsPerSow, uint8 NumberOfRows);
 	
 	UFUNCTION()
 	FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);

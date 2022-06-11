@@ -386,9 +386,13 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 		UInventoryComponent* ContainerInventory2 = CurrentContainer2->GetContainerInventory_Implementation();
 		
 		TArray<FSlotStructure> LocalInventory {};
-		LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),9);
+		//LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),9);
+		
+		LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),CurrentContainer2->C_InventorySize);
 
-		for(uint8 i = 0; i < 9; i++)
+		
+		//for(uint8 i = 0; i < 9; i++)
+		for(uint8 i = 0; i < CurrentContainer2->C_InventorySize; i++)
 		{
 			//LocalInventory[i] = Inventory[28 + i];	
 			LocalInventory[i] = PlayerInventory->Inventory[28 + i];	
@@ -408,6 +412,7 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 		//Client_OpenContainer(C_Info, LocalInventory);
 
 		AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+		PC->RefreshContainerUI(ContainerInventory2->RowsPerSlotInventory, ContainerInventory2->NumberOfRowsInventory);
 		PC->RefreshWidgets();
 		PC->ToggleContainer();
 	}

@@ -398,6 +398,11 @@ TArray<uint8> AMyPlayerController::GetPlayerAttributes()
 	return InventoryManagerComponent->AttributesArray;
 }
 
+void AMyPlayerController::RefreshContainerUI(uint8 SlotsPerRow, uint8 NumberOfRows)
+{
+	HUD_Reference->RefreshContainerSlotsUI(SlotsPerRow, NumberOfRows);
+}
+
 FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
 {
 	//return Inventory[SlotIndex];

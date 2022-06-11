@@ -28,8 +28,8 @@ void UContainerLayout::NativeConstruct()
 	Super::SetTitleToWindow(Text);
 	
 	/* TODO: This info needs to be Inventory Manager Component */
-	NumberOfRows = 3;
-	NumberOfColumns = 3;
+	//NumberOfRows = 3;
+	//NumberOfColumns = 3;
 	/**/
 	
 	if (IsValid(PlayerController))
@@ -53,9 +53,9 @@ void UContainerLayout::CreateChildWidgets()
 	{
 		USlotLayout* W_ContainerSlot = nullptr;
 		
-		for(int i = 0; i < NumberOfRows; i++)
+		for(int i = 0; i < 3; i++)
 		{
-			for(int j = 0; j < NumberOfColumns; j++)
+			for(int j = 0; j < 3; j++)
 			{
 				W_ContainerSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 				ContainerGridPanel->AddChildToUniformGrid(W_ContainerSlot, i, j);
@@ -104,4 +104,30 @@ void UContainerLayout::RefreshWindow()
 		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count - 28;
 		ContainerSlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
 	}
+}
+
+
+void UContainerLayout::UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
+{
+	ContainerGridPanel->ClearChildren();
+	
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
+	{
+		USlotLayout* W_ContainerSlot = nullptr;
+		
+		for(int i = 0; i < NumberOfRows; i++)
+		{
+			for(int j = 0; j < SlotsPerSow; j++)
+			{
+				W_ContainerSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+				ContainerGridPanel->AddChildToUniformGrid(W_ContainerSlot, i, j);
+			
+				ContainerSlotsArray.Add(W_ContainerSlot);
+			}
+		}
+	}
+	
+	uint8 FirstIndex = 28 + 4 ;
+	SetIndexToChilds(FirstIndex);
 }

@@ -34,6 +34,9 @@ public:
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
 
+	UFUNCTION()
+	void RefreshContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows);
+
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UHUDLayout* HUDLayoutReference;
 	

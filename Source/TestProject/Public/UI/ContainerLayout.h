@@ -21,7 +21,7 @@ public:
 	
 	virtual void ToggleWindow() override;
 	virtual void RefreshWindow() override;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* ContainerGridPanel;
 	
@@ -35,14 +35,18 @@ public:
 
 	UPROPERTY()
 	UTexture2D* Background_Slot;
+	
+	UFUNCTION()
+	void UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows);
+
 private:
 	virtual void NativeConstruct() override;
 	virtual void InitializeSlots() override;
 	virtual void CreateChildWidgets() override;
 	virtual void SetIndexToChilds(uint8& IndexStart) override;
 
-	UPROPERTY()
-	uint8 NumberOfColumns;
-	UPROPERTY()
-	uint8 NumberOfRows;
+	//UPROPERTY()
+	//uint8 NumberOfColumns;
+	//UPROPERTY()
+	//uint8 NumberOfRows;
 };
