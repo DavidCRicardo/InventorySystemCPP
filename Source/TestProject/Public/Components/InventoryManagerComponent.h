@@ -85,6 +85,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void Server_Take_ContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	UFUNCTION(Server, Reliable)
+	void Server_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	
 	UFUNCTION()
 	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
@@ -172,7 +174,14 @@ private:
 
 	UFUNCTION()
 	void DropItem(const uint8& InventorySlot);
-	
+
+	UFUNCTION(Category = "Manager|Private|Inventory")
+	void MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot, UInventoryComponent* ToInventory, uint8 ToInventorySlot);
+	UFUNCTION(Category = "Manager|Private|Inventory")
+	void AddItem2(UInventoryComponent* Inventory, uint8 InventorySlot, FSlotStructure& InventoryItem);
+	UFUNCTION(Category = "Manager|Private|Inventory")
+	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
+
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void ClearInventorySlot(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")

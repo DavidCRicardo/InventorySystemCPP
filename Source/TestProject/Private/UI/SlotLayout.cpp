@@ -153,6 +153,12 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			return true;
 		}*/
 
+		if (NativeFromContainer)
+		{
+			PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+			return true;
+		}
+		
 		// MoveInventoryItem()
 		PlayerController->UI_MoveInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 		//PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
@@ -161,6 +167,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		return true;
 	}
 	
+	// Is Dragged From Container
 	if (DragDropOperation->IsDraggedFromContainer)
 	{
 		// Are we Equipping

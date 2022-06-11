@@ -356,6 +356,40 @@ void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 	}
 }
 
+void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
+	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
+{
+	// Trying to Move to the Same Spot
+	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
+	{
+		return;
+	}
+
+	FSlotStructure LocalInventoryItem = FromInventory->GetInventorySlot(FromInventorySlot);
+	FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventorySlot(ToInventorySlot);
+
+	// Swap Items?
+	if (LocalSwapInventoryItem.Amount > 0)
+	{
+		
+	}else
+	{
+		AddItem2(ToInventory, ToInventorySlot, LocalInventoryItem);
+		RemoveItem2(FromInventory, FromInventorySlot);
+	}
+}
+
+void UInventoryManagerComponent::AddItem2(UInventoryComponent* Inventory,
+	uint8 InventorySlot, FSlotStructure& InventoryItem)
+{
+	Inventory->SetInventoryItem(InventorySlot, InventoryItem);
+}
+
+void UInventoryManagerComponent::RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot)
+{
+	Inventory->ClearInventorySlot(InventorySlot);
+}
+
 void UInventoryManagerComponent::UseContainer(AActor* Container)
 {
 	if(Container->Implements<UInventoryInterface>())
@@ -370,9 +404,10 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 	}
 }
 
+// Crash on this line on multiplayer
 void UInventoryManagerComponent::OpenContainer(AActor* Container)
 {
-	//CurrentContainer = Container;	// Crash on this line on multiplayer
+	CurrentContainer = Container;
 
 	if (AContainerActor* CurrentContainer2 = Cast<AContainerActor>(Container))
 	{
@@ -382,6 +417,8 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 		uint8 LocalInventorySize;
 		
 		CurrentContainer2->GetContainerProperties_Implementation(LocalName, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
+
+		ContainerInventory = CurrentContainer2->GetContainerInventory_Implementation();
 		
 		UInventoryComponent* ContainerInventory2 = CurrentContainer2->GetContainerInventory_Implementation();
 		
@@ -803,6 +840,12 @@ void UInventoryManagerComponent::Server_Take_ContainerItem_Implementation(const 
 	const uint8& ToInventorySlot)
 {
 	MoveInventoryItem(FromInventorySlot, ToInventorySlot);
+}
+
+void UInventoryManagerComponent::Server_DepositContainerItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	MoveItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
 }
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)

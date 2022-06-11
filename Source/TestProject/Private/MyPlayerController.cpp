@@ -114,6 +114,17 @@ void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromI
 	RefreshWidgets();
 }
 
+void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	
+}
+
+void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	
+}
+
+
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
 	OnActorUsed(Actor);

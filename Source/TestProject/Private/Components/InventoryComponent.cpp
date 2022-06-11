@@ -43,51 +43,42 @@ void UInventoryComponent::Server_InitInventory_Implementation(const uint8& Inven
 
 void UInventoryComponent::InitInventory(const uint8& Size)
 {
-	if( AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
 	{
-		/*Inventory.Empty();
-	const FSlotStructure LocalSlot = {};
-	
-	for (uint8 Index = 0; Index < (Size - 1); Index++)
-	{
-		Inventory.Add(LocalSlot);
-	}*/
+		Inventory.Reserve(Size);
 
-	Inventory.Reserve(Size);
+		FSlotStructure SlotStructure = {};
+		Inventory.Init(SlotStructure, Size);
 
-	FSlotStructure SlotStructure = {};
-	Inventory.Init(SlotStructure, Size);
+		// Add Customized Icons to Slots
+		uint8 Index = 0;
+		for (FSlotStructure& CurrentSlot : Inventory)
+		{
+			if (Index == 0)
+			{
+				SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Weapon);
+			}
+			else if (Index == 1)
+			{
+				SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Chest);
+			}
+			else if (Index == 2)
+			{
+				SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Feet);
+			}
+			else if (Index == 3)
+			{
+				SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Hands);
+			}
+			else
+			{
+				// Default Icon
+				SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+			}
 
-	// Add Customized Icons to Slots
-	uint8 Index = 0;
-	for (FSlotStructure& CurrentSlot : Inventory)
-	{
-		if (Index == 0)
-		{
-			SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Weapon);
+			CurrentSlot = SlotStructure;
+			Index++;
 		}
-		else if (Index == 1)
-		{
-			SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Chest);
-		}
-		else if (Index == 2)
-		{
-			SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Feet);
-		}
-		else if (Index == 3)
-		{
-			SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Hands);
-		}
-		else
-		{
-			// Default Icon
-			SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
-		}
-		
-		CurrentSlot = SlotStructure;
-		Index++;
-	}
-		
 	}
 }
 
@@ -124,4 +115,10 @@ void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
 FSlotStructure UInventoryComponent::GetInventorySlot(uint8 Index)
 {
 	return Inventory[Index];
+}
+
+void UInventoryComponent::ClearInventorySlot(uint8 Index)
+{
+	// ! Not Tested !
+	Inventory[Index].Amount = 0;
 }

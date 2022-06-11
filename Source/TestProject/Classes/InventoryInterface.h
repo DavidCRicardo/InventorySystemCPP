@@ -43,6 +43,12 @@ public:
 	void UI_TakeContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_MoveContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void GetContainerProperties(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
