@@ -28,14 +28,14 @@ public:
 	UPROPERTY()
 	bool IsStorageContainer;
 
-	UPROPERTY()
-	TArray<UUserWidget*> ContainerSlots;
+	//UPROPERTY()
+	//TArray<UUserWidget*> ContainerSlots;
 	UPROPERTY()
 	TArray<USlotLayout*>ContainerSlotsArray;
 
 	UPROPERTY()
 	UTexture2D* Background_Slot;
-	
+
 	UFUNCTION()
 	void UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows);
 
@@ -44,6 +44,9 @@ private:
 	virtual void InitializeSlots() override;
 	virtual void CreateChildWidgets() override;
 	virtual void SetIndexToChilds(uint8& IndexStart) override;
+
+	UPROPERTY()
+	uint8 InventorySize;
 
 	//UPROPERTY()
 	//uint8 NumberOfColumns;

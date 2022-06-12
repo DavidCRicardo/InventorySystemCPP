@@ -27,15 +27,10 @@ void UContainerLayout::NativeConstruct()
 	FText Text = LOCTABLE(COMMON_WORDS, "CONTAINERKey");
 	Super::SetTitleToWindow(Text);
 	
-	/* TODO: This info needs to be Inventory Manager Component */
-	//NumberOfRows = 3;
-	//NumberOfColumns = 3;
-	/**/
-	
 	if (IsValid(PlayerController))
 	{
-		InitializeSlots();
-		RefreshWindow();
+		//InitializeSlots();
+		//RefreshWindow();
 	}
 }
 
@@ -83,32 +78,35 @@ void UContainerLayout::SetIndexToChilds(uint8& IndexStart)
 
 void UContainerLayout::RefreshWindow()
 {
-	//const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->NumberOfSlots;
 	const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->PlayerInventory->Inventory.Num();
 
 	FSlotStructure CurrentSlot = {};
 	FSlotStructure EmptySlot = {};
 	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 
-	for(int i = 32; i < InventoryLimit; i++)
+	//for(int i = 32; i < InventoryLimit; i++)
+	for(int i = 0; i <  InventorySize; i++)
 	{
-		//CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
-		CurrentSlot = PlayerController->InventoryManagerComponent->PlayerInventory->GetInventorySlot(i);
+		//CurrentSlot = PlayerController->InventoryManagerComponent->PlayerInventory->GetInventorySlot(i);
+		CurrentSlot = ContainerSlotsArray[i]->SlotStructure;
 
 		/* Update Empty Slot */
 		if(CurrentSlot.Amount <= 0){
-			PlayerController->InventoryManagerComponent->Client_SetInventorySlot(EmptySlot, i);
+			//PlayerController->InventoryManagerComponent->Client_SetInventorySlot(EmptySlot, i);
 			CurrentSlot = EmptySlot;
 		}
 
-		uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count - 28;
-		ContainerSlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
+		//uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count - 28;
+		//ContainerSlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
+		ContainerSlotsArray[i]->UpdateSlot(CurrentSlot);
 	}
 }
 
 
 void UContainerLayout::UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 {
+	InventorySize = SlotsPerSow * NumberOfRows;
+	
 	ContainerGridPanel->ClearChildren();
 	
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
@@ -128,6 +126,6 @@ void UContainerLayout::UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 		}
 	}
 	
-	uint8 FirstIndex = 28 + 4 ;
+	uint8 FirstIndex = 0; //28 + 4 ;
 	SetIndexToChilds(FirstIndex);
 }

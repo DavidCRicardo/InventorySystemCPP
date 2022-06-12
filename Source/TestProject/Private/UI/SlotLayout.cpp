@@ -126,6 +126,12 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 
 	if (DragDropOperation->IsDraggedFromInventory)
 	{
+		if (NativeFromContainer)
+		{
+			PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+			return true;
+		}
+		
 		// Check If Unequipping
 		if (IsUnequipping(LocalDraggedSlot))
 		{
@@ -152,12 +158,6 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			Split();
 			return true;
 		}*/
-
-		if (NativeFromContainer)
-		{
-			PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-			return true;
-		}
 		
 		// MoveInventoryItem()
 		PlayerController->UI_MoveInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);

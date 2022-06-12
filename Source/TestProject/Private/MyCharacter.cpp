@@ -183,6 +183,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
 					{
 						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
+						WorldActor->BeginOutlineFocus_Implementation();
 						SetActorTickEnabled(true);
 						WorldActorsInsideRange.Add(WorldActor);
 						UsableActorsInsideRange.Add(WorldActor);
@@ -232,6 +233,8 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
 					{
 						MyPlayerController->RemoveUsableActorToDropMenu(WorldActor->ID);
+						WorldActor->EndOutlineFocus_Implementation();
+						
 						WorldActorsInsideRange.Remove(WorldActor);
 						UsableActorsInsideRange.Remove(WorldActor);
 

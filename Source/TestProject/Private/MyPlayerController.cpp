@@ -39,26 +39,103 @@ void AMyPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	CharacterReference = Cast<AMyCharacter>(GetPawn());
-	
-	InventoryManagerComponent->CharacterReference = CharacterReference;
 
-	// 
+	// Server: Initialize Inventory
+	PlayerInventoryComponent->EquipmentCharacterReference = CharacterReference;
+
 	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
-	InventoryManagerComponent->Server_InitInventory_Implementation();
-	//
+
+	// to be removed after fix the bug
+	InventoryManagerComponent->CharacterReference = CharacterReference;
 	
+	InventoryManagerComponent->Server_InitInventory_Implementation();
+
+/*
+	// Client: Setup HUD Reference
 	if (AMyHUD* HUDReferenceResult = Cast<AMyHUD>(GetHUD()))
 	{
 		HUD_Reference = HUDReferenceResult;
-		if (UHUDLayout* HUDResult = Cast<UHUDLayout>(HUD_Reference->HUDLayoutReference))
-		{
-			HUDLayoutReference = HUDResult;
 
-			MainHUD = HUDLayoutReference->MainLayout;
+		// focus on this right now
+		HUDLayoutReference = HUDReferenceResult->HUDReference;
+
+		//InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
+
+		//Client: Init InventoryManagerUI
+		if (IsValid(HUDLayoutReference))
+		{
+			InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
 		}
-	}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,
+			                                 FString::Printf(TEXT("HUDLayoutReference not valid")));
+			
+			if (UHUDLayout* HUDResult = Cast<UHUDLayout>(HUD_Reference->HUDReference))
+			{
+				HUDLayoutReference = HUDResult;
+
+				InventoryManagerComponent->InitializeInventoryManagerUI(HUDResult->MainLayout);
+			}
+		}
+	}*/
 
 	InventoryManagerComponent->InitializePlayerAttributes();
+}
+
+void AMyPlayerController::SetupHUDReferences()
+{
+	// Client: Setup HUD Reference
+	if (AMyHUD* HUDReferenceResult = Cast<AMyHUD>(GetHUD()))
+	{
+		HUD_Reference = HUDReferenceResult;
+
+		// focus on this right now
+		HUDLayoutReference = HUDReferenceResult->HUDReference;
+
+		//InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
+
+		//Client: Init InventoryManagerUI
+		if (IsValid(HUDLayoutReference))
+		{
+			InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,
+											 FString::Printf(TEXT("HUDLayoutReference not valid")));
+			
+			if (UHUDLayout* HUDResult = Cast<UHUDLayout>(HUD_Reference->HUDReference))
+			{
+				HUDLayoutReference = HUDResult;
+
+				InventoryManagerComponent->InitializeInventoryManagerUI(HUDResult->MainLayout);
+			}
+		}
+	}
+}
+
+void AMyPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+
+	if (IsValid(HUDLayoutReference))
+	{
+	}
+	else
+	{
+		// Client: Setup HUD Reference
+		if (AMyHUD* HUDReferenceResult = Cast<AMyHUD>(GetHUD()))
+		{
+			HUD_Reference = HUDReferenceResult;
+
+			// focus on this right now
+			HUDLayoutReference = HUDReferenceResult->HUDReference;
+
+			InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
+		}
+	}
 }
 
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
@@ -116,12 +193,14 @@ void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromI
 
 void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-	
+
+	RefreshWidgets();
 }
 
 void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-	
+	InventoryManagerComponent->Server_DepositContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
+	RefreshWidgets();
 }
 
 
@@ -267,7 +346,7 @@ void AMyPlayerController::ToggleMenu()
 
 void AMyPlayerController::GetSelectedItemIndex(uint32& Index)
 {
-	Index = HUD_Reference->HUDLayoutReference->TertiaryHUD->InteractiveMenu->GetSelectedItemOnInteractiveList();
+	Index = HUD_Reference->HUDReference->TertiaryHUD->InteractiveMenu->GetSelectedItemOnInteractiveList();
 }
 
 void AMyPlayerController::Interact()
@@ -312,7 +391,7 @@ void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
 
 bool AMyPlayerController::IsContainerVisible()
 {
-	return HUD_Reference->HUDLayoutReference->MainLayout->Container->IsVisible();
+	return HUD_Reference->HUDReference->MainLayout->Container->IsVisible();
 }
 
 void AMyPlayerController::CollectFromPanel(const FName& Name)
@@ -376,7 +455,7 @@ void AMyPlayerController::AddUsableActorToDropMenu(FName IDName)
 {
 	if (IsValid(HUD_Reference))
 	{
-		HUD_Reference->HUDLayoutReference->TertiaryHUD->CreateInteractiveTextEntry(IDName);
+		HUD_Reference->HUDReference->TertiaryHUD->CreateInteractiveTextEntry(IDName);
 
 		EnableUIMode();
 	}
@@ -386,7 +465,7 @@ void AMyPlayerController::RemoveUsableActorToDropMenu(const FName& ID)
 {
 	if (IsValid(HUD_Reference))
 	{
-		HUD_Reference->HUDLayoutReference->TertiaryHUD->RemoveInteractiveTextEntry(ID);
+		HUD_Reference->HUDReference->TertiaryHUD->RemoveInteractiveTextEntry(ID);
 	}
 }
 
@@ -394,7 +473,7 @@ void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
+	//HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 

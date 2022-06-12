@@ -30,48 +30,28 @@ void AMyHUD::BeginPlay()
 	
 	const UDataTable* WidgetTable = WidgetDB;
 	FWidgetsLayoutBP* NewWidgetData = nullptr;
-	
-	/*NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>("HUDLayout_WBP", "", true);
-	if (NewWidgetData)
-	{
-		HUDLayoutReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
-		HUDLayoutReference->AddToViewport();
-	}*/
 
 	NewWidgetData = WidgetTable->FindRow<FWidgetsLayoutBP>(FName("HUDLayout_WBP"), "", true);
 	if (NewWidgetData)
 	{
-		HUDLayoutReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
+		HUDReference = CreateWidget<UHUDLayout>(GetWorld(), NewWidgetData->Widget);
 
-		if (HUDLayoutReference)
+		if (HUDReference)
 		{	
-			HUDLayoutReference->AddToViewport();
+			HUDReference->AddToViewport();
 		}
 	}
-	
-	//HUDReference = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("HUDLayout_WBP"));
-	
-	/*ProfileLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("ProfileLayout_WBP"));
-	if (ProfileLayout)
-	{
-		ProfileLayout->AddToViewport();
-		ProfileLayout->SetAnchorsInViewport(FAnchors{0.2f, 0.2f});
-		ProfileLayout->SetVisibility(ESlateVisibility::Hidden);
-	}
-
-	InventoryLayout = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InventoryLayout_WBP"));
-	if (InventoryLayout)
-	{
-		InventoryLayout->AddToViewport();
-		InventoryLayout->SetAnchorsInViewport(FAnchors{0.7f, 0.2f});
-		InventoryLayout->SetVisibility(ESlateVisibility::Hidden);
-	}*/
 	
 	InteractTextWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
 	if (InteractTextWidget)
 	{
 		InteractTextWidget->AddToViewport();
 		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner()))
+	{
+		PC->SetupHUDReferences();
 	}
 }
 
@@ -85,19 +65,19 @@ UUserWidget* AMyHUD::GetInteractWidget()
 
 void AMyHUD::RefreshContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 {
-	HUDLayoutReference->MainLayout->Container->UpdateSlotsUI(SlotsPerSow, NumberOfRows);
+	HUDReference->MainLayout->Container->UpdateSlotsUI(SlotsPerSow, NumberOfRows);
 }
 
 bool AMyHUD::IsAnyWidgetVisible()
 {
 	if (
-		HUDLayoutReference->MainLayout->Inventory->IsVisible()
+		HUDReference->MainLayout->Inventory->IsVisible()
 		||
-		HUDLayoutReference->MainLayout->Profile->IsVisible()
+		HUDReference->MainLayout->Profile->IsVisible()
 		||
-		HUDLayoutReference->MainLayout->Container->IsVisible()
+		HUDReference->MainLayout->Container->IsVisible()
 		||
-		HUDLayoutReference->TertiaryHUD->InteractiveMenu->IsVisible()
+		HUDReference->TertiaryHUD->InteractiveMenu->IsVisible()
 		)
 	{
 		return true;
@@ -110,23 +90,23 @@ void AMyHUD::ToggleWindow(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
 	{
-		if (HUDLayoutReference->MainLayout->Inventory)
+		if (HUDReference->MainLayout->Inventory)
 		{
-			HUDLayoutReference->MainLayout->Inventory->ToggleWindow();
+			HUDReference->MainLayout->Inventory->ToggleWindow();
 		}
 	}
 	else if (Layout == ELayout::Equipment)
 	{
-		if(HUDLayoutReference->MainLayout->Profile)
+		if(HUDReference->MainLayout->Profile)
 		{
-			HUDLayoutReference->MainLayout->Profile->ToggleWindow();
+			HUDReference->MainLayout->Profile->ToggleWindow();
 		}
 	}
 	else if (Layout == ELayout::Container)
 	{
-		if(HUDLayoutReference->MainLayout->Container)
+		if(HUDReference->MainLayout->Container)
 		{
-			HUDLayoutReference->MainLayout->Container->ToggleWindow();
+			HUDReference->MainLayout->Container->ToggleWindow();
 		}
 	}
 }
@@ -135,15 +115,15 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 {
 	if (Layout == ELayout::Inventory)
 	{
-		HUDLayoutReference->MainLayout->Inventory->RefreshWindow();
+		HUDReference->MainLayout->Inventory->RefreshWindow();
 	}
 	else if (Layout == ELayout::Equipment)
 	{
-		HUDLayoutReference->MainLayout->Profile->RefreshWindow();
+		HUDReference->MainLayout->Profile->RefreshWindow();
 	}
 	else if (Layout == ELayout::Container)
 	{
-		HUDLayoutReference->MainLayout->Container->RefreshWindow();
+		HUDReference->MainLayout->Container->RefreshWindow();
 	}
 }
 

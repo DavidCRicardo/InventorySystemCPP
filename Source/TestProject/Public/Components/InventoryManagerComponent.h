@@ -88,6 +88,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	
+	UFUNCTION(Client, Reliable)
+	void Client_SetContainerSlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+
+	UFUNCTION(Category= "Manager|Public")
+	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
+	
 	UFUNCTION()
 	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
 	UFUNCTION()
@@ -186,6 +192,8 @@ private:
 	void ClearInventorySlot(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	UFUNCTION(Category = "Manager|Private|Container")
+	void SetContainerSlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	
 	void OpenContainer(AActor* Container);
 
@@ -201,6 +209,5 @@ private:
 	
 	UFUNCTION(Category = "UserInterface|Private|Container")
 	void CreateContainerSlots(uint8 ContainerSize, uint8 SlotsPerRow);
-	UFUNCTION(Category = "UserInterface|Private|Container")
-	void SetContainerSlotItem(uint8 ContainerSlot, FSlotStructure SlotInformation);
+
 };

@@ -38,7 +38,16 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* PlayerInventoryComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class AMyHUD* HUD_Reference;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UHUDLayout* HUDLayoutReference;
+
+	UFUNCTION()
+	void SetupHUDReferences();
+
 	UFUNCTION()
 	TArray<uint8> GetPlayerAttributes();
 
@@ -59,15 +68,6 @@ public:
 
 	UFUNCTION()
 	bool IsContainerVisible();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class AMyHUD* HUD_Reference;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UHUDLayout* HUDLayoutReference;
-
-	UPROPERTY()
-	UMainLayout* MainHUD;
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();
@@ -109,6 +109,7 @@ public:
 	UDataTable* GetItemDB();
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	
 	virtual void SetupInputComponent() override;
 
