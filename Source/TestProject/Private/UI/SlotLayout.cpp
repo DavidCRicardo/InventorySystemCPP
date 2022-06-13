@@ -170,16 +170,17 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	// Is Dragged From Container
 	if (DragDropOperation->IsDraggedFromContainer)
 	{
+		if (NativeFromInventory)
+		{
+			PlayerController->UI_TakeContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+
+			return true;
+		}
+		
 		// Are we Equipping
 		if (IsEquipping(InventorySlotIndex))
 		{
 			PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-
-			return true;
-		}
-		else
-		{
-			PlayerController->UI_TakeContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 
 			return true;
 		}

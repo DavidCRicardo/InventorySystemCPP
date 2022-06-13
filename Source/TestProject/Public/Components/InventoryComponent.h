@@ -25,11 +25,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory", Category="Inventory UI"))
 	TArray<FSlotStructure> Inventory;
-	
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
 	UDataTable* GetItemDB();
+	UPROPERTY();
+	UDataTable* ItemDB;
 
 public:
 	// Called every frame
@@ -43,7 +46,7 @@ public:
 
 	UFUNCTION()
 	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Array);
-	
+
 	UFUNCTION()
 	void GetInventoryItems(TArray<FSlotStructure>& InventoryItems);
 
@@ -54,4 +57,11 @@ public:
 
 	UFUNCTION()
 	void ClearInventorySlot(uint8 Index);
+	UFUNCTION()
+	void PrintInventory();
+
+	UFUNCTION()
+	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);
+	UFUNCTION()
+	FSlotStructure GetItemFromItemDB(FName Name);
 };

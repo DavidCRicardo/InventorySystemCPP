@@ -60,6 +60,7 @@ void UContainerLayout::CreateChildWidgets()
 		}
 	}
 }
+
 void UContainerLayout::SetIndexToChilds(uint8& IndexStart)
 {
 	const FSlotStructure SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
@@ -126,6 +127,6 @@ void UContainerLayout::UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 		}
 	}
 	
-	uint8 FirstIndex = 0; //28 + 4 ;
+	uint8 FirstIndex = 0;
 	SetIndexToChilds(FirstIndex);
 }

@@ -19,20 +19,16 @@ class INVENTORYSYSTEMCPP_API UMainLayout : public UUserWidget
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UInventoryLayout* Inventory;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UProfileLayout* Profile;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UContainerLayout* Container;
-
-	UPROPERTY()
-	TArray<FSlotStructure> InventorySlots;
 
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
 	
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-
-	UPROPERTY()
-	TArray<USlotLayout*> InventorySlotsLayouts;
 };

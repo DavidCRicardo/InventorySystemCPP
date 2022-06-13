@@ -6,10 +6,7 @@
 #include "DragItem.h"
 #include "DragWidget.h"
 #include "MyPlayerController.h"
-
 #include "UI/Attribute_Entry.h"
-#include "FWidgetsLayoutBP.h"
-#include "MyHUD.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
 

@@ -45,40 +45,9 @@ void AMyPlayerController::BeginPlay()
 
 	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
 
-	// to be removed after fix the bug
 	InventoryManagerComponent->CharacterReference = CharacterReference;
 	
 	InventoryManagerComponent->Server_InitInventory_Implementation();
-
-/*
-	// Client: Setup HUD Reference
-	if (AMyHUD* HUDReferenceResult = Cast<AMyHUD>(GetHUD()))
-	{
-		HUD_Reference = HUDReferenceResult;
-
-		// focus on this right now
-		HUDLayoutReference = HUDReferenceResult->HUDReference;
-
-		//InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
-
-		//Client: Init InventoryManagerUI
-		if (IsValid(HUDLayoutReference))
-		{
-			InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,
-			                                 FString::Printf(TEXT("HUDLayoutReference not valid")));
-			
-			if (UHUDLayout* HUDResult = Cast<UHUDLayout>(HUD_Reference->HUDReference))
-			{
-				HUDLayoutReference = HUDResult;
-
-				InventoryManagerComponent->InitializeInventoryManagerUI(HUDResult->MainLayout);
-			}
-		}
-	}*/
 
 	InventoryManagerComponent->InitializePlayerAttributes();
 }
@@ -90,51 +59,10 @@ void AMyPlayerController::SetupHUDReferences()
 	{
 		HUD_Reference = HUDReferenceResult;
 
-		// focus on this right now
 		HUDLayoutReference = HUDReferenceResult->HUDReference;
-
-		//InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
-
+		
 		//Client: Init InventoryManagerUI
-		if (IsValid(HUDLayoutReference))
-		{
-			InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue,
-											 FString::Printf(TEXT("HUDLayoutReference not valid")));
-			
-			if (UHUDLayout* HUDResult = Cast<UHUDLayout>(HUD_Reference->HUDReference))
-			{
-				HUDLayoutReference = HUDResult;
-
-				InventoryManagerComponent->InitializeInventoryManagerUI(HUDResult->MainLayout);
-			}
-		}
-	}
-}
-
-void AMyPlayerController::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-
-	if (IsValid(HUDLayoutReference))
-	{
-	}
-	else
-	{
-		// Client: Setup HUD Reference
-		if (AMyHUD* HUDReferenceResult = Cast<AMyHUD>(GetHUD()))
-		{
-			HUD_Reference = HUDReferenceResult;
-
-			// focus on this right now
-			HUDLayoutReference = HUDReferenceResult->HUDReference;
-
-			InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
-		}
+		InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
 	}
 }
 
@@ -152,7 +80,6 @@ void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromI
 	if (InventoryManagerComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
 	{
 		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-		RefreshWidgets();
 	}
 }
 
@@ -182,15 +109,6 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 	RefreshWidgets();
 }
 
-void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromInventorySlot,
-	const uint8& ToInventorySlot)
-{
-	IInventoryInterface::UI_TakeContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
-
-	InventoryManagerComponent->Server_Take_ContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
-	RefreshWidgets();
-}
-
 void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 
@@ -203,6 +121,11 @@ void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& Fr
 	RefreshWidgets();
 }
 
+void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot)
+{
+	InventoryManagerComponent->Server_TakeContainerItem_Implementation(FromContainerSlot, ToInventorySlot);
+	RefreshWidgets();
+}
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
@@ -522,3 +445,4 @@ UDataTable* AMyPlayerController::GetItemDB()
 {
 	return InventoryManagerComponent->GetItemDB();
 }
+

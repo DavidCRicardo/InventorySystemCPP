@@ -27,9 +27,7 @@ public:
 	
 	UPROPERTY()
 	bool IsStorageContainer;
-
-	//UPROPERTY()
-	//TArray<UUserWidget*> ContainerSlots;
+	
 	UPROPERTY()
 	TArray<USlotLayout*>ContainerSlotsArray;
 
@@ -47,9 +45,4 @@ private:
 
 	UPROPERTY()
 	uint8 InventorySize;
-
-	//UPROPERTY()
-	//uint8 NumberOfColumns;
-	//UPROPERTY()
-	//uint8 NumberOfRows;
 };

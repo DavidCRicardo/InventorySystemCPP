@@ -248,7 +248,7 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 						
 						UsableActorsInsideRange.Remove(UsableActor);
 
-						// At the moment, Containers are the only that run the code until here
+						// At the moment, Containers are the only case that run the code until here
 						if(MyPlayerController->IsContainerVisible())
 						{
 							MyPlayerController->ToggleContainer();
@@ -283,7 +283,6 @@ void AMyCharacter::BeginPlay()
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	
 	if (UsableActorsInsideRange.Num() == 0)
 	{
@@ -296,7 +295,6 @@ void AMyCharacter::Tick(float DeltaTime)
 		return;
 	}
 	
-
 	for (AActor*& UsableActor : UsableActorsInsideRange)
 	{
 		if (AWorldActor* TempAWorldActor = Cast<AWorldActor>(UsableActor))

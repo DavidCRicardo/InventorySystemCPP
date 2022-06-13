@@ -21,7 +21,6 @@ AContainerActor::AContainerActor()
 	C_CanStoreItems = true;
 	
 	// C_InventorySize = 9;
-	C_InventorySize = InventoryComponent->NumberOfRowsInventory * InventoryComponent->RowsPerSlotInventory;
 }
 
 // Called when the game starts or when spawned
@@ -31,6 +30,8 @@ void AContainerActor::BeginPlay()
 	
 	if (HasAuthority())
 	{
+		C_InventorySize = InventoryComponent->NumberOfRowsInventory * InventoryComponent->RowsPerSlotInventory;
+
 		InitializeInventory();
 	}
 }
@@ -79,7 +80,7 @@ bool AContainerActor::InitializeInventory()
 	{
 		InventoryComponent->Server_InitInventory(C_InventorySize);
 
-		LoadInventoryItems(C_InventorySize, InventoryComponent->Inventory);
+		//LoadInventoryItems(C_InventorySize, InventoryComponent->Inventory);
 		
 		return true;
 	}
@@ -92,6 +93,7 @@ bool AContainerActor::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Inve
 	if (HasAuthority())
 	{
 		C_InventorySize = Size;
+
 		InventoryComponent->LoadInventoryItems(C_InventorySize, InventoryItems);
 
 		return true;

@@ -82,9 +82,11 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_OpenContainer(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
+	UFUNCTION(Client, Reliable)
+	void Client_CloseContainer();
 
 	UFUNCTION(Server, Reliable)
-	void Server_Take_ContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	void Server_TakeContainerItem(const uint8& FromContainerSlot, const uint8& ToInventorySlot);
 	UFUNCTION(Server, Reliable)
 	void Server_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	

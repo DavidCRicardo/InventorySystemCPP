@@ -24,8 +24,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* InventoryGridPanel;
 	
-	//UPROPERTY(meta = (BindWidget))
-	//UButton* SortButton;
 	UPROPERTY()
 	UTexture2D* Background_Slot;
 	

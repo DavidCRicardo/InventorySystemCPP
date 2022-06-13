@@ -5,6 +5,7 @@
 
 #include "DragItem.h"
 #include "DragWidget.h"
+#include "MyHUD.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
