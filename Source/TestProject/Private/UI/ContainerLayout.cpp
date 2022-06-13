@@ -79,13 +79,13 @@ void UContainerLayout::SetIndexToChilds(uint8& IndexStart)
 
 void UContainerLayout::RefreshWindow()
 {
-	const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->ContainerInventory->Inventory.Num();
+	//const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->ContainerInventory->Inventory.Num();
 
 	FSlotStructure CurrentSlot = {};
 	FSlotStructure EmptySlot = {};
 	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 
-	for(int i = 0; i <  InventoryLimit; i++)
+	for(int i = 0; i <  ContainerSlotsArray.Num(); i++)
 	{
 		CurrentSlot = ContainerSlotsArray[i]->SlotStructure;
 

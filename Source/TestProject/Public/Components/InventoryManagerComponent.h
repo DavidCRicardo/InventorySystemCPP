@@ -51,14 +51,13 @@ public:
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	uint8 NumberOfSlots;
-	//UPROPERTY(Replicated)
-	//uint8 InventorySize;
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//TArray<FSlotStructure> Inventory;
+
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
+	
 	UPROPERTY()
 	UMainLayout* InventoryUI;
+	
 	UPROPERTY()
 	AMyCharacter* CharacterReference;
 	
@@ -194,22 +193,15 @@ private:
 	void ClearInventorySlot(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+
 	UFUNCTION(Category = "Manager|Private|Container")
 	void SetContainerSlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
-	
+	UFUNCTION(Category = "Manager|Private|Container")
 	void OpenContainer(AActor* Container);
-
 	UFUNCTION(Category = "Manager|Private|Container")
 	void UseContainer(AActor* Container);
 	UFUNCTION(Category = "Manager|Private|Container")
 	void CloseContainer();
 	UFUNCTION(Category = "Manager|Private|Container")
 	void LoadContainerSlots(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
-
-	UFUNCTION(Category = "UserInterface|Private|Container")
-	void AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage);
-	
-	UFUNCTION(Category = "UserInterface|Private|Container")
-	void CreateContainerSlots(uint8 ContainerSize, uint8 SlotsPerRow);
-
 };

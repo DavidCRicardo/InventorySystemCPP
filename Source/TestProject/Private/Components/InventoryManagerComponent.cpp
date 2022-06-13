@@ -175,7 +175,7 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 	
 	if (HasSpace)
 	{
-		PlayerInventory->Inventory[IdentifiedIndex] = ContentToAdd; //Inventory[IdentifiedIndex]; = ContentToAdd;
+		PlayerInventory->Inventory[IdentifiedIndex] = ContentToAdd;
 
 		/**/
 		const uint8 MaxStackSize = ContentToAdd.ItemStructure.MaxStackSize;
@@ -183,7 +183,7 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 	
 		if (FinalQuantity > MaxStackSize)
 		{
-			PlayerInventory->Inventory[IdentifiedIndex].Amount = MaxStackSize; // Inventory[IdentifiedIndex];
+			PlayerInventory->Inventory[IdentifiedIndex].Amount = MaxStackSize;
 		
 			const uint8 RestAmountToAdd = (FinalQuantity - MaxStackSize);
 
@@ -193,7 +193,6 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 		}else
 		{
 			PlayerInventory->Inventory[IdentifiedIndex].Amount = FinalQuantity;
-			//Inventory[IdentifiedIndex].Amount = FinalQuantity;
 		}
 		/**/
 		return true;
@@ -204,7 +203,7 @@ bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
 
 bool UInventoryManagerComponent::AddToStack(FSlotStructure& ContentToAdd, const int8& Index)
 {
-	const FSlotStructure& CurrentSlot = PlayerInventory->Inventory[Index]; //Inventory[Index]
+	const FSlotStructure& CurrentSlot = PlayerInventory->Inventory[Index];
 	const uint8 MaxStackSize = CurrentSlot.ItemStructure.MaxStackSize;
 	
 	const uint8 FinalQuantity = CurrentSlot.Amount + ContentToAdd.Amount;
@@ -212,7 +211,6 @@ bool UInventoryManagerComponent::AddToStack(FSlotStructure& ContentToAdd, const 
 	if (FinalQuantity > MaxStackSize)
 	{
 		PlayerInventory->Inventory[Index].Amount = MaxStackSize;
-		//Inventory[Index].Amount = MaxStackSize;
 		
 		const uint8 RestAmountToAdd = (FinalQuantity - MaxStackSize);
 
@@ -222,7 +220,6 @@ bool UInventoryManagerComponent::AddToStack(FSlotStructure& ContentToAdd, const 
 	}else
 	{
 		PlayerInventory->Inventory[Index].Amount = FinalQuantity;
-		//Inventory[Index].Amount = FinalQuantity;
 	}
 	
 	return true;
@@ -233,13 +230,10 @@ FReturnTupleBoolInt UInventoryManagerComponent::HasPartialStack(const FSlotStruc
 	int8 LocalInteger = -1;
 	bool LocalBoolean = false;
 
-	// for (size_t i = 0; i < NumberOfSlots; i++)
 	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
 	{
-		//const bool SameID = Inventory[i].ItemStructure.ID == ContentToAdd.ItemStructure.ID;
 		const bool SameID = PlayerInventory->Inventory[i].ItemStructure.ID == ContentToAdd.ItemStructure.ID;
 		
-		//const bool InsideStackLimit = Inventory[i].Amount < ContentToAdd.ItemStructure.MaxStackSize;
 		const bool InsideStackLimit = PlayerInventory->Inventory[i].Amount < ContentToAdd.ItemStructure.MaxStackSize;
 		
 		if (SameID && InsideStackLimit)
@@ -400,6 +394,13 @@ void UInventoryManagerComponent::AddItem2(UInventoryComponent* Inventory,
 void UInventoryManagerComponent::RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot)
 {
 	Inventory->ClearInventorySlot(InventorySlot);
+
+	if (Inventory == ContainerInventory)
+	{
+		FSlotStructure Slot = GetEmptySlot(InventoryUI->Container->ContainerSlotsArray[InventorySlot]->SlotStructure.ItemStructure.EquipmentSlot);
+
+		InventoryUI->Container->ContainerSlotsArray[InventorySlot]->UpdateSlot(Slot);
+	}
 }
 
 void UInventoryManagerComponent::UseContainer(AActor* Container)
@@ -450,7 +451,7 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 		AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
 		PC->ToggleContainer();
 		
-		ContainerInventory->PrintInventory();
+		//ContainerInventory->PrintInventory();
 	}
 }
 
@@ -476,60 +477,6 @@ void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& Contai
 	}
 
 	PC->RefreshWidgets();
-}
-
-// Not Used
-void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage)
-{
-	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(GetOwner())->GetWidgetBPClass("SlotLayout_WBP");
-	if (WidgetLayout)
-	{
-		USlotLayout* W_Slot = nullptr;
-		
-		W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
-
-		W_Slot->IsStorageSlot = IsStorage;
-		
-		//InventoryUI->Container->ContainerGridPanel->AddChildToUniformGrid(W_Slot, Row, Column);
-		
-		//InventoryUI->Container->ContainerSlotsArray.Add(W_Slot);
-		
-	}
-}
-
-//Not Used
-void UInventoryManagerComponent::CreateContainerSlots(uint8 ContainerSize, uint8 SlotsPerRow)
-{
-	// Clear Container Slots
-	
-	if (ContainerSize <= 0)
-	{
-		return;
-	}
-
-	//
-	uint8 LocalContainerSize = ContainerSize;
-	bool LocalIsStorageContainer = InventoryUI->Container->IsStorageContainer;
-	uint8 LocalMaxRowSize = SlotsPerRow;
-
-	float NumberOfRows = FMath::CeilToFloat(LocalContainerSize / LocalMaxRowSize) - 1;
-	float LastIndex = FMath::Max(NumberOfRows, 0.f);
-	uint8 LocalLoopCount = 0;
-	
-	for(uint8 i = 0; i < LastIndex; i++)
-	{
-		for (uint8 j = 0; j < LocalMaxRowSize - 1; j++)
-		{
-			AddContainerSlot(i, j, LocalLoopCount, LocalIsStorageContainer);
-			LocalLoopCount++;
-
-			if (LocalLoopCount == LocalContainerSize)
-			{
-				return;
-			}
-		}
-	}
-
 }
 
 bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
@@ -854,14 +801,13 @@ void UInventoryManagerComponent::Server_TakeContainerItem_Implementation(const u
 	const uint8& ToInventorySlot)
 {
 	MoveItem(ContainerInventory, FromContainerSlot, PlayerInventory, ToInventorySlot);
-	//MoveInventoryItem(FromContainerSlot, ToInventorySlot);
 }
 
 void UInventoryManagerComponent::Server_DepositContainerItem_Implementation(const uint8& FromInventorySlot,
 	const uint8& ToInventorySlot)
 {
 	MoveItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
-	ContainerInventory->PrintInventory();
+	//ContainerInventory->PrintInventory();
 }
 
 void UInventoryManagerComponent::Client_SetContainerSlot_Implementation(const FSlotStructure& ContentToAdd,

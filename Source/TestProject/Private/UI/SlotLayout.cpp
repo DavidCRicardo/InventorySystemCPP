@@ -99,7 +99,15 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 
 		DragDropOperation->DraggedSlotInformation = SlotStructure;
 		DragDropOperation->DraggedSlotIndex = InventorySlotIndex;
-		DragDropOperation->IsDraggedFromInventory = true;
+
+		if (NativeFromInventory)
+		{
+			DragDropOperation->IsDraggedFromInventory = true;
+		}
+		if (NativeFromContainer)
+		{
+			DragDropOperation->IsDraggedFromContainer = true;
+		}
 		
 		OutOperation = DragDropOperation;
 

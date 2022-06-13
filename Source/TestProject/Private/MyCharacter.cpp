@@ -251,7 +251,8 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 						// At the moment, Containers are the only case that run the code until here
 						if(MyPlayerController->IsContainerVisible())
 						{
-							MyPlayerController->ToggleContainer();
+							MyPlayerController->InventoryManagerComponent->Server_CloseContainer_Implementation();
+							//MyPlayerController->ToggleContainer();
 						}
 
 						return;

@@ -148,7 +148,6 @@ FSlotStructure UInventoryComponent::GetInventorySlot(uint8 Index)
 
 void UInventoryComponent::ClearInventorySlot(uint8 Index)
 {
-	// ! Not Tested !
 	Inventory[Index].Amount = 0;
 }
 
