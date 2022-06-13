@@ -159,6 +159,6 @@ void UInventoryComponent::PrintInventory()
 		FText a = Inventory[i].ItemStructure.Name;
 		uint8 b = Inventory[i].Amount;
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i, Index: %i"),*a.ToString(), b, i));
 	}
 }

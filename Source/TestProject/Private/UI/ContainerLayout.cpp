@@ -79,36 +79,32 @@ void UContainerLayout::SetIndexToChilds(uint8& IndexStart)
 
 void UContainerLayout::RefreshWindow()
 {
-	const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->PlayerInventory->Inventory.Num();
+	const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->ContainerInventory->Inventory.Num();
 
 	FSlotStructure CurrentSlot = {};
 	FSlotStructure EmptySlot = {};
 	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 
-	//for(int i = 32; i < InventoryLimit; i++)
-	for(int i = 0; i <  InventorySize; i++)
+	for(int i = 0; i <  InventoryLimit; i++)
 	{
-		//CurrentSlot = PlayerController->InventoryManagerComponent->PlayerInventory->GetInventorySlot(i);
 		CurrentSlot = ContainerSlotsArray[i]->SlotStructure;
 
 		/* Update Empty Slot */
 		if(CurrentSlot.Amount <= 0){
-			//PlayerController->InventoryManagerComponent->Client_SetInventorySlot(EmptySlot, i);
 			CurrentSlot = EmptySlot;
 		}
-
-		//uint8 CurrentIndex = i - (uint8)EEquipmentSlot::Count - 28;
-		//ContainerSlotsArray[CurrentIndex]->UpdateSlot(CurrentSlot);
+		
 		ContainerSlotsArray[i]->UpdateSlot(CurrentSlot);
 	}
 }
 
 
-void UContainerLayout::UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
+void UContainerLayout::UpdateContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 {
 	InventorySize = SlotsPerSow * NumberOfRows;
 	
 	ContainerGridPanel->ClearChildren();
+	ContainerSlotsArray.Empty();
 	
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
 	if (WidgetLayout)
@@ -121,12 +117,20 @@ void UContainerLayout::UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 			{
 				W_ContainerSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 				ContainerGridPanel->AddChildToUniformGrid(W_ContainerSlot, i, j);
-			
+				
 				ContainerSlotsArray.Add(W_ContainerSlot);
 			}
 		}
-	}
+		
+		const FSlotStructure SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
 	
-	uint8 FirstIndex = 0;
-	SetIndexToChilds(FirstIndex);
+		for(int i = 0; i < ContainerSlotsArray.Num(); i++)
+		{
+			ContainerSlotsArray[i]->UpdateSlot(SlotStructure);
+			ContainerSlotsArray[i]->InventorySlotIndex = i;
+			ContainerSlotsArray[i]->NativeFromContainer = true;
+		
+			ContainerSlotsArray[i]->IsStorageSlot = true;
+		}
+	}
 }

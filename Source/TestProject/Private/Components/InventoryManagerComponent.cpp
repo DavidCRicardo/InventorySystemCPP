@@ -425,18 +425,12 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 	{
 		ContainerInventory = ContainerActor->GetContainerInventory_Implementation();
 		
-		// Not Tested!
-		//ContainerInventory->Inventory.Empty();
-		//ContainerInventory->Inventory.Init(GetEmptySlot(EEquipmentSlot::Undefined), ContainerInventory->NumberOfRowsInventory * ContainerInventory->RowsPerSlotInventory);
-		
 		TArray<FSlotStructure> LocalInventory {};
 
 		for (FSlotStructure Slot : ContainerInventory->Inventory)
 		{
 			LocalInventory.Add(Slot);
 		}
-		//LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),9);
-		//LocalInventory.Init(GetEmptySlot(EEquipmentSlot::Undefined),ContainerActor->C_InventorySize);
 
 		FName LocalName;
 		uint8 LocalSlotsPerRow;
@@ -453,17 +447,9 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 
 		Client_OpenContainer_Implementation(C_Info, LocalInventory);
 
-		//AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
-		//PC->RefreshContainerUI(ContainerInventory->RowsPerSlotInventory, ContainerInventory->NumberOfRowsInventory);
-		//PC->RefreshWidgets();
-		//PC->ToggleContainer();
-
 		AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
-		//PC->RefreshContainerUI(ContainerInventory->RowsPerSlotInventory, ContainerInventory->NumberOfRowsInventory);
-		//PC->RefreshWidgets();
 		PC->ToggleContainer();
 		
-		//InventoryUI->Container->ToggleWindow();
 		ContainerInventory->PrintInventory();
 	}
 }
@@ -488,6 +474,8 @@ void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& Contai
 		SetContainerSlot(Slot, Index);
 		Index++;
 	}
+
+	PC->RefreshWidgets();
 }
 
 // Not Used
@@ -654,7 +642,7 @@ void UInventoryManagerComponent::UseEquipmentItem(const uint8& InventorySlot, co
 		uint8 Index = 0;
 		if (GetEmptyInventorySpace(Index))
 		{
-				Server_UnEquipFromInventory_Implementation(InventorySlot, Index);
+			Server_UnEquipFromInventory_Implementation(InventorySlot, Index);
 			return;	
 		}
 		UE_LOG(LogTemp, Warning, TEXT("NO FREE SPACE"))
@@ -811,8 +799,6 @@ void UInventoryManagerComponent::UpdateEquippedStats()
 	
 	for (int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
 	{
-		//FSlotStructure TempSlot = GetInventorySlot(i);
-		
 		FSlotStructure TempSlot = PlayerInventory->GetInventorySlot(i);
 		
 		TempStrength += TempSlot.ItemStructure.Strength;
@@ -820,7 +806,6 @@ void UInventoryManagerComponent::UpdateEquippedStats()
 		TempDexterity += TempSlot.ItemStructure.Dexterity;
 		TempIntelligence += TempSlot.ItemStructure.Intelligence;
 	}
-	
 	
 	AttributesArray[0] = TempStrength;
 	AttributesArray[1] = TempEndurance;
@@ -876,6 +861,7 @@ void UInventoryManagerComponent::Server_DepositContainerItem_Implementation(cons
 	const uint8& ToInventorySlot)
 {
 	MoveItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
+	ContainerInventory->PrintInventory();
 }
 
 void UInventoryManagerComponent::Client_SetContainerSlot_Implementation(const FSlotStructure& ContentToAdd,

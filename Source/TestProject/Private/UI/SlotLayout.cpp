@@ -212,16 +212,17 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SlotStructure = NewSlotStructure;
 	
-	if (HasItem() )
+	if (HasItem())
 	{
-		if (InventorySlotIndex < (uint8)EEquipmentSlot::Count)
-		{
-			AmountTextBlock->SetText(FText::FromString(""));
-		}
-		else
-		{
+		// if (thisSlotNativeFromProfile)
+		//if (InventorySlotIndex < (uint8)EEquipmentSlot::Count)
+		//{
+		//	AmountTextBlock->SetText(FText::FromString(""));
+		//}
+		//else
+		//{
 			AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
-		}
+		//}
 	}
 	else
 	{

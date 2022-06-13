@@ -35,7 +35,7 @@ public:
 	UTexture2D* Background_Slot;
 
 	UFUNCTION()
-	void UpdateSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows);
+	void UpdateContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows);
 
 private:
 	virtual void NativeConstruct() override;

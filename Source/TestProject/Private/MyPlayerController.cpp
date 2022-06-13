@@ -396,7 +396,7 @@ void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-	//HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 

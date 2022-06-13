@@ -65,7 +65,7 @@ UUserWidget* AMyHUD::GetInteractWidget()
 
 void AMyHUD::RefreshContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 {
-	HUDReference->MainLayout->Container->UpdateSlotsUI(SlotsPerSow, NumberOfRows);
+	HUDReference->MainLayout->Container->UpdateContainerSlotsUI(SlotsPerSow, NumberOfRows);
 }
 
 bool AMyHUD::IsAnyWidgetVisible()
