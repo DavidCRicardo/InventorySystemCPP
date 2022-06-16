@@ -55,7 +55,7 @@ public:
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="UserInterface")
 	UMainLayout* InventoryUI;
 	
 	UPROPERTY()
@@ -194,12 +194,19 @@ private:
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
+	UFUNCTION(Category = "UserInterface|Private|Container") 
+	void ClearContainerSlots();
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow);
+	
 	UFUNCTION(Category = "Manager|Private|Container")
 	void SetContainerSlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	
 	UFUNCTION(Category = "Manager|Private|Container")
 	void OpenContainer(AActor* Container);
 	UFUNCTION(Category = "Manager|Private|Container")
 	void UseContainer(AActor* Container);
+	
 	UFUNCTION(Category = "Manager|Private|Container")
 	void CloseContainer();
 	UFUNCTION(Category = "Manager|Private|Container")

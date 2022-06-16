@@ -21,7 +21,7 @@ public:
 	uint8 NumberOfRowsInventory = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="RowsPerSlot", Category="Inventory UI"))
-	uint8 RowsPerSlotInventory = 0;
+	uint8 SlotsPerRowInventory = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory", Category="Inventory UI"))
 	TArray<FSlotStructure> Inventory;

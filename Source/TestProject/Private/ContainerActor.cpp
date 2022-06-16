@@ -14,7 +14,7 @@ AContainerActor::AContainerActor()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	InventoryComponent->NumberOfRowsInventory = 3;
-	InventoryComponent->RowsPerSlotInventory = 3;
+	InventoryComponent->SlotsPerRowInventory = 3;
 	
 	C_Name = "NULL";
 	C_SlotsPerRow = 3;
@@ -30,7 +30,10 @@ void AContainerActor::BeginPlay()
 	
 	if (HasAuthority())
 	{
-		C_InventorySize = InventoryComponent->NumberOfRowsInventory * InventoryComponent->RowsPerSlotInventory;
+		C_NumberOfRows = InventoryComponent->NumberOfRowsInventory;
+		C_SlotsPerRow = InventoryComponent->SlotsPerRowInventory;
+		
+		C_InventorySize = C_NumberOfRows * C_SlotsPerRow;
 
 		InitializeInventory();
 	}
@@ -45,8 +48,7 @@ bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 			if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(Controller))
 			{
 				//Server: Use Container And Add Player To Viewers List
-				// Add Player State to Players Viewing
-				// PlayerController->PlayerState;
+				PlayersViewing.Add(PlayerController->PlayerState);
 				
 				PlayerController->InventoryManagerComponent->Server_UseContainer(this);
 				
@@ -58,12 +60,13 @@ bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 	return false;
 }
 
-void AContainerActor::GetContainerProperties_Implementation(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer,
+void AContainerActor::GetContainerProperties_Implementation(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer,
 	uint8& InventorySize)
 {
-	IInventoryInterface::GetContainerProperties_Implementation(Namee, SlotsPerRow, IsStorageContainer, InventorySize);
+	IInventoryInterface::GetContainerProperties_Implementation(Namee, NumberOfRows, SlotsPerRow, IsStorageContainer, InventorySize);
 
 	Namee = C_Name;
+	NumberOfRows = C_NumberOfRows;
 	SlotsPerRow = C_SlotsPerRow;
 	IsStorageContainer = C_CanStoreItems;
 	InventorySize = C_InventorySize;
@@ -72,6 +75,12 @@ void AContainerActor::GetContainerProperties_Implementation(FName& Namee, uint8&
 UInventoryComponent* AContainerActor::GetContainerInventory_Implementation()
 {
 	return InventoryComponent;
+}
+
+TArray<APlayerState*> AContainerActor::GetPlayersViewing_Implementation()
+{
+	return PlayersViewing;
+	return IInventoryInterface::GetPlayersViewing_Implementation();
 }
 
 bool AContainerActor::InitializeInventory()

@@ -49,8 +49,11 @@ public:
 	void UI_MoveContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	void GetContainerProperties(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize);
+	void GetContainerProperties(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	UInventoryComponent* GetContainerInventory(); 
+	UInventoryComponent* GetContainerInventory();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	TArray<APlayerState*> GetPlayersViewing();
 };

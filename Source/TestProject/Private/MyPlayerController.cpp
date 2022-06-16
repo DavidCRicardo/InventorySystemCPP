@@ -10,6 +10,7 @@
 AMyPlayerController::AMyPlayerController()
 {
 	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>(TEXT("InventoryComponent"));
+	InventoryManagerComponent->SetIsReplicated(true);
 	
 	PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
@@ -135,6 +136,8 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 {
 	if (HasAuthority())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Has Authority")));
+
 		if (IsValid(Actor))
 		{
 			if(AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
@@ -155,12 +158,15 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 			
 			if (AContainerActor* ContainerActor = Cast<AContainerActor>(Actor))
 			{	
-				ContainerActor->OnActorUsed_Implementation(this);
+				//ContainerActor->OnActorUsed_Implementation(this);
+				IUsableActorInterface::Execute_OnActorUsed(ContainerActor, this);
 
 				return;
 			}
 		}
 	}
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Does Not Has Authority")));
 }
 
 void AMyPlayerController::Server_OnActorDropped_Implementation(FSlotStructure LocalSlot)
@@ -396,7 +402,7 @@ void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
+	//HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 

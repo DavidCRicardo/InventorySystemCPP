@@ -5,6 +5,7 @@
 #include "MyHUD.h"
 #include "MyPlayerController.h"
 #include "Components/UniformGridPanel.h"
+#include "GameFramework/PlayerState.h"
 #include "Inventory/FContainerInfo.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/ContainerLayout.h"
@@ -15,8 +16,8 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	SetIsReplicated(true);
-	
+	//SetIsReplicated(true);
+
 	// Get ItemDB 
 	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 	if (BP_ItemDB.Succeeded())
@@ -80,7 +81,6 @@ bool UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
 
 	// Add Customized Icons to Slots
 	uint8 Index = 0;
-	//for (FSlotStructure& CurrentSlot : Inventory)
 	for (FSlotStructure& CurrentSlot : PlayerInventory->Inventory)
 	{
 		if (Index == 0)
@@ -383,7 +383,25 @@ void UInventoryManagerComponent::AddItem2(UInventoryComponent* Inventory,
 		Client_SetInventorySlot_Implementation(InventoryItem, InventorySlot);
 		
 		return;
+	}else
+	{
+		//UFUNCTION(Category="UserInterface|Private|Container")
+		//SetViewersContainerSlot(InventoryItem, InventorySlot);
+
+		//Server: Set Container UI Slot Info For All Viewing Clients
+		
+		//Client(s)
+
+		AContainerActor* CurrentContainerTemp = Cast<AContainerActor>(CurrentContainer);
+		for (APlayerState* PlayerState : CurrentContainerTemp->GetPlayersViewing_Implementation())
+		{
+			if (AMyPlayerController* PC = Cast<AMyPlayerController>(PlayerState->GetOwner()))
+			{
+				PC->InventoryManagerComponent->Client_SetContainerSlot_Implementation(InventoryItem, InventorySlot);
+			}
+		}
 	}
+
 	
 	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner()))
 	{
@@ -424,6 +442,9 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 
 	if (AContainerActor* ContainerActor = Cast<AContainerActor>(CurrentContainer))
 	{
+		// ... //
+		IInventoryInterface::Execute_GetContainerInventory(Container);
+
 		ContainerInventory = ContainerActor->GetContainerInventory_Implementation();
 		
 		TArray<FSlotStructure> LocalInventory {};
@@ -434,49 +455,57 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 		}
 
 		FName LocalName;
+		uint8 LocalNumberOfRows;
 		uint8 LocalSlotsPerRow;
 		bool LocalIsStorageContainer;
 		uint8 LocalInventorySize;
 		
-		ContainerActor->GetContainerProperties_Implementation(LocalName, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
+		ContainerActor->GetContainerProperties_Implementation(LocalName, LocalNumberOfRows, LocalSlotsPerRow, LocalIsStorageContainer, LocalInventorySize);
 		
 		FContainerInfo C_Info;
 		C_Info.ContainerName = LocalName;
+		C_Info.NumberOfRows = LocalNumberOfRows;
 		C_Info.SlotsPerRow = LocalSlotsPerRow;
 		C_Info.IsStorageContainer = LocalIsStorageContainer;
 		C_Info.StorageInventorySize = LocalInventorySize;
-
-		Client_OpenContainer_Implementation(C_Info, LocalInventory);
-
-		AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
-		PC->ToggleContainer();
 		
-		//ContainerInventory->PrintInventory();
+		Client_OpenContainer(C_Info, LocalInventory);
 	}
 }
 
 void UInventoryManagerComponent::CloseContainer()
 {
+	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(CurrentContainer))
+	{
+		if (AContainerActor* CurrentContainerActor = Cast<AContainerActor>(CurrentContainer))
+		{
+			CurrentContainerActor->PlayersViewing.Remove(PlayerController->PlayerState);
+		}
+	}
+
 	CurrentContainer = nullptr;
 	ContainerInventory = nullptr;
-
+	
 	Client_CloseContainer_Implementation();
 }
 
 void UInventoryManagerComponent::LoadContainerSlots(const FContainerInfo& ContainerProperties,
 	const TArray<FSlotStructure>& InContainerInventory)
 {
+	CreateContainerSlots(ContainerProperties.NumberOfRows, ContainerProperties.SlotsPerRow);
+	
 	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
-	PC->RefreshContainerUI(ContainerInventory->RowsPerSlotInventory, ContainerInventory->NumberOfRowsInventory);
+	//PC->RefreshContainerUI(ContainerInventory->SlotsPerRowInventory, ContainerInventory->NumberOfRowsInventory);
 	
 	uint8 Index = 0;
-	for (FSlotStructure Slot:ContainerInventory->Inventory)
+	for (FSlotStructure Slot:InContainerInventory)
 	{
 		SetContainerSlot(Slot, Index);
 		Index++;
 	}
 
 	PC->RefreshWidgets();
+	PC->ToggleContainer();
 }
 
 bool UInventoryManagerComponent::MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
@@ -691,6 +720,48 @@ void UInventoryManagerComponent::Client_SetInventorySlot_Implementation(const FS
 void UInventoryManagerComponent::SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)
 {
 	PlayerInventory->Inventory[InventorySlot] = ContentToAdd;
+}
+
+void UInventoryManagerComponent::ClearContainerSlots()
+{
+	InventoryUI->Container->ContainerSlotsArray.Empty();
+	InventoryUI->Container->ContainerGridPanel->ClearChildren();
+}
+
+void UInventoryManagerComponent::CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow)
+{
+	ClearContainerSlots();
+
+	//UFUNCTION(Category = "UserInterface|Private|Container") AddContainerSlot(Row,Column,Slot,IsStorage);
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+	
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
+	{
+		USlotLayout* W_ContainerSlot = nullptr;
+		
+		for(int i = 0; i < NumberOfRows; i++)
+		{
+			for(int j = 0; j < SlotsPerRow; j++)
+			{
+				W_ContainerSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+				InventoryUI->Container->ContainerGridPanel->AddChildToUniformGrid(W_ContainerSlot, i, j);
+				
+				InventoryUI->Container->ContainerSlotsArray.Add(W_ContainerSlot);
+			}
+		}
+		
+		const FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+	
+		for(int i = 0; i < InventoryUI->Container->ContainerSlotsArray.Num(); i++)
+		{
+			InventoryUI->Container->ContainerSlotsArray[i]->UpdateSlot(SlotStructure);
+			InventoryUI->Container->ContainerSlotsArray[i]->InventorySlotIndex = i;
+			InventoryUI->Container->ContainerSlotsArray[i]->NativeFromContainer = true;
+		
+			InventoryUI->Container->ContainerSlotsArray[i]->IsStorageSlot = true;
+		}
+	}
 }
 
 void UInventoryManagerComponent::SetContainerSlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot)

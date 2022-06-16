@@ -103,8 +103,8 @@ void UContainerLayout::UpdateContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfR
 {
 	InventorySize = SlotsPerSow * NumberOfRows;
 	
-	ContainerGridPanel->ClearChildren();
-	ContainerSlotsArray.Empty();
+	//ContainerGridPanel->ClearChildren();
+	//ContainerSlotsArray.Empty();
 	
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("SlotLayout_WBP");
 	if (WidgetLayout)
