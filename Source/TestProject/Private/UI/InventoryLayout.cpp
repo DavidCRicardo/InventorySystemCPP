@@ -98,7 +98,7 @@ void UInventoryLayout::RefreshWindow()
 		/* Update Empty Slot */
 		if (CurrentSlot.Amount <= 0)
 		{
-			PlayerController->InventoryManagerComponent->Client_SetInventorySlot(EmptySlot, i);
+			PlayerController->InventoryManagerComponent->Client_SetInventorySlotItem(EmptySlot, i);
 			CurrentSlot = EmptySlot;
 		}
 

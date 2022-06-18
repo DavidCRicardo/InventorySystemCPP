@@ -136,7 +136,9 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	{
 		if (NativeFromContainer)
 		{
-			PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+			IInventoryInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			//PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+
 			return true;
 		}
 		
@@ -180,8 +182,9 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	{
 		if (NativeFromInventory)
 		{
-			PlayerController->UI_TakeContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-
+			//PlayerController->UI_TakeContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+			IInventoryInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			
 			return true;
 		}
 		

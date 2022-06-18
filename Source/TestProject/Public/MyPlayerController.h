@@ -67,7 +67,7 @@ public:
 	void UseWorldActor(AWorldActor* WorldActor);
 
 	UFUNCTION()
-	bool IsContainerVisible();
+	bool IsContainerOpen();
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleInventory();

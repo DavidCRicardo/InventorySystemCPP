@@ -71,16 +71,15 @@ public:
 	void Server_DropItemFromInventory(const uint8& InventorySlot);
 
 	UFUNCTION(Client, Reliable)
-	void Client_SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	void Client_SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UFUNCTION(Server, Reliable)
 	void Server_UseContainer(AActor* Container);
-
 	UFUNCTION(Server, Reliable)
 	void Server_CloseContainer();
 
 	UFUNCTION(Client, Reliable)
-	void Client_OpenContainer(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
+	void Client_OpenContainer(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
 	UFUNCTION(Client, Reliable)
 	void Client_CloseContainer();
 
@@ -190,9 +189,9 @@ private:
 	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
 
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
-	void ClearInventorySlot(const uint8& InventorySlot);
+	void ClearInventoryItem(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
-	void SetInventorySlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	void SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 
 	UFUNCTION(Category = "UserInterface|Private|Container") 
 	void ClearContainerSlots();
@@ -200,7 +199,7 @@ private:
 	void CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow);
 	
 	UFUNCTION(Category = "Manager|Private|Container")
-	void SetContainerSlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	void SetContainerSlot(FSlotStructure ContentToAdd, uint8 InventorySlot);
 	
 	UFUNCTION(Category = "Manager|Private|Container")
 	void OpenContainer(AActor* Container);
@@ -210,5 +209,5 @@ private:
 	UFUNCTION(Category = "Manager|Private|Container")
 	void CloseContainer();
 	UFUNCTION(Category = "Manager|Private|Container")
-	void LoadContainerSlots(const FContainerInfo& ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
+	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
 };

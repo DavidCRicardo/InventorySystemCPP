@@ -133,7 +133,7 @@ void UProfileLayout::RefreshWindow()
 				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
 			}
 			CurrentSlot = EmptySlot;
-			PlayerController->InventoryManagerComponent->Client_SetInventorySlot(CurrentSlot, i);
+			PlayerController->InventoryManagerComponent->Client_SetInventorySlotItem(CurrentSlot, i);
 		}
 	
 		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);

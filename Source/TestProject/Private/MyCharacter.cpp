@@ -249,10 +249,9 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 						UsableActorsInsideRange.Remove(UsableActor);
 
 						// At the moment, Containers are the only case that run the code until here
-						if(MyPlayerController->IsContainerVisible())
+						if(MyPlayerController->IsContainerOpen())
 						{
-							MyPlayerController->InventoryManagerComponent->Server_CloseContainer_Implementation();
-							//MyPlayerController->ToggleContainer();
+							MyPlayerController->InventoryManagerComponent->Server_CloseContainer();
 						}
 
 						return;

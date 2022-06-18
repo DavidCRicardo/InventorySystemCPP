@@ -118,13 +118,13 @@ void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromI
 
 void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-	InventoryManagerComponent->Server_DepositContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
+	InventoryManagerComponent->Server_DepositContainerItem(FromInventorySlot, ToInventorySlot);
 	RefreshWidgets();
 }
 
 void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot)
 {
-	InventoryManagerComponent->Server_TakeContainerItem_Implementation(FromContainerSlot, ToInventorySlot);
+	InventoryManagerComponent->Server_TakeContainerItem(FromContainerSlot, ToInventorySlot);
 	RefreshWidgets();
 }
 
@@ -318,7 +318,7 @@ void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
 	InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
 }
 
-bool AMyPlayerController::IsContainerVisible()
+bool AMyPlayerController::IsContainerOpen()
 {
 	return HUD_Reference->HUDReference->MainLayout->Container->IsVisible();
 }
@@ -402,7 +402,7 @@ void AMyPlayerController::RefreshWidgets()
 {
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-	//HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
 }
 
 

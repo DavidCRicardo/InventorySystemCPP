@@ -56,7 +56,7 @@ public:
 	FSlotStructure GetInventorySlot(uint8 Index);
 
 	UFUNCTION()
-	void ClearInventorySlot(uint8 Index);
+	void ClearInventorySlotItem(uint8 Index);
 	UFUNCTION()
 	void PrintInventory();
 

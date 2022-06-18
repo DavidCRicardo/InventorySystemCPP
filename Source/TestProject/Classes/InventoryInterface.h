@@ -52,7 +52,7 @@ public:
 	void GetContainerProperties(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
-	UInventoryComponent* GetContainerInventory();
+	void GetContainerInventory(UInventoryComponent*& OutInventoryComponent);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	TArray<APlayerState*> GetPlayersViewing();

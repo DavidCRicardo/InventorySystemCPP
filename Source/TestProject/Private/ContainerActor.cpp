@@ -72,9 +72,10 @@ void AContainerActor::GetContainerProperties_Implementation(FName& Namee, uint8&
 	InventorySize = C_InventorySize;
 }
 
-UInventoryComponent* AContainerActor::GetContainerInventory_Implementation()
+void AContainerActor::GetContainerInventory_Implementation(UInventoryComponent*& OutInventoryComponent)
 {
-	return InventoryComponent;
+	OutInventoryComponent = InventoryComponent;
+	//return InventoryComponent;
 }
 
 TArray<APlayerState*> AContainerActor::GetPlayersViewing_Implementation()

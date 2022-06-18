@@ -20,7 +20,7 @@ public:
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
 
 	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
-	virtual UInventoryComponent* GetContainerInventory_Implementation() override;
+	virtual void GetContainerInventory_Implementation(UInventoryComponent*& OutInventoryComponent) override;
 	virtual TArray<APlayerState*> GetPlayersViewing_Implementation() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
