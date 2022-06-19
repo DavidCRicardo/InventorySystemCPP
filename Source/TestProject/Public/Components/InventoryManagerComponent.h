@@ -3,9 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory/FContainerInfo.h"
-#include "ContainerActor.h"
 #include "EquipmentComponent.h"
+#include "Inventory/FContainerInfo.h"
 #include "InventoryComponent.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
@@ -27,6 +26,9 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION(Category="Manager|Public")
+	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem, bool bOutSuccess);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -38,10 +40,10 @@ public:
 	UFUNCTION()
 	void InitializeInventoryManager(UInventoryComponent* EquipmentComponent);
 	
-	virtual bool InitInventory(uint8 NumberSlots);
-
 	UFUNCTION(Server, Reliable)
-	void Server_InitInventory();
+	virtual void Server_InitInventory();
+	
+	virtual bool InitInventory(uint8 NumberSlots);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Player Inventory", Category="Default", OverrideNativeName="PlayerInventory"))
 	UInventoryComponent* PlayerInventory;
@@ -181,6 +183,9 @@ private:
 	UFUNCTION()
 	void DropItem(const uint8& InventorySlot);
 
+	UFUNCTION(Category="Manager|Private|Stacks")
+	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
+	
 	UFUNCTION(Category = "Manager|Private|Inventory")
 	void MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot, UInventoryComponent* ToInventory, uint8 ToInventorySlot);
 	UFUNCTION(Category = "Manager|Private|Inventory")

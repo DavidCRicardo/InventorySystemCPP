@@ -33,7 +33,6 @@ void UInventoryComponent::BeginPlay()
 	
 }
 
-
 // Called every frame
 void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                         FActorComponentTickFunction* ThisTickFunction)
@@ -43,30 +42,30 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
-void UInventoryComponent::Server_InitInventory_Implementation(const uint8& InventorySize)
+void UInventoryComponent::Server_InitInventory_Implementation(uint8 InventorySize)
 {
 	InitInventory(InventorySize);
 }
 
-void UInventoryComponent::InitInventory(const uint8& Size)
+void UInventoryComponent::InitInventory(uint8 InventorySize)
 {
-	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
-	{
-		Inventory.Reserve(Size);
+	//if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+	//{
+		Inventory.Reserve(InventorySize);
 
 		FSlotStructure SlotStructure = {};
-		Inventory.Init(SlotStructure, Size);
+		Inventory.Init(SlotStructure, InventorySize);
 
-	}else
-	{
+	//}else
+	//{
 		// Cast Failed on Containers
-
+	
 		// If inventory is empty
-		Inventory.Reserve(Size);
-
-		FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-		Inventory.Init(SlotStructure, Size);
-	}
+	//	Inventory.Reserve(InventorySize);
+	
+	//	FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+	//	Inventory.Init(SlotStructure, InventorySize);
+	//}
 }
 
 void UInventoryComponent::GetInventoryItems(TArray<FSlotStructure>& InventoryItems)
@@ -136,6 +135,11 @@ FSlotStructure UInventoryComponent::GetItemFromItemDB(const FName Name)
 	return Slot;
 }
 
+UDataTable* UInventoryComponent::GetItemDB()
+{
+	return nullptr;
+}
+
 void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
 {
 	Inventory[Index] = Item;
@@ -143,7 +147,11 @@ void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
 
 FSlotStructure UInventoryComponent::GetInventorySlot(uint8 Index)
 {
-	return Inventory[Index];
+	if (Inventory.Num() > 0)
+	{
+		return Inventory[Index];	
+	}
+	return GetEmptySlot(EEquipmentSlot::Undefined);
 }
 
 void UInventoryComponent::ClearInventorySlotItem(uint8 Index)

@@ -2,6 +2,8 @@
 
 
 #include "MyPlayerController.h"
+
+#include "ContainerActor.h"
 #include "MyHUD.h"
 #include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
@@ -13,6 +15,8 @@ AMyPlayerController::AMyPlayerController()
 	InventoryManagerComponent->SetIsReplicated(true);
 	
 	PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+
+	bReplicates = true;
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -46,9 +50,11 @@ void AMyPlayerController::BeginPlay()
 
 	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
 
-	InventoryManagerComponent->CharacterReference = CharacterReference;
-	
+	// careful here
+	//InventoryManagerComponent->Server_InitInventory();
 	InventoryManagerComponent->Server_InitInventory_Implementation();
+
+	InventoryManagerComponent->CharacterReference = CharacterReference;
 
 	InventoryManagerComponent->InitializePlayerAttributes();
 }
@@ -142,7 +148,7 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 		{
 			if(AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
 			{
-				WorldActor->OnActorUsed_Implementation(this);
+				IUsableActorInterface::Execute_OnActorUsed(WorldActor, this);
 				
 				//InventoryManagerComponent->Server_RefreshInventorySlots();
 				//InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
@@ -331,6 +337,8 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 		{
 			if (WorldActor->ID == Name)
 			{
+				// careful here
+				//Server_OnActorUsed(WorldActor);
 				UseWorldActor(WorldActor);
 				
 				HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);

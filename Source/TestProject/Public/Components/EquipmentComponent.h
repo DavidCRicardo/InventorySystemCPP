@@ -27,5 +27,4 @@ public:
 
 	UPROPERTY()
 	AMyCharacter* EquipmentCharacterReference;
-	// EquipmentCharacter
 };

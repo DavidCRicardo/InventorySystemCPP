@@ -137,6 +137,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		if (NativeFromContainer)
 		{
 			IInventoryInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+
 			//PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 
 			return true;

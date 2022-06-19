@@ -29,20 +29,19 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
-	UDataTable* GetItemDB();
-	UPROPERTY();
-	UDataTable* ItemDB;
 
+	UDataTable* GetItemDB();
+	UPROPERTY()
+	UDataTable* ItemDB;
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 	
 	UFUNCTION(Server, Reliable)
-	void Server_InitInventory(const uint8& Size);
+	virtual void Server_InitInventory(uint8 InventorySize);
 	UFUNCTION()
-	void InitInventory(const uint8& Size);
+	void InitInventory(uint8 InventorySize);
 
 	UFUNCTION()
 	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Array);

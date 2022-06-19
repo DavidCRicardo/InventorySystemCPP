@@ -49,9 +49,9 @@ void AMyHUD::BeginPlay()
 		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 	
-	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner()))
+	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
 	{
-		PC->SetupHUDReferences();
+		PlayerController->SetupHUDReferences();
 	}
 }
 

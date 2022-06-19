@@ -2,6 +2,8 @@
 
 
 #include "Components/InventoryManagerComponent.h"
+
+#include "ContainerActor.h"
 #include "MyHUD.h"
 #include "MyPlayerController.h"
 #include "Components/UniformGridPanel.h"
@@ -17,8 +19,7 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	//SetIsReplicated(true);
-
+	
 	// Get ItemDB 
 	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 	if (BP_ItemDB.Succeeded())
@@ -28,18 +29,13 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	UE_LOG(LogTemp, Warning, TEXT ("ItemDB DataTable not found!!"));
 	}
 	
-	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count + 9;
-	//InventorySize = 28 + (uint8)EEquipmentSlot::Count + 9;
+	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count;
 }
 
 // Called when the game starts
 void UInventoryManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Inventory + Equipment + Container
-	//NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count + 9;
-	//InitInventory(NumberOfSlots);
 }
 
 
@@ -51,13 +47,35 @@ void UInventoryManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
-
 void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	//DOREPLIFETIME(UInventoryManagerComponent, InventorySize);
 	DOREPLIFETIME(UInventoryManagerComponent, NumberOfSlots);
+}
+
+void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem,
+	bool bOutSuccess)
+{
+	uint8 Amount = InventoryItem.Amount;
+	uint8 AmountRemaining = Amount;
+	
+	if (InventoryItem.ItemStructure.IsStackable)
+	{
+		for(uint8 i = 0; i > Inventory->Inventory.Num(); i++)
+		{
+			if (InventoryItem.ItemStructure.ID == Inventory->Inventory[i].ItemStructure.ID)
+			{
+				AddItemToStack(Inventory, i, Amount, AmountRemaining);
+				Amount = AmountRemaining;
+				
+				if (AmountRemaining == 0)
+				{
+					break;					
+				}
+			}
+		}
+	}
 }
 
 void UInventoryManagerComponent::InitializeInventoryManager(UInventoryComponent* EquipmentComponent)
@@ -73,11 +91,9 @@ UDataTable* UInventoryManagerComponent::GetItemDB()
 /* Initializes the Inventory Array to a Specified Size */
 bool UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
 {
-	//Inventory.Reserve(NumberSlots);
 	PlayerInventory->Inventory.Reserve(NumberSlots);
 
 	FSlotStructure SlotStructure = {};
-	//Inventory.Init(SlotStructure, NumberSlots);
 	PlayerInventory->Inventory.Init(SlotStructure, NumberSlots);
 
 	// Add Customized Icons to Slots
@@ -115,6 +131,8 @@ bool UInventoryManagerComponent::InitInventory(const uint8 NumberSlots)
 
 void UInventoryManagerComponent::Server_InitInventory_Implementation()
 {
+	// careful here
+	//PlayerInventory->Server_InitInventory(NumberOfSlots);
 	PlayerInventory->Server_InitInventory_Implementation(NumberOfSlots);
 }
 
@@ -158,14 +176,13 @@ bool UInventoryManagerComponent::AddItemToInventory(FSlotStructure& ContentToAdd
 }
 
 bool UInventoryManagerComponent::CreateStack(FSlotStructure& ContentToAdd)
-{
+{	
 	bool HasSpace = false;
 	uint8 IdentifiedIndex = 0;
 
-	// for (size_t i = 0; i < NumberOfSlots; i++)
-	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots - 9; i++)
+	for (size_t i = (uint8)EEquipmentSlot::Count; i < NumberOfSlots; i++)
 	{
-		const FSlotStructure& CurrentSlot = PlayerInventory->Inventory[i]; //Inventory[i];
+		const FSlotStructure& CurrentSlot = PlayerInventory->Inventory[i];
 		if (CurrentSlot.Amount <= 0)
 		{
 			HasSpace = true;
@@ -350,7 +367,7 @@ void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 }
 
 void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
-	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
+                                          UInventoryComponent* ToInventory, uint8 ToInventorySlot)
 {
 	// Trying to Move to the Same Spot
 	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
@@ -364,10 +381,12 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 		return;
 	}
 
-	FSlotStructure LocalToInventoryItem = FromInventory->GetInventorySlot(FromInventorySlot);
+	FSlotStructure LocalInventoryItem = FromInventory->GetInventorySlot(FromInventorySlot);
 	FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventorySlot(ToInventorySlot);
 
 	// Can Container Store Items?
+	// Are We Looting Currency?
+	// Are We Swapping Items?
 	
 	// Swap Items?
 	if (LocalSwapInventoryItem.Amount > 0)
@@ -375,8 +394,62 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 		
 	}else
 	{
-		AddItem2(ToInventory, ToInventorySlot, LocalToInventoryItem);
+		// Check if Stackable
+		// If Stacks Of Same Item And If Not Null
+		// Item Is Same
+		// Item Is Stackable
+		// Item Has Free Stack Space
+		if (/*LocalToInventoryItem.ItemStructure.EquipmentSlot == LocalSwapInventoryItem.ItemStructure.EquipmentSlot 
+			&&*/ LocalSwapInventoryItem.ItemStructure.IsStackable
+			&& LocalSwapInventoryItem.ItemStructure.MaxStackSize - LocalSwapInventoryItem.Amount > 0)
+		{
+			// Add To Stack
+			uint8 AmountRemaining = 0;
+			AddItemToStack(ToInventory, ToInventorySlot, LocalInventoryItem.Amount, AmountRemaining);
+
+			if (AmountRemaining > 0)
+			{
+				// Update the From Stack Amount
+				//SetItemAmount();
+				LocalInventoryItem.Amount = AmountRemaining;
+
+				AddItem2(FromInventory, FromInventorySlot, LocalInventoryItem);
+				return;
+			}else
+			{
+				// Full Amount Was Moved Clear Old Stack
+				RemoveItem2(FromInventory, FromInventorySlot);
+				return;
+			}
+			
+		}
+		AddItem2(ToInventory, ToInventorySlot, LocalInventoryItem);
 		RemoveItem2(FromInventory, FromInventorySlot);
+	}
+}
+
+void UInventoryManagerComponent::AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd,
+	uint8& AmountRemaining)
+{
+	AmountRemaining = AmountToAdd;
+
+	FSlotStructure LocalInventoryItem = Inventory->GetInventorySlot(InventorySlot);
+
+	// Does Stack Has Free Space?
+	if (LocalInventoryItem.Amount < LocalInventoryItem.ItemStructure.MaxStackSize)
+	{
+		// Does The Full Amount To Add Fit In Stack?
+		// AmountToAdd <= FreeStackSpace
+		if (AmountToAdd <= LocalInventoryItem.ItemStructure.MaxStackSize - LocalInventoryItem.Amount)
+		{
+			AmountRemaining = 0;
+			//AddToItemAmount(LocalInventoryItem, AmountToAdd);
+			LocalInventoryItem.Amount = LocalInventoryItem.Amount + AmountToAdd;
+			AddItem2(Inventory, InventorySlot, LocalInventoryItem);
+		}else
+		{
+			// ...
+		}
 	}
 }
 
@@ -733,8 +806,17 @@ void UInventoryManagerComponent::SetInventorySlotItem(const FSlotStructure& Cont
 	{
 		InventoryUI->Inventory->InventorySlotsArray[InventorySlot]->SlotStructure = ContentToAdd;
 	}*/
+
+	//InventoryUI->Inventory->InventorySlotsArray[InventorySlot]->SlotStructure = ContentToAdd;
+	//InventoryUI->Inventory->InventorySlotsArray[InventorySlot]->UpdateSlot(ContentToAdd);
 	
-	PlayerInventory->Inventory[InventorySlot] = ContentToAdd;
+	if (IsValid(PlayerInventory))
+	{
+		if (PlayerInventory->Inventory.Num() > 0)
+		{
+			PlayerInventory->Inventory[InventorySlot] = ContentToAdd;	
+		}
+	}
 }
 
 void UInventoryManagerComponent::ClearContainerSlots()

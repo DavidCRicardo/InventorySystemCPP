@@ -62,19 +62,19 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 	if (HasAuthority())
 	{
 		// Not Tested
-		/*if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+		if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
 		{
 			bool OutSuccess = false;
-			auto a = PlayerController->PlayerInventoryComponent;
-			PlayerController->InventoryManagerComponent->TryToAddItemToInventory(a, OutSuccess);
+			UInventoryComponent* InventoryComp = PlayerController->PlayerInventoryComponent;
+			
+			PlayerController->InventoryManagerComponent->TryToAddItemToInventory(InventoryComp, InventoryItem, OutSuccess);
 
 			if (OutSuccess)
 			{
 				Destroy();
-
-				return Super::OnActorUsed_Implementation(Controller);
 			}
-		}*/
+			return Super::OnActorUsed_Implementation(Controller);
+		}
 		
 		Destroy();
 	}
