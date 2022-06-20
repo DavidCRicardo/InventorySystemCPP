@@ -54,27 +54,67 @@ void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME(UInventoryManagerComponent, NumberOfSlots);
 }
 
-void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem,
-	bool bOutSuccess)
+void UInventoryManagerComponent::FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining)
 {
-	uint8 Amount = InventoryItem.Amount;
-	uint8 AmountRemaining = Amount;
-	
-	if (InventoryItem.ItemStructure.IsStackable)
+	uint8 LocalAmount = Amount;
+	FName LocalItemID = ItemID;
+	uint8 LocalInventorySlot = 4;
+
+	for (uint8 i = 4; i < 32; i++)
 	{
-		for(uint8 i = 0; i > Inventory->Inventory.Num(); i++)
+		if (LocalItemID == Inventory->Inventory[LocalInventorySlot].ItemStructure.ID)
 		{
-			if (InventoryItem.ItemStructure.ID == Inventory->Inventory[i].ItemStructure.ID)
+			AddItemToStack(Inventory, LocalInventorySlot, LocalAmount, AmountRemaining);
+			LocalAmount = AmountRemaining;
+			
+			if (LocalAmount == 0)
 			{
-				AddItemToStack(Inventory, i, Amount, AmountRemaining);
-				Amount = AmountRemaining;
-				
-				if (AmountRemaining == 0)
-				{
-					break;					
-				}
+				break;
 			}
+		}	
+		LocalInventorySlot++;
+	}
+	
+	AmountRemaining = LocalAmount;
+}
+
+void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem,
+                                                         bool& bOutSuccess)
+{
+	FName LocalItemID = InventoryItem.ItemStructure.ID;
+	uint8 LocalItemAmount = InventoryItem.Amount;
+	FSlotStructure LocalInventoryItem = InventoryItem;
+	UInventoryComponent* LocalInventory = Inventory;
+
+	uint8 AmountRemaining = LocalItemAmount;
+
+	if (LocalInventoryItem.ItemStructure.IsStackable)
+	{
+		FindAndAddAmountToStacks(LocalInventory, LocalItemID, LocalItemAmount, AmountRemaining);
+		LocalItemAmount = AmountRemaining;
+		if (LocalItemAmount == 0)
+		{
+			return; // return true;
 		}
+		else
+		{
+			LocalInventoryItem.Amount = LocalItemAmount;
+		}
+	}
+
+	FReturnTupleBoolInt LocalTuple = LocalInventory->GetEmptyInventorySpace();
+
+	if (LocalTuple.Success)
+	{
+		AddItem2(LocalInventory, LocalTuple.Index, LocalInventoryItem);
+		bOutSuccess = true;
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Inventory Full")));
+		UE_LOG(LogTemp, Verbose, TEXT("Inventory Full"))
+
+		bOutSuccess = false;
 	}
 }
 
@@ -431,26 +471,34 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 void UInventoryManagerComponent::AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd,
 	uint8& AmountRemaining)
 {
-	AmountRemaining = AmountToAdd;
+	UInventoryComponent* LocalInventory = Inventory;
+	uint8 LocalInventorySlot = InventorySlot;
+	uint8 LocalAmountToAdd = AmountToAdd;
+	uint8 LocalRemainingAmount = AmountToAdd;
 
-	FSlotStructure LocalInventoryItem = Inventory->GetInventorySlot(InventorySlot);
+	FSlotStructure LocalInventoryItem = LocalInventory->GetInventorySlot(LocalInventorySlot);
 
 	// Does Stack Has Free Space?
 	if (LocalInventoryItem.Amount < LocalInventoryItem.ItemStructure.MaxStackSize)
 	{
 		// Does The Full Amount To Add Fit In Stack?
 		// AmountToAdd <= FreeStackSpace
-		if (AmountToAdd <= LocalInventoryItem.ItemStructure.MaxStackSize - LocalInventoryItem.Amount)
+		if (LocalAmountToAdd <= LocalInventoryItem.ItemStructure.MaxStackSize - LocalInventoryItem.Amount)
 		{
-			AmountRemaining = 0;
+			LocalRemainingAmount = 0;
 			//AddToItemAmount(LocalInventoryItem, AmountToAdd);
 			LocalInventoryItem.Amount = LocalInventoryItem.Amount + AmountToAdd;
 			AddItem2(Inventory, InventorySlot, LocalInventoryItem);
 		}else
 		{
-			// ...
+			LocalRemainingAmount = LocalAmountToAdd - (LocalInventoryItem.ItemStructure.MaxStackSize - LocalInventoryItem.Amount);
+			LocalInventoryItem.Amount = LocalInventoryItem.Amount + AmountToAdd;
+			AddItem2(Inventory, InventorySlot, LocalInventoryItem);
 		}
 	}
+
+	AmountRemaining = LocalRemainingAmount;
+	
 }
 
 void UInventoryManagerComponent::AddItem2(UInventoryComponent* Inventory,
@@ -814,7 +862,7 @@ void UInventoryManagerComponent::SetInventorySlotItem(const FSlotStructure& Cont
 	{
 		if (PlayerInventory->Inventory.Num() > 0)
 		{
-			PlayerInventory->Inventory[InventorySlot] = ContentToAdd;	
+			PlayerInventory->Inventory[InventorySlot] = ContentToAdd;
 		}
 	}
 }

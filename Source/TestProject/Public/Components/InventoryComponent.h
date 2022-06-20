@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryComponent.generated.h"
@@ -49,6 +50,12 @@ public:
 	UFUNCTION()
 	void GetInventoryItems(TArray<FSlotStructure>& InventoryItems);
 
+	/* If Item has Amount > 0 then is Valid and returns true, otherwise it is Invalid and returns false*/
+	UFUNCTION()
+	bool ItemIsValid(const FSlotStructure& Slot);
+
+	FReturnTupleBoolInt GetEmptyInventorySpace();
+	
 	UFUNCTION()
 	void SetInventoryItem(uint8& Index, FSlotStructure& Item);
 	UFUNCTION()

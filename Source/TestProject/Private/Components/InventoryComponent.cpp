@@ -49,23 +49,10 @@ void UInventoryComponent::Server_InitInventory_Implementation(uint8 InventorySiz
 
 void UInventoryComponent::InitInventory(uint8 InventorySize)
 {
-	//if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
-	//{
-		Inventory.Reserve(InventorySize);
+	Inventory.Reserve(InventorySize);
 
-		FSlotStructure SlotStructure = {};
-		Inventory.Init(SlotStructure, InventorySize);
-
-	//}else
-	//{
-		// Cast Failed on Containers
-	
-		// If inventory is empty
-	//	Inventory.Reserve(InventorySize);
-	
-	//	FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-	//	Inventory.Init(SlotStructure, InventorySize);
-	//}
+	FSlotStructure SlotStructure = {};
+	Inventory.Init(SlotStructure, InventorySize);
 }
 
 void UInventoryComponent::GetInventoryItems(TArray<FSlotStructure>& InventoryItems)
@@ -168,4 +155,36 @@ void UInventoryComponent::PrintInventory()
 
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i, Index: %i"),*a.ToString(), b, i));
 	}
+}
+
+FReturnTupleBoolInt UInventoryComponent::GetEmptyInventorySpace()
+{
+	int8 LocalInteger = -1;
+	bool LocalBoolean = false;
+	
+	for (uint8 ArrayIndex = 4; ArrayIndex < Inventory.Num(); ArrayIndex++)
+	{
+		FSlotStructure Slot = Inventory[ArrayIndex];
+		if (!ItemIsValid(Slot))
+		{
+			LocalInteger = ArrayIndex;
+			LocalBoolean = true;
+			break;
+		}
+	}
+
+	if (LocalBoolean)
+	{
+		return {true, LocalInteger};
+	}
+	return {false, 0};
+}
+
+bool UInventoryComponent::ItemIsValid(const FSlotStructure& Slot)
+{
+	if (Slot.Amount > 0)
+	{
+		return true;
+	}
+	return false;
 }

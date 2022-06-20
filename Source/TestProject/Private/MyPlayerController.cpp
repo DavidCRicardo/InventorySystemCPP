@@ -142,37 +142,11 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 {
 	if (HasAuthority())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Has Authority")));
-
 		if (IsValid(Actor))
 		{
-			if(AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
-			{
-				IUsableActorInterface::Execute_OnActorUsed(WorldActor, this);
-				
-				//InventoryManagerComponent->Server_RefreshInventorySlots();
-				//InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-
-				return;
-			}
-
-			/*if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
-			{	
-				UsableActor->OnActorUsed_Implementation(this);
-				return;
-			}*/
-			
-			if (AContainerActor* ContainerActor = Cast<AContainerActor>(Actor))
-			{	
-				//ContainerActor->OnActorUsed_Implementation(this);
-				IUsableActorInterface::Execute_OnActorUsed(ContainerActor, this);
-
-				return;
-			}
+			IUsableActorInterface::Execute_OnActorUsed(Actor, this);
 		}
 	}
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Does Not Has Authority")));
 }
 
 void AMyPlayerController::Server_OnActorDropped_Implementation(FSlotStructure LocalSlot)
@@ -317,12 +291,12 @@ void AMyPlayerController::Interact()
 	}
 }
 
-void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
+/*void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
 {
 	Server_OnActorUsed(WorldActor);
 
 	InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-}
+}*/
 
 bool AMyPlayerController::IsContainerOpen()
 {
@@ -337,9 +311,8 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 		{
 			if (WorldActor->ID == Name)
 			{
-				// careful here
-				//Server_OnActorUsed(WorldActor);
-				UseWorldActor(WorldActor);
+				Server_OnActorUsed(WorldActor);
+				//UseWorldActor(WorldActor);
 				
 				HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 				return;
@@ -430,17 +403,17 @@ void AMyPlayerController::RefreshContainerUI(uint8 SlotsPerRow, uint8 NumberOfRo
 	HUD_Reference->RefreshContainerSlotsUI(SlotsPerRow, NumberOfRows);
 }
 
-FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
+/*FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
 {
 	//return Inventory[SlotIndex];
 	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
-}
+}*/
 
-FSlotStructure AMyPlayerController::GetItemFromInventory(const int8& SlotIndex)
+/*FSlotStructure AMyPlayerController::GetItemFromInventory(const int8& SlotIndex)
 {
 	//return InventoryManagerComponent->Inventory[SlotIndex];
 	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
-}
+}*/
 
 /*void AMyPlayerController::PrintInventory()
 {

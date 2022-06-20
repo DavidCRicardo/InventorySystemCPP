@@ -26,9 +26,6 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(Category="Manager|Public")
-	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem, bool bOutSuccess);
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -62,6 +59,9 @@ public:
 	
 	UPROPERTY()
 	AMyCharacter* CharacterReference;
+	
+	UFUNCTION(Category="Manager|Public")
+	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem, bool& bOutSuccess);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
@@ -183,13 +183,13 @@ private:
 	UFUNCTION()
 	void DropItem(const uint8& InventorySlot);
 
-	UFUNCTION(Category="Manager|Private|Stacks")
-	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
-	
-	UFUNCTION(Category = "Manager|Private|Inventory")
-	void MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot, UInventoryComponent* ToInventory, uint8 ToInventorySlot);
+public:
 	UFUNCTION(Category = "Manager|Private|Inventory")
 	void AddItem2(UInventoryComponent* Inventory, uint8 InventorySlot, FSlotStructure& InventoryItem);
+private:
+	UFUNCTION(Category = "Manager|Private|Inventory")
+	void MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot, UInventoryComponent* ToInventory, uint8 ToInventorySlot);
+
 	UFUNCTION(Category = "Manager|Private|Inventory")
 	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
 
@@ -215,4 +215,11 @@ private:
 	void CloseContainer();
 	UFUNCTION(Category = "Manager|Private|Container")
 	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
+
+	
+	UFUNCTION(Category="Manager|Private|Stacks")
+	void FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining);
+	
+	UFUNCTION(Category="Manager|Private|Stacks")
+	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
 };
