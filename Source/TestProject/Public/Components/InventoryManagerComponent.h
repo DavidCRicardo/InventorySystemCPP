@@ -92,7 +92,7 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void Client_SetContainerSlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Client, Reliable)
 	void Client_ClearInventorySlotItem(uint8 InventorySlot);
 
 	UFUNCTION(Category= "Manager|Public")

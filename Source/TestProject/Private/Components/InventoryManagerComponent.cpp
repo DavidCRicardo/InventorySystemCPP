@@ -598,14 +598,14 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 	FSlotStructure LocalEmptySlot = GetEmptySlot(EEquipmentSlot::Undefined);
 	for (FSlotStructure Slot : ContainerInventory->Inventory)
 	{
-		//if (Slot.Amount == 0)
-		//{
+		if (Slot.Amount == 0)
+		{
 			LocalInventory.Add(LocalEmptySlot);
-		//}
-		//else
-		//{
-		//	LocalInventory.Add(Slot);
-		//}
+		}
+		else
+		{
+			LocalInventory.Add(Slot);
+		}
 	}
 
 	FName LocalName;
@@ -889,9 +889,15 @@ void UInventoryManagerComponent::SetInventorySlotItem(const FSlotStructure& Cont
 
 void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 {
-	USlotLayout* SlotLayout = MainLayoutUI->Inventory->InventorySlotsArray[InventorySlot];
-	SlotLayout->SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-	SlotLayout->UpdateSlot2();
+	if (IsValid(MainLayoutUI))
+	{
+		// temporary fix 
+		uint8 Index = InventorySlot - (uint8)EEquipmentSlot::Count;
+		
+		USlotLayout* SlotLayout = MainLayoutUI->Inventory->InventorySlotsArray[Index];
+		SlotLayout->SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+		SlotLayout->UpdateSlot2();
+	}
 }
 
 void UInventoryManagerComponent::ClearContainerSlots()

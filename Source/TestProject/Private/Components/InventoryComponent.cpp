@@ -138,7 +138,8 @@ FSlotStructure UInventoryComponent::GetInventorySlot(uint8 Index)
 
 void UInventoryComponent::ClearInventoryItem(uint8 Index)
 {
-	Inventory[Index].Amount = 0;
+	//Inventory[Index].Amount = 0;
+	Inventory[Index] = GetEmptySlot(EEquipmentSlot::Undefined);
 }
 
 void UInventoryComponent::PrintInventory()
