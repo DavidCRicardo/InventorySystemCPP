@@ -15,7 +15,7 @@ AMyPlayerController::AMyPlayerController()
 	InventoryManagerComponent->SetIsReplicated(true);
 	
 	PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
-
+	
 	bReplicates = true;
 }
 
@@ -51,8 +51,8 @@ void AMyPlayerController::BeginPlay()
 	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
 
 	// careful here
-	//InventoryManagerComponent->Server_InitInventory();
-	InventoryManagerComponent->Server_InitInventory_Implementation();
+	InventoryManagerComponent->Server_InitInventory();
+	//InventoryManagerComponent->Server_InitInventory_Implementation();
 
 	InventoryManagerComponent->CharacterReference = CharacterReference;
 
@@ -291,13 +291,6 @@ void AMyPlayerController::Interact()
 	}
 }
 
-/*void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
-{
-	Server_OnActorUsed(WorldActor);
-
-	InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-}*/
-
 bool AMyPlayerController::IsContainerOpen()
 {
 	return HUD_Reference->HUDReference->MainLayout->Container->IsVisible();
@@ -312,9 +305,8 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 			if (WorldActor->ID == Name)
 			{
 				Server_OnActorUsed(WorldActor);
-				//UseWorldActor(WorldActor);
 				
-				HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+				//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 				return;
 			}
 		}
@@ -381,16 +373,9 @@ void AMyPlayerController::RemoveUsableActorToDropMenu(const FName& ID)
 
 void AMyPlayerController::RefreshWidgets()
 {
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
+	/*HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
-}
-
-
-void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)
-{
-	//Inventory[InventorySlot] = ContentToAdd;
-	InventoryManagerComponent->PlayerInventory->Inventory[InventorySlot] = ContentToAdd;
+	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);*/
 }
 
 TArray<uint8> AMyPlayerController::GetPlayerAttributes()
@@ -402,18 +387,6 @@ void AMyPlayerController::RefreshContainerUI(uint8 SlotsPerRow, uint8 NumberOfRo
 {
 	HUD_Reference->RefreshContainerSlotsUI(SlotsPerRow, NumberOfRows);
 }
-
-/*FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
-{
-	//return Inventory[SlotIndex];
-	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
-}*/
-
-/*FSlotStructure AMyPlayerController::GetItemFromInventory(const int8& SlotIndex)
-{
-	//return InventoryManagerComponent->Inventory[SlotIndex];
-	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
-}*/
 
 /*void AMyPlayerController::PrintInventory()
 {

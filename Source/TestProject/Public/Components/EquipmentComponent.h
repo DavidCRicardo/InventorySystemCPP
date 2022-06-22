@@ -7,7 +7,6 @@
 #include "MyCharacter.h"
 #include "EquipmentComponent.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORYSYSTEMCPP_API UEquipmentComponent : public UInventoryComponent
 {
@@ -24,7 +23,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	UPROPERTY()
 	AMyCharacter* EquipmentCharacterReference;
 };

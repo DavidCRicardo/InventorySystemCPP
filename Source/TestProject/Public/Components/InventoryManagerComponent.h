@@ -55,7 +55,7 @@ public:
 	AMyPlayerController* ControllerReference;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="UserInterface")
-	UMainLayout* InventoryUI;
+	UMainLayout* MainLayoutUI;
 	
 	UPROPERTY()
 	AMyCharacter* CharacterReference;
@@ -91,7 +91,9 @@ public:
 	void Server_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	
 	UFUNCTION(Client, Reliable)
-	void Client_SetContainerSlot(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	void Client_SetContainerSlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	UFUNCTION(Server, Reliable)
+	void Client_ClearInventorySlotItem(uint8 InventorySlot);
 
 	UFUNCTION(Category= "Manager|Public")
 	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
@@ -197,14 +199,24 @@ private:
 	void ClearInventoryItem(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
-
+	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	void ClearInventorySlotItem(uint8 InventorySlot);
+	
 	UFUNCTION(Category = "UserInterface|Private|Container") 
 	void ClearContainerSlots();
 	UFUNCTION(Category = "UserInterface|Private|Container")
 	void CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow);
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem);
+	UFUNCTION(Client, Reliable)
+	void Client_ClearContainerSlotItem(uint8 ContainerSlot);
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void ClearContainerSlotItem(uint8 ContainerSlot);
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void ClearViewersContainerSlot(uint8 ContainerSlot);
 	
-	UFUNCTION(Category = "Manager|Private|Container")
-	void SetContainerSlot(FSlotStructure ContentToAdd, uint8 InventorySlot);
+	UFUNCTION(Category = "UserInterface|Private|Container")
+	void SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index);
 	
 	UFUNCTION(Category = "Manager|Private|Container")
 	void OpenContainer(AActor* Container);
@@ -213,6 +225,7 @@ private:
 	
 	UFUNCTION(Category = "Manager|Private|Container")
 	void CloseContainer();
+
 	UFUNCTION(Category = "Manager|Private|Container")
 	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
 

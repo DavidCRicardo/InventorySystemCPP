@@ -39,8 +39,10 @@ public:
 	
 	UFUNCTION()
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
-	
 	UFUNCTION()
+	void UpdateSlot2();
+
+UFUNCTION()
 	void InitializeSlot(UTexture2D* BackgroundRef);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

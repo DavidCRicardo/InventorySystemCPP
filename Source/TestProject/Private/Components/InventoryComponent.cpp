@@ -64,13 +64,8 @@ bool UInventoryComponent::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> 
 {
 	Inventory.Reset();
 	FSlotStructure TempSlot = {};
-
-	/*if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>())
-	{
-		
-	}*/
+	
 	FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-
 	
 	for (uint8 i = 0; i < Size - 1; i++)
 	{
@@ -141,7 +136,7 @@ FSlotStructure UInventoryComponent::GetInventorySlot(uint8 Index)
 	return GetEmptySlot(EEquipmentSlot::Undefined);
 }
 
-void UInventoryComponent::ClearInventorySlotItem(uint8 Index)
+void UInventoryComponent::ClearInventoryItem(uint8 Index)
 {
 	Inventory[Index].Amount = 0;
 }

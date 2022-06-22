@@ -17,7 +17,7 @@ class INVENTORYSYSTEMCPP_API UInventoryComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="NumberOfRows", Category="Inventory UI"))
 	uint8 NumberOfRowsInventory = 0;
 
@@ -62,7 +62,7 @@ public:
 	FSlotStructure GetInventorySlot(uint8 Index);
 
 	UFUNCTION()
-	void ClearInventorySlotItem(uint8 Index);
+	void ClearInventoryItem(uint8 Index);
 	UFUNCTION()
 	void PrintInventory();
 

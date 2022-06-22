@@ -54,18 +54,8 @@ public:
 	UFUNCTION()
 	void RefreshContainerUI(uint8 SlotsPerSow, uint8 NumberOfRows);
 	
-	//UFUNCTION()
-	//FSlotStructure GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex);
-	
-	//UFUNCTION()
-	//FSlotStructure GetItemFromInventory(const int8& SlotIndex);
-	
-	void AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot);
-	
 	UFUNCTION()
 	void CollectFromPanel(const FName& Name);
-	//UFUNCTION()
-	//void UseWorldActor(AWorldActor* WorldActor);
 
 	UFUNCTION()
 	bool IsContainerOpen();

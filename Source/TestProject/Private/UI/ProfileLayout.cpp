@@ -43,7 +43,7 @@ void UProfileLayout::NativeConstruct()
 	if(IsValid(PlayerController))
 	{
 		CreateChildWidgets();
-    	InitializeSlots();
+    	//InitializeSlots();
 		CreateAttributesEntry();
 	}
 }

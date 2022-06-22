@@ -248,6 +248,24 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	ToggleTooltip();
 }
 
+void USlotLayout::UpdateSlot2()
+{
+	if (HasItem())
+	{
+		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
+	}
+	else
+	{
+		AmountTextBlock->SetText(FText::FromString(""));
+	}
+
+	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
+	ItemBorder->SetBrushColor(GetBorderColor());
+	ItemBorder->SetVisibility(ESlateVisibility::Visible);
+
+	ToggleTooltip();
+}
+
 bool USlotLayout::HasItem()
 {
 	return SlotStructure.Amount > 0 ? true : false;

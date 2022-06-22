@@ -28,7 +28,7 @@ void UInventoryLayout::NativeConstruct()
 	if (IsValid(PlayerController))
 	{
 		InitializeSlots();
-		RefreshWindow();
+		//RefreshWindow();
 	}
 }
 
@@ -92,8 +92,8 @@ void UInventoryLayout::RefreshWindow()
 
 	for(int i = (uint8)EEquipmentSlot::Count; i < InventoryLimit - 9; i++)
 	{
-		//CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
-		CurrentSlot = PlayerController->InventoryManagerComponent->PlayerInventory->GetInventorySlot(i);
+		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
+		//CurrentSlot = PlayerController->InventoryManagerComponent->PlayerInventory->GetInventorySlot(i);
 
 		/* Update Empty Slot */
 		if (CurrentSlot.Amount <= 0)

@@ -80,13 +80,12 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 			{
 				Destroy();
 			}
-			return true;
-			//return Super::OnActorUsed(Controller);
+			
+			return Super::OnActorUsed_Implementation(Controller);
 		}
 	}
 	
 	return false;
-	return Super::OnActorUsed_Implementation(Controller);
 }
 
 void AWorldActor::OnRep_WorldMesh()

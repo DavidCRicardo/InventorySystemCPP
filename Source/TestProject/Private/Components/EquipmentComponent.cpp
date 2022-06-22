@@ -2,7 +2,6 @@
 
 #include "Components/EquipmentComponent.h"
 
-
 // Sets default values for this component's properties
 UEquipmentComponent::UEquipmentComponent()
 {
@@ -10,7 +9,6 @@ UEquipmentComponent::UEquipmentComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 }
-
 
 // Called when the game starts
 void UEquipmentComponent::BeginPlay()
