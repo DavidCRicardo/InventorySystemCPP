@@ -137,11 +137,9 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		if (NativeFromContainer)
 		{
 			IInventoryInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-
-			//PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-
 			return true;
 		}
+		
 		
 		// Check If Unequipping
 		if (IsUnequipping(LocalDraggedSlot))
@@ -163,16 +161,13 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			return true;
 		}
 
-		/*MoveItemsInInventory();
-		if (IsTryingToSplit())
+		/*if (IsTryingToSplit())
 		{
 			Split();
 			return true;
 		}*/
 		
-		// MoveInventoryItem()
-		PlayerController->UI_MoveInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-		//PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
+		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
 		
 		return true;

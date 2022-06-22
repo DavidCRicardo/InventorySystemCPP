@@ -127,11 +127,14 @@ void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
 	Inventory[Index] = Item;
 }
 
-FSlotStructure UInventoryComponent::GetInventorySlot(uint8 Index)
-{
+FSlotStructure UInventoryComponent::GetInventorySlot(uint8 InventorySlot)
+{	
 	if (Inventory.Num() > 0)
 	{
-		return Inventory[Index];	
+		if (Inventory[InventorySlot].Amount > 0)
+		{
+			return Inventory[InventorySlot];
+		}
 	}
 	return GetEmptySlot(EEquipmentSlot::Undefined);
 }

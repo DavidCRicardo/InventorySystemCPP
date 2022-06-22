@@ -121,6 +121,11 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 	}
 }
 
+void UInventoryManagerComponent::Server_MoveInventoryItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	MoveItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
+}
+
 void UInventoryManagerComponent::InitializeInventoryManager(UInventoryComponent* EquipmentComponent)
 {
 	PlayerInventory = EquipmentComponent;

@@ -84,10 +84,7 @@ void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& Invent
 void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot,
 	const uint8& ToInventorySlot)
 {
-	if (InventoryManagerComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
-	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	}
+	InventoryManagerComponent->Server_MoveInventoryItem(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& InventorySlot)

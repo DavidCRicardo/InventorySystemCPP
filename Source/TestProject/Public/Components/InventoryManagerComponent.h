@@ -62,6 +62,9 @@ public:
 	
 	UFUNCTION(Category="Manager|Public")
 	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem, bool& bOutSuccess);
+
+	UFUNCTION(Server, Reliable)
+	void Server_MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
