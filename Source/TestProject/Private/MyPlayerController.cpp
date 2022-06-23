@@ -50,9 +50,7 @@ void AMyPlayerController::BeginPlay()
 
 	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
 
-	// careful here
 	InventoryManagerComponent->Server_InitInventory();
-	//InventoryManagerComponent->Server_InitInventory_Implementation();
 
 	InventoryManagerComponent->CharacterReference = CharacterReference;
 
@@ -98,19 +96,13 @@ void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& Inven
 void AMyPlayerController::UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot,
                                                                const uint8& ToInventorySlot)
 {
-	IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
-
-	InventoryManagerComponent->Server_EquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
-	RefreshWidgets();
+	InventoryManagerComponent->Server_EquipFromInventory(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot,
 	const uint8& ToInventorySlot)
 {
-	IInventoryInterface::UI_UnEquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
-
-	InventoryManagerComponent->Server_UnEquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
-	RefreshWidgets();
+	InventoryManagerComponent->Server_UnEquipToInventory(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
@@ -126,7 +118,6 @@ void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& Fr
 void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot)
 {
 	InventoryManagerComponent->Server_TakeContainerItem(FromContainerSlot, ToInventorySlot);
-	RefreshWidgets();
 }
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
@@ -301,7 +292,6 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 			{
 				Server_OnActorUsed(WorldActor);
 				
-				//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 				return;
 			}
 		}

@@ -42,8 +42,7 @@ void UProfileLayout::NativeConstruct()
 
 	if(IsValid(PlayerController))
 	{
-		CreateChildWidgets();
-    	//InitializeSlots();
+    	InitializeSlots();
 		CreateAttributesEntry();
 	}
 }
@@ -78,7 +77,43 @@ void UProfileLayout::CreateChildWidgets()
 
 void UProfileLayout::InitializeSlots()
 {
-	RefreshWindow();
+	CreateChildWidgets();
+	uint8 FirstIndex = 0;
+	SetIndexToChilds(FirstIndex);
+	UpdatePlayerStatsUI();
+	//RefreshWindow();
+}
+
+void UProfileLayout::SetIndexToChilds(uint8& IndexStart)
+{
+	//const FSlotStructure SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+	FSlotStructure EmptySlot{};
+
+	for (int i = 0; i < EquipmentSlotsArray.Num(); i++)
+	{
+		if (i == 0)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
+		}
+		else if (i == 1)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
+		}
+		else if (i == 2)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
+		}
+		else if (i == 3)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
+		}
+
+		EquipmentSlotsArray[i]->UpdateSlot(EmptySlot);
+		EquipmentSlotsArray[i]->InventorySlotIndex = IndexStart;
+		EquipmentSlotsArray[i]->NativeFromInventory = true;
+
+		IndexStart++;
+	}
 }
 
 void UProfileLayout::CreateAttributesEntry()

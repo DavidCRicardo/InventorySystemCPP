@@ -141,24 +141,19 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			return true;
 		}
 		
-		
 		// Check If Unequipping
 		if (IsUnequipping(LocalDraggedSlot))
 		{
-			PlayerController->UI_UnEquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-			// Unequip Item From Equipment To Inventory
-			// Unequip Item To Inventory
-			
+			IInventoryInterface::Execute_UI_UnEquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			//PlayerController->UI_UnEquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
 		// Check If Equipping
 		if (IsEquipping(InventorySlotIndex))
 		{
-			PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-			// Equip Item From Inventory to Equipment
-			// Equip Item From Inventory
-
+			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			//PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
@@ -195,8 +190,8 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		// Are we Equipping
 		if (IsEquipping(InventorySlotIndex))
 		{
-			PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-
+			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			//PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}

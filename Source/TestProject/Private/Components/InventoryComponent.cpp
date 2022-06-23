@@ -53,6 +53,34 @@ void UInventoryComponent::InitInventory(uint8 InventorySize)
 
 	FSlotStructure SlotStructure = {};
 	Inventory.Init(SlotStructure, InventorySize);
+
+	// Add Customized Icons to Slots
+	for (uint8 Index = 0; Index < Inventory.Num(); Index++)
+	{
+		if (Index == 0)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Weapon);
+		}
+		else if (Index == 1)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);
+		}
+		else if (Index == 2)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Feet);
+		}
+		else if (Index == 3)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Hands);
+		}
+		else
+		{
+			// Default Icon
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+		}
+		//Inventory.Add(SlotStructure);
+		Inventory[Index] = SlotStructure;
+	}
 }
 
 void UInventoryComponent::GetInventoryItems(TArray<FSlotStructure>& InventoryItems)
@@ -127,7 +155,7 @@ void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
 	Inventory[Index] = Item;
 }
 
-FSlotStructure UInventoryComponent::GetInventorySlot(uint8 InventorySlot)
+FSlotStructure UInventoryComponent::GetInventoryItem(uint8 InventorySlot)
 {	
 	if (Inventory.Num() > 0)
 	{
@@ -161,7 +189,7 @@ FReturnTupleBoolInt UInventoryComponent::GetEmptyInventorySpace()
 	int8 LocalInteger = -1;
 	bool LocalBoolean = false;
 	
-	for (uint8 ArrayIndex = 4; ArrayIndex < Inventory.Num(); ArrayIndex++)
+	for (uint8 ArrayIndex = (uint8)EEquipmentSlot::Count; ArrayIndex < Inventory.Num(); ArrayIndex++)
 	{
 		FSlotStructure Slot = Inventory[ArrayIndex];
 		if (!ItemIsValid(Slot))

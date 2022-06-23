@@ -30,6 +30,7 @@ private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;
 	virtual void InitializeSlots() override;
+	virtual void SetIndexToChilds(uint8& IndexStart) override;
 
 	UFUNCTION()
 	void CreateAttributesEntry();

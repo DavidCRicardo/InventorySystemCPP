@@ -59,7 +59,7 @@ public:
 	UFUNCTION()
 	void SetInventoryItem(uint8& Index, FSlotStructure& Item);
 	UFUNCTION()
-	FSlotStructure GetInventorySlot(uint8 InventorySlot);
+	FSlotStructure GetInventoryItem(uint8 InventorySlot);
 
 	UFUNCTION()
 	void ClearInventoryItem(uint8 Index);

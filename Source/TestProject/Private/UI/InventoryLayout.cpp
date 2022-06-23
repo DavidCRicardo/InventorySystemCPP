@@ -28,14 +28,12 @@ void UInventoryLayout::NativeConstruct()
 	if (IsValid(PlayerController))
 	{
 		InitializeSlots();
-		//RefreshWindow();
 	}
 }
 
 void UInventoryLayout::InitializeSlots()
 {
 	CreateChildWidgets();
-	// uint8 FirstIndex = 0; //(uint8)EEquipmentSlot::Count; // 0 if I want to reset the slot indexes, or Count if I want to keep going
 	uint8 FirstIndex = (uint8)EEquipmentSlot::Count;
 	SetIndexToChilds(FirstIndex);
 }

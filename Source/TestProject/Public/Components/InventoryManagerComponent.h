@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EquipmentComponent.h"
 #include "Inventory/FContainerInfo.h"
 #include "InventoryComponent.h"
 #include "Tuples.h"
@@ -40,8 +39,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	virtual void Server_InitInventory();
 	
-	virtual bool InitInventory(uint8 NumberSlots);
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Player Inventory", Category="Default", OverrideNativeName="PlayerInventory"))
 	UInventoryComponent* PlayerInventory;
 
@@ -67,10 +64,10 @@ public:
 	void Server_MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
 	
 	UFUNCTION(Server, Reliable)
-	void Server_EquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	void Server_EquipFromInventory(uint8 FromInventorySlot, uint8 ToInventorySlot);
 
 	UFUNCTION(Server, Reliable)
-	void Server_UnEquipFromInventory(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	void Server_UnEquipToInventory(uint8 FromInventorySlot, uint8 ToInventorySlot);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_DropItemFromInventory(const uint8& InventorySlot);
@@ -106,7 +103,7 @@ public:
 	UFUNCTION()
 	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
 	UFUNCTION()
-	EItemType GetItemTypeBySlot(const uint8& ItemSlot);
+	EItemType GetItemTypeBySlot(uint8 ItemSlot);
 	
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);
@@ -124,9 +121,6 @@ public:
 
 	UFUNCTION()
 	void UseInventoryItem(const uint8& InventorySlot);
-	
-	UFUNCTION()
-	virtual bool MoveInventoryItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
 	UFUNCTION()
 	void UpdateEquippedMeshes(const uint8& InventorySlot);
@@ -182,10 +176,12 @@ private:
 	void RemoveItem(const uint8& InventorySlot);
 
 	UFUNCTION()
-	bool EquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	void EquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
+										  UInventoryComponent* ToInventory, uint8 ToInventorySlot);
 	
 	UFUNCTION()
-	bool UnEquipItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	void UnEquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
+										  UInventoryComponent* ToInventory, uint8 ToInventorySlot);
 
 	UFUNCTION()
 	void DropItem(const uint8& InventorySlot);
