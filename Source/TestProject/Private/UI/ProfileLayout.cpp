@@ -27,9 +27,6 @@ void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	//Outdated - Before Localization
-	//Super::SetTitleToWindow(FString("PROFILE"));
-	
 	//FText Text = NSLOCTEXT("MyNamespace", "PROFILEKey", "PROFILE");
 	//If you're using a string table, LOCTABLE for string literals, FromStringTable otherwise.
 	//FText Text = FText::FromStringTable(LCOMMON_WORDS, "PROFILEKey");
@@ -44,6 +41,7 @@ void UProfileLayout::NativeConstruct()
 	{
     	InitializeSlots();
 		CreateAttributesEntry();
+		UpdatePlayerStatsUI();
 	}
 }
 
@@ -80,8 +78,6 @@ void UProfileLayout::InitializeSlots()
 	CreateChildWidgets();
 	uint8 FirstIndex = 0;
 	SetIndexToChilds(FirstIndex);
-	UpdatePlayerStatsUI();
-	//RefreshWindow();
 }
 
 void UProfileLayout::SetIndexToChilds(uint8& IndexStart)
@@ -132,55 +128,53 @@ void UProfileLayout::CreateAttributesEntry()
 
 void UProfileLayout::RefreshWindow()
 {
-	if (!IsValid(PlayerController) || !IsValid(PlayerController->InventoryManagerComponent))
-	{
-		return;
-	}
-
-	//if (!PlayerController->InventoryManagerComponent->Inventory.IsValidIndex(0))
-	if (!PlayerController->InventoryManagerComponent->PlayerInventory->Inventory.IsValidIndex(0))
-	{
-		return;
-	}
-	
-	
-	FSlotStructure CurrentSlot = {};
-	
-	for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
-	{
-		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
-
-		/* Update Empty Slot */
-		if(CurrentSlot.Amount <= 0){
-			FSlotStructure EmptySlot = {};
-			//CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
-			if (i == 0)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
-			}else if(i == 1)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
-			}else if(i == 2)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
-			}else if(i == 3)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
-			}
-			CurrentSlot = EmptySlot;
-			PlayerController->InventoryManagerComponent->Client_SetInventorySlotItem(CurrentSlot, i);
-		}
-	
-		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
-	}
-
-	UpdatePlayerStatsUI();
+	// if (!IsValid(PlayerController) || !IsValid(PlayerController->InventoryManagerComponent))
+	// {
+	// 	return;
+	// }
+	//
+	// //if (!PlayerController->InventoryManagerComponent->Inventory.IsValidIndex(0))
+	// if (!PlayerController->InventoryManagerComponent->PlayerInventory->Inventory.IsValidIndex(0))
+	// {
+	// 	return;
+	// }
+	//
+	//
+	// FSlotStructure CurrentSlot = {};
+	//
+	// for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
+	// {
+	// 	CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
+	//
+	// 	/* Update Empty Slot */
+	// 	if(CurrentSlot.Amount <= 0){
+	// 		FSlotStructure EmptySlot = {};
+	// 		//CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
+	// 		if (i == 0)
+	// 		{
+	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
+	// 		}else if(i == 1)
+	// 		{
+	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
+	// 		}else if(i == 2)
+	// 		{
+	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
+	// 		}else if(i == 3)
+	// 		{
+	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
+	// 		}
+	// 		CurrentSlot = EmptySlot;
+	// 		PlayerController->InventoryManagerComponent->Client_SetInventorySlotItem(CurrentSlot, i);
+	// 	}
+	//
+	// 	EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
+	// }
 }
 
 void UProfileLayout::UpdatePlayerStatsUI()
 {
-	TArray<UObject*> Array = Attributes_ListView->GetListItems();
-	if (Array.Num() <= 0)
+	TArray<UObject*> EntriesArray = Attributes_ListView->GetListItems();
+	if (EntriesArray.Num() <= 0)
 	{
 		return;
 	}
@@ -222,10 +216,10 @@ void UProfileLayout::UpdatePlayerStatsUI()
 			);
 		}
 		
-		if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Array[Index]))
+		if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(EntriesArray[Index]))
 		{
 			Entry->SetAttributeText(FormattedText);
-			Array[Index] = Entry;
+			EntriesArray[Index] = Entry;
 		}
 	}
 	Attributes_ListView->RegenerateAllEntries();

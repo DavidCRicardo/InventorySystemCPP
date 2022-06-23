@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyCharacter.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
@@ -27,6 +28,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory", Category="Inventory UI"))
 	TArray<FSlotStructure> Inventory;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	AMyCharacter* EquipmentCharacterReference;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -57,7 +60,7 @@ public:
 	FReturnTupleBoolInt GetEmptyInventorySpace();
 	
 	UFUNCTION()
-	void SetInventoryItem(uint8& Index, FSlotStructure& Item);
+	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item);
 	UFUNCTION()
 	FSlotStructure GetInventoryItem(uint8 InventorySlot);
 

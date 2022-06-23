@@ -24,3 +24,44 @@ void UEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	// ...
 }
+
+void UEquipmentComponent::UpdateEquippedMeshes(uint8 InventorySlot)
+{
+	if (IsValid(EquipmentCharacterReference))
+	{
+		if (InventorySlot < (uint8)EEquipmentSlot::Count)
+		{
+			FSlotStructure Slot = GetInventoryItem(InventorySlot);
+			USkeletalMesh* NewMesh = Slot.ItemStructure.SkeletalMesh;
+
+			switch (InventorySlot)
+			{
+			case EEquipmentSlot::Weapon:
+				EquipmentCharacterReference->MainWeaponMesh = NewMesh;
+				EquipmentCharacterReference->OnRep_MainWeaponMesh();
+				break;
+			case EEquipmentSlot::Chest:
+				EquipmentCharacterReference->ChestMesh = NewMesh;
+				EquipmentCharacterReference->OnRep_MainChestMesh();
+				break;
+			case EEquipmentSlot::Feet:
+				EquipmentCharacterReference->FeetMesh = NewMesh;
+				EquipmentCharacterReference->OnRep_MainFeetMesh();
+				break;
+			case EEquipmentSlot::Hands:
+				EquipmentCharacterReference->HandsMesh = NewMesh;
+				EquipmentCharacterReference->OnRep_MainHandsMesh();
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
+void UEquipmentComponent::SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item)
+{
+	Super::SetInventoryItem(InventorySlot, Item);
+
+	UpdateEquippedMeshes(InventorySlot);
+}

@@ -54,9 +54,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="UserInterface")
 	UMainLayout* MainLayoutUI;
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AMyCharacter* CharacterReference;
-	
+
 	UFUNCTION(Category="Manager|Public")
 	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem, bool& bOutSuccess);
 
@@ -135,7 +135,8 @@ public:
 
 	UFUNCTION()
 	void InitializePlayerAttributes();
-	UPROPERTY()
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TArray<uint8> AttributesArray;
 
 	UPROPERTY()

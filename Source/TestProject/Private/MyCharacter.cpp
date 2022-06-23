@@ -3,11 +3,9 @@
 
 #include "MyCharacter.h"
 
-#include "MyHUD.h"
 #include "MyPlayerController.h"
 #include "UsableActor.h"
 #include "UsableActorInterface.h"
-#include "MyPlayerController.h"
 #include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
@@ -58,7 +56,7 @@ AMyCharacter::AMyCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	/**/
-	MyPlayerController = Cast<AMyPlayerController>(GetOwner());
+	//MyPlayerController = Cast<AMyPlayerController>(GetOwner());
 
 	/**/
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
@@ -277,6 +275,7 @@ void AMyCharacter::BeginPlay()
 	/* Overlap Events */
 	InteractionField->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnBeginOverlap);
 	InteractionField->OnComponentEndOverlap.AddDynamic(this, &AMyCharacter::OnEndOverlap);
+
 }
 
 // Called every frame
@@ -349,27 +348,6 @@ void AMyCharacter::Server_UpdateHandsMesh_Implementation(USkeletalMesh* NewMesh)
 	HandsMesh = NewMesh;
 	OnRep_MainHandsMesh();
 }
-
-bool AMyCharacter::Server_UpdateWeaponMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
-bool AMyCharacter::Server_UpdateChestMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
-bool AMyCharacter::Server_UpdateFeetMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
-bool AMyCharacter::Server_UpdateHandsMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
 
 /* OnRep Functions */
 void AMyCharacter::OnRep_MainWeaponMesh()

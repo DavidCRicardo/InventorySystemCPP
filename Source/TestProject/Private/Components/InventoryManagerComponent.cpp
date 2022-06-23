@@ -325,7 +325,7 @@ void UInventoryManagerComponent::EquipItem(UInventoryComponent* FromInventory, u
 }
 
 void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
-										  UInventoryComponent* ToInventory, uint8 ToInventorySlot)
+                                             UInventoryComponent* ToInventory, uint8 ToInventorySlot)
 {
 	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
 	{
@@ -333,37 +333,46 @@ void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory,
 	}
 
 	//Is The Item Equippable?
-	if (GetItemTypeBySlot(FromInventorySlot) == EItemType::Equipment)
-	{
-		//Does The Item Have The Same Equip Slot?
-		if (GetEquipmentTypeBySlot(ToInventorySlot) == GetEquipmentTypeBySlot(FromInventorySlot))
-		{
-			FSlotStructure LocalSlot = GetInventorySlot(FromInventorySlot);
-			FSlotStructure SwapSlot = GetInventorySlot(ToInventorySlot);
+	//Does The Item Have The Same Equip Slot?
+	FSlotStructure LocalInventoryItem = GetInventorySlot(FromInventorySlot);
+	FSlotStructure LocalSwapInventoryItem = GetInventorySlot(ToInventorySlot);
 
-			// Swap Items
-			if (ItemIsValid(SwapSlot))
+	// Swap Items
+	if (ItemIsValid(LocalSwapInventoryItem))
+	{
+		if (GetItemTypeBySlot(FromInventorySlot) == EItemType::Equipment)
+		{
+			if (GetEquipmentTypeBySlot(ToInventorySlot) != GetEquipmentTypeBySlot(FromInventorySlot))
 			{
-				AddItem2(ToInventory, ToInventorySlot, LocalSlot);
-				AddItem2(FromInventory, FromInventorySlot, SwapSlot);
-			}else
-			{
-				AddItem2(ToInventory, ToInventorySlot, LocalSlot);
-				RemoveItem2(FromInventory, FromInventorySlot);
+				UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
+				return;
 			}
 
-			UpdateEquippedMeshes(ToInventorySlot);
-			UpdateEquippedStats();
-			
-			return;
-			
-		}else{
-			UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
+			AddItem2(ToInventory, ToInventorySlot, LocalInventoryItem);
+			AddItem2(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
 		}
-	}else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ITEM IS NOT EQUIPPABLE"))
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ITEM IS NOT EQUIPPABLE"))
+			return;
+		}
 	}
+	else
+	{
+		if (ToInventorySlot < (uint8)EEquipmentSlot::Count)
+		{
+			if (GetEquipmentTypeBySlot(ToInventorySlot) != GetEquipmentTypeBySlot(FromInventorySlot))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
+				return;
+			}
+		}
+		AddItem2(ToInventory, ToInventorySlot, LocalInventoryItem);
+		RemoveItem2(FromInventory, FromInventorySlot);
+	}
+
+	UpdateEquippedMeshes(ToInventorySlot);
+	UpdateEquippedStats();
 }
 
 void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
@@ -385,7 +394,7 @@ void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
 		// Are we dropping an equipped item?
 		if (InventorySlot < (uint8)EEquipmentSlot::Count)
 		{
-			UpdateEquippedMeshes(InventorySlot);
+			//UpdateEquippedMeshes(InventorySlot);
 		}
 	}else
 	{
@@ -1046,13 +1055,11 @@ void UInventoryManagerComponent::InitializeInventoryManagerUI(UMainLayout* MainL
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
 {
-	//return Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
 	return PlayerInventory->Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
 }
 
 EItemType UInventoryManagerComponent::GetItemTypeBySlot(uint8 ItemSlot)
 {
-	//return Inventory[ItemSlot].ItemStructure.ItemType;
 	return PlayerInventory->Inventory[ItemSlot].ItemStructure.ItemType;
 }
 

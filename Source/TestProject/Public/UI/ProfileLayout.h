@@ -25,7 +25,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UListView* Attributes_ListView;
-
+	
+	UFUNCTION()
+	void UpdatePlayerStatsUI();
 private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;
@@ -34,9 +36,6 @@ private:
 
 	UFUNCTION()
 	void CreateAttributesEntry();
-	
-	UFUNCTION()
-	void UpdatePlayerStatsUI();
 
 	UPROPERTY()
 	uint8 NumberOfColumns;

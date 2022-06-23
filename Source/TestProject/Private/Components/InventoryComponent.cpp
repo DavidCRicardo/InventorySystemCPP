@@ -150,9 +150,9 @@ UDataTable* UInventoryComponent::GetItemDB()
 	return nullptr;
 }
 
-void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
+void UInventoryComponent::SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item)
 {
-	Inventory[Index] = Item;
+	Inventory[InventorySlot] = Item;
 }
 
 FSlotStructure UInventoryComponent::GetInventoryItem(uint8 InventorySlot)

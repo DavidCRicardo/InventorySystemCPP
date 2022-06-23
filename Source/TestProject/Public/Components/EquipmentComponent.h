@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "InventoryComponent.h"
-#include "MyCharacter.h"
 #include "EquipmentComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -24,6 +23,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	UPROPERTY()
-	AMyCharacter* EquipmentCharacterReference;
+	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item) override;
+	
+	void UpdateEquippedMeshes(uint8 InventorySlot);
+
 };

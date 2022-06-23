@@ -30,7 +30,7 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (NativeFromContainer)
+	/*if (NativeFromContainer)
 	{
 		//TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->Inventory;
 		TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->PlayerInventory->Inventory;
@@ -55,7 +55,7 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 		{
 			PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
 		}
-	}
+	}*/
 	
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
@@ -145,7 +145,6 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		if (IsUnequipping(LocalDraggedSlot))
 		{
 			IInventoryInterface::Execute_UI_UnEquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-			//PlayerController->UI_UnEquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
@@ -207,7 +206,7 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 	// DragCancelled called when OnDrop returns false
 	
 	/* The Slot will stay bugged until the next Refresh() */
-	PlayerController->RefreshWidgets();
+	//PlayerController->RefreshWidgets();
 }
 
 void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
