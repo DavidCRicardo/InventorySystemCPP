@@ -38,7 +38,6 @@ void UInventoryManagerComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-
 // Called every frame
 void UInventoryManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -124,6 +123,11 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 void UInventoryManagerComponent::Server_MoveInventoryItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
 {
 	MoveItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
+}
+
+void UInventoryManagerComponent::Server_MoveContainerItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	MoveItem(ContainerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
 }
 
 void UInventoryManagerComponent::InitializeInventoryManager(UInventoryComponent* EquipmentComponent)

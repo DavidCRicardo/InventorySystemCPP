@@ -92,6 +92,8 @@ public:
 	void Server_TakeContainerItem(const uint8& FromContainerSlot, const uint8& ToInventorySlot);
 	UFUNCTION(Server, Reliable)
 	void Server_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+	UFUNCTION(Server, Reliable)
+	void Server_MoveContainerItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
 	
 	UFUNCTION(Client, Reliable)
 	void Client_SetContainerSlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);

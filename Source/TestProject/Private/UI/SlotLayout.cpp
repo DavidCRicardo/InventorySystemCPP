@@ -132,6 +132,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	
 	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
 
+	// Is Dragged From Inventory
 	if (DragDropOperation->IsDraggedFromInventory)
 	{
 		if (NativeFromContainer)
@@ -166,7 +167,8 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			Split();
 			return true;
 		}*/
-		
+
+		// To Inventory
 		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
 		
@@ -176,11 +178,17 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	// Is Dragged From Container
 	if (DragDropOperation->IsDraggedFromContainer)
 	{
+		// To Inventory
 		if (NativeFromInventory)
 		{
-			//PlayerController->UI_TakeContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			IInventoryInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-			
+			return true;
+		}
+
+		// To Container
+		if (NativeFromContainer)
+		{
+			IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 		

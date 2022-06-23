@@ -115,14 +115,12 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 
 void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-
-	RefreshWidgets();
+	InventoryManagerComponent->Server_MoveContainerItem(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 	InventoryManagerComponent->Server_DepositContainerItem(FromInventorySlot, ToInventorySlot);
-	RefreshWidgets();
 }
 
 void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot)
