@@ -23,11 +23,12 @@ public:
 	AMyPlayerController();
 	
 	/* Interface */
-	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_DropInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
+	virtual void UI_UseContainerItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot) override;
 	virtual void UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;

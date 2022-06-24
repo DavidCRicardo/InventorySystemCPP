@@ -123,10 +123,12 @@ void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& Inven
 
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
-	InventoryManagerComponent->UseInventoryItem(InventorySlot);
-	
-	//HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	//HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
+	InventoryManagerComponent->Server_UseInventoryItem(InventorySlot);
+}
+
+void AMyPlayerController::UI_UseContainerItem_Implementation(const uint8& InventorySlot)
+{
+	InventoryManagerComponent->Server_UseContainerItem(InventorySlot);
 }
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)

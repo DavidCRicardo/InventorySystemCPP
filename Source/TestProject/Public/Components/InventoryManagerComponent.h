@@ -59,6 +59,11 @@ public:
 
 	UFUNCTION(Category="Manager|Public")
 	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem, bool& bOutSuccess);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_UseInventoryItem(const uint8& InventorySlot);
+	UFUNCTION(Server, Reliable)
+	void Server_UseContainerItem(const uint8& InventorySlot);
 
 	UFUNCTION(Server, Reliable)
 	void Server_MoveInventoryItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
@@ -122,9 +127,6 @@ public:
 	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);
 	
 	FSlotStructure GetItemFromItemDB(FName Name);
-
-	UFUNCTION()
-	void UseInventoryItem(const uint8& InventorySlot);
 
 	UFUNCTION()
 	void UpdateEquippedMeshes(const uint8& InventorySlot);
@@ -196,6 +198,11 @@ private:
 	UFUNCTION(Category = "Manager|Private|Inventory")
 	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
 
+	UFUNCTION(Category = "Manager|Private|Items")
+	void UseInventoryItem(const uint8& InventorySlot);
+	UFUNCTION(Category = "Manager|Private|Container")
+	void UseContainerItem(const uint8& InventorySlot);
+	
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	void ClearInventoryItem(const uint8& InventorySlot);
 	UFUNCTION(Category = "UserInterface|Private|Inventory")

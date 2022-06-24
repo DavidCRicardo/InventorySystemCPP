@@ -30,32 +30,17 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	/*if (NativeFromContainer)
+	if (NativeFromContainer)
 	{
-		//TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->Inventory;
-		TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->PlayerInventory->Inventory;
-		uint8 NumberSlotsWithoutCountWithCurrentContainer = PlayerController->InventoryManagerComponent->NumberOfSlots - 9;
-		uint8 EmptySlotIndex = 0;
-		
-		for (uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberSlotsWithoutCountWithCurrentContainer; Index++)
-		{
-			if (LocalInventory[Index].Amount == 0)
-			{
-				EmptySlotIndex = Index;
-
-				break;
-			}
-		}
-		
-		PlayerController->UI_TakeContainerItem_Implementation(InventorySlotIndex, EmptySlotIndex);
+		IInventoryInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
 	}
 	else
 	{
 		if (HasItem())
 		{
-			PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
+			IInventoryInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
 		}
-	}*/
+	}
 	
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
@@ -152,7 +137,6 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		if (IsEquipping(InventorySlotIndex))
 		{
 			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-			//PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
@@ -190,7 +174,6 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		if (IsEquipping(InventorySlotIndex))
 		{
 			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-			//PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}
@@ -221,21 +204,13 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SlotStructure = NewSlotStructure;
 	
-	if (HasItem())
+	if (!HasItem() || InventorySlotIndex < (uint8)EEquipmentSlot::Count)
 	{
-		// if (thisSlotNativeFromProfile)
-		//if (InventorySlotIndex < (uint8)EEquipmentSlot::Count)
-		//{
-		//	AmountTextBlock->SetText(FText::FromString(""));
-		//}
-		//else
-		//{
-			AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
-		//}
+		AmountTextBlock->SetText(FText::FromString(""));
 	}
 	else
 	{
-		AmountTextBlock->SetText(FText::FromString(""));
+		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
 	}
 
 	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
@@ -247,13 +222,13 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 
 void USlotLayout::UpdateSlot2()
 {
-	if (HasItem())
+	if (!HasItem() || InventorySlotIndex < (uint8)EEquipmentSlot::Count)
 	{
-		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
+		AmountTextBlock->SetText(FText::FromString(""));
 	}
 	else
 	{
-		AmountTextBlock->SetText(FText::FromString(""));
+		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
 	}
 
 	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);

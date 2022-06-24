@@ -700,23 +700,6 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 	return Slot;
 }
 
-void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
-{
-	FSlotStructure LocalInventorySlot = GetInventorySlot(InventorySlot);
-
-	switch (LocalInventorySlot.ItemStructure.ItemType)
-	{
-	case EItemType::Consumable:
-		UseConsumableItem(InventorySlot, LocalInventorySlot);
-		break;
-	case EItemType::Equipment:
-		UseEquipmentItem(InventorySlot, LocalInventorySlot);
-		break;
-	default:
-		break;
-	}
-}
-
 void UInventoryManagerComponent::UseConsumableItem(const uint8& InventorySlot, FSlotStructure& InventoryItem)
 {
 	// Do something depending on the item properties if needed
@@ -1125,3 +1108,52 @@ void UInventoryManagerComponent::Server_CloseContainer_Implementation()
 {
 	CloseContainer();
 }
+
+void UInventoryManagerComponent::Server_UseInventoryItem_Implementation(const uint8& InventorySlot)
+{
+	UseInventoryItem(InventorySlot);
+}
+
+void UInventoryManagerComponent::Server_UseContainerItem_Implementation(const uint8& InventorySlot)
+{
+	UseContainerItem(InventorySlot);
+}
+
+void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
+{
+	FSlotStructure LocalInventorySlot = GetInventorySlot(InventorySlot);
+
+	switch (LocalInventorySlot.ItemStructure.ItemType)
+	{
+	case EItemType::Consumable:
+		UseConsumableItem(InventorySlot, LocalInventorySlot);
+		break;
+	case EItemType::Equipment:
+		UseEquipmentItem(InventorySlot, LocalInventorySlot);
+		break;
+	default:
+		break;
+	}
+}
+
+void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
+{
+	FSlotStructure LocalInventoryItem = ContainerInventory->GetInventoryItem(InventorySlot);
+
+	bool bOutSuccess = false;
+	TryToAddItemToInventory(PlayerInventory, LocalInventoryItem, bOutSuccess);
+
+	if (bOutSuccess)
+	{
+		RemoveItem2(ContainerInventory, InventorySlot);
+	}else
+	{
+		AddItem2(ContainerInventory, InventorySlot, LocalInventoryItem);
+	}
+}
+
+
+
+
+
+
