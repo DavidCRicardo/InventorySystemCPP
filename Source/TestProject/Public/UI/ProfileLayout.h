@@ -27,7 +27,7 @@ public:
 	UListView* Attributes_ListView;
 	
 	UFUNCTION()
-	void UpdatePlayerStatsUI();
+	void UpdatePlayerStatsUI(const TArray<uint8>& InAttributesArray);
 private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;

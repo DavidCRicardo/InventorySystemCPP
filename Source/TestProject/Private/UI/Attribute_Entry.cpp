@@ -13,8 +13,6 @@ void UAttribute_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 	
-	AttributeTextBlock->SetText(FText::FromString("Default Text"));
-	
 	if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(ListItemObject))
 	{
 		if (IsValid(Entry))

@@ -130,6 +130,12 @@ public:
 
 	UFUNCTION()
 	void UpdateEquippedMeshes(const uint8& InventorySlot);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_SetAttributes(const TArray<uint8>& InAttributesArray);
+	UFUNCTION()
+	void SetAttributes(const TArray<uint8>& InAttributesArray);
+	
 	UFUNCTION()
 	void UpdateEquippedStats();
 	
@@ -142,7 +148,7 @@ public:
 	UFUNCTION()
 	void InitializePlayerAttributes();
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(Replicated, EditAnywhere,BlueprintReadWrite)
 	TArray<uint8> AttributesArray;
 
 	UPROPERTY()

@@ -41,7 +41,11 @@ void UProfileLayout::NativeConstruct()
 	{
     	InitializeSlots();
 		CreateAttributesEntry();
-		UpdatePlayerStatsUI();
+
+		TArray<uint8> InitAttributes;
+		InitAttributes.Init(0, (uint8)EAttributes::Count);
+		
+		UpdatePlayerStatsUI(InitAttributes);
 	}
 }
 
@@ -171,7 +175,7 @@ void UProfileLayout::RefreshWindow()
 	// }
 }
 
-void UProfileLayout::UpdatePlayerStatsUI()
+void UProfileLayout::UpdatePlayerStatsUI(const TArray<uint8>& InAttributesArray)
 {
 	TArray<UObject*> EntriesArray = Attributes_ListView->GetListItems();
 	if (EntriesArray.Num() <= 0)
@@ -179,7 +183,7 @@ void UProfileLayout::UpdatePlayerStatsUI()
 		return;
 	}
 	
-	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
+	TArray<uint8> Attributes = InAttributesArray;
 	
 	FFormatNamedArguments Args;
 	FText FormattedText;
@@ -219,7 +223,6 @@ void UProfileLayout::UpdatePlayerStatsUI()
 		if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(EntriesArray[Index]))
 		{
 			Entry->SetAttributeText(FormattedText);
-			EntriesArray[Index] = Entry;
 		}
 	}
 	Attributes_ListView->RegenerateAllEntries();

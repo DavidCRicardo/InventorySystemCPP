@@ -52,6 +52,7 @@ void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UInventoryManagerComponent, NumberOfSlots);
+	DOREPLIFETIME(UInventoryManagerComponent, AttributesArray);
 }
 
 void UInventoryManagerComponent::Server_InitInventory_Implementation()
@@ -975,13 +976,26 @@ void UInventoryManagerComponent::UpdateEquippedStats()
 	AttributesArray[1] = TempEndurance;
 	AttributesArray[2] = TempDexterity;
 	AttributesArray[3] = TempIntelligence;
+
+	Client_SetAttributes(AttributesArray);
+}
+
+void UInventoryManagerComponent::Client_SetAttributes_Implementation(const TArray<uint8>& InAttributesArray)
+{
+	SetAttributes(InAttributesArray);
+}
+
+void UInventoryManagerComponent::SetAttributes(const TArray<uint8>& InAttributesArray)
+{
+	if (IsValid(MainLayoutUI))
+	{
+		MainLayoutUI->Profile->UpdatePlayerStatsUI(InAttributesArray);
+	}
 }
 
 void UInventoryManagerComponent::InitializePlayerAttributes()
 {
 	AttributesArray.Init(0, (uint8)EAttributes::Count);
-	
-	UpdateEquippedStats();
 }
 
 uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot)

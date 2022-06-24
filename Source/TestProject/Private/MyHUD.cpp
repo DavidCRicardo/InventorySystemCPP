@@ -119,7 +119,6 @@ void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
 	}
 	else if (Layout == ELayout::Equipment)
 	{
-		HUDReference->MainLayout->Profile->UpdatePlayerStatsUI();
 		HUDReference->MainLayout->Profile->RefreshWindow();
 	}
 	else if (Layout == ELayout::Container)
