@@ -116,9 +116,7 @@ void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& Fr
 
 void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& InventorySlot)
 {
-	IInventoryInterface::UI_DropInventoryItem_Implementation(InventorySlot);
-
-	InventoryManagerComponent->Server_DropItemFromInventory_Implementation(InventorySlot);
+	InventoryManagerComponent->Server_DropItemFromInventory(InventorySlot);
 }
 
 void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
@@ -135,6 +133,7 @@ void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
 	OnActorUsed(Actor);
 }
+
 void AMyPlayerController::OnActorUsed(AActor* Actor)
 {
 	if (HasAuthority())
@@ -143,52 +142,6 @@ void AMyPlayerController::OnActorUsed(AActor* Actor)
 		{
 			IUsableActorInterface::Execute_OnActorUsed(Actor, this);
 		}
-	}
-}
-
-void AMyPlayerController::Server_OnActorDropped_Implementation(FSlotStructure LocalSlot)
-{
-	OnActorDropped(LocalSlot);
-}
-
-void AMyPlayerController::OnActorDropped(FSlotStructure LocalSlot)
-{
-	UClass* LocalClass = LocalSlot.ItemStructure.Class;
-
-	// Drop at character feet
-	FVector LocalLocation {0.0f, 0.0f, -98.0f};
-			
-	FVector PawnLocation = GetPawn()->GetActorLocation();
-
-	//Drop Distance Range From Character
-	//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
-	const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
-	FVector DistanceFromPawn {(float)DropDistanceRangeX,1.0f,1.0f};
-
-	// Drop Items 360 Degrees Around Player
-	const float DropItemsRotation = FMath::FRandRange(-180, 180);
-	//FRotator Rotation {1.0f, DropItemsRotation, DropItemsRotation}; // Drop Around Player
-	FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
-
-	FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
-
-	FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated; 
-
-	// Give The Dropped Object A Random Rotation
-	// const int8 RandomRotation = FMath::RandRange(-10, 10);
-	// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
-	FRotator FinalRotator {1.0f, 1.0f, 1.0f};
-
-	FVector FinalScale {1.0f,1.0f,1.0f};
-		
-	FTransform OutTransform {};
-	OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
-	
-	// Spawn World Actor
-	AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(LocalClass, OutTransform);
-	if (WActor)
-	{
-		WActor->Amount = LocalSlot.Amount;
 	}
 }
 

@@ -379,30 +379,72 @@ void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory,
 	UpdateEquippedStats();
 }
 
-void UInventoryManagerComponent::DropItem(const uint8& InventorySlot)
+void UInventoryManagerComponent::RandomizeDropLocation(FSlotStructure LocalSlot, UClass*& LocalClass, FTransform& OutTransform)
 {
-	FSlotStructure LocalSlot = GetInventorySlot(InventorySlot);
+	LocalClass = LocalSlot.ItemStructure.Class;
+
+	// Drop at character feet
+	FVector LocalLocation {0.0f, 0.0f, -98.0f};
+			
+	FVector PawnLocation = Cast<AController>(GetOwner())->GetPawn()->GetActorLocation();
+
+	//Drop Distance Range From Character
+	//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
+	const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
+	FVector DistanceFromPawn {(float)DropDistanceRangeX,1.0f,1.0f};
+
+	// Drop Items 360 Degrees Around Player
+	const float DropItemsRotation = FMath::FRandRange(-180, 180);
+	FRotator Rotation {1.0f, DropItemsRotation, DropItemsRotation}; // Drop Around Player
+	//FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
+
+	FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
+
+	FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated; 
+
+	// Give The Dropped Object A Random Rotation
+	// const int8 RandomRotation = FMath::RandRange(-10, 10);
+	// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
+	FRotator FinalRotator {1.0f, 1.0f, 1.0f};
+
+	FVector FinalScale {1.0f,1.0f,1.0f};
+
+	OutTransform = {};
+	OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
+}
+
+void UInventoryManagerComponent::DropItem(UInventoryComponent* Inventory, uint8 InventorySlot)
+{
+	FSlotStructure LocalSlot = Inventory->GetInventoryItem(InventorySlot);
 	
 	if (LocalSlot.ItemStructure.IsDroppable)
 	{
-		AMyPlayerController* PC =  Cast<AMyPlayerController>(GetOwner());
-		if (!IsValid(PC))
+		UE_LOG(LogTemp, Warning, TEXT("DROPPED ITEM"))
+		
+		UClass* LocalClass;
+		FTransform OutTransform;
+		RandomizeDropLocation(LocalSlot, LocalClass, OutTransform);
+
+		// Spawn World Actor
+		AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(LocalClass, OutTransform);
+		if (WActor)
 		{
-			return;
+			WActor->Amount = LocalSlot.Amount;
 		}
-		
-		PC->Server_OnActorDropped(LocalSlot);
-		
-		RemoveItem(InventorySlot);
+		/**/
+		RemoveItem2(Inventory, InventorySlot);
 
 		// Are we dropping an equipped item?
 		if (InventorySlot < (uint8)EEquipmentSlot::Count)
 		{
-			//UpdateEquippedMeshes(InventorySlot);
+			UpdateEquippedStats();
 		}
 	}else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You cannot drop this..."))
+		UE_LOG(LogTemp, Warning, TEXT("DESTROYED ITEM"))
+
+		RemoveItem2(Inventory, InventorySlot);
 	}
 }
 
@@ -1029,7 +1071,7 @@ EItemType UInventoryManagerComponent::GetItemTypeBySlot(uint8 ItemSlot)
 
 void UInventoryManagerComponent::Server_DropItemFromInventory_Implementation(const uint8& InventorySlot)
 {
-	DropItem(InventorySlot);
+	DropItem(PlayerInventory, InventorySlot);
 }
 
 void UInventoryManagerComponent::Server_EquipFromInventory_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)

@@ -176,20 +176,23 @@ private:
 	UFUNCTION()
 	void RemoveItem(const uint8& InventorySlot);
 
-	UFUNCTION()
+	UFUNCTION(Category="Manager|Private|Equipment")
 	void EquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
 										  UInventoryComponent* ToInventory, uint8 ToInventorySlot);
 	
-	UFUNCTION()
+	UFUNCTION(Category="Manager|Private|Equipment")
 	void UnEquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
 										  UInventoryComponent* ToInventory, uint8 ToInventorySlot);
+	
+	UFUNCTION(Category="Manager|Private")
+	void RandomizeDropLocation(FSlotStructure LocalSlot, UClass*& LocalClass, FTransform& OutTransform);
 
-	UFUNCTION()
-	void DropItem(const uint8& InventorySlot);
+	UFUNCTION(Category="Manager|Private|Inventory")
+	void DropItem(UInventoryComponent* Inventory, uint8 InventorySlot);
 
-	UFUNCTION(Category = "Manager|Private|Inventory")
+	UFUNCTION(Category="Manager|Private|Inventory")
 	void MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot, UInventoryComponent* ToInventory, uint8 ToInventorySlot);
-	UFUNCTION(Category = "Manager|Private|Inventory")
+	UFUNCTION(Category="Manager|Private|Inventory")
 	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
 
 	// Equips Or Unequips The Inventory Item When Used Or Moves To A Container (If A Storage Container Is Open)

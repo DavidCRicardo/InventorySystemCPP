@@ -77,10 +77,6 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void Server_OnActorUsed(AActor* Actor);
-
-	// Server Drops an Actor on World
-	UFUNCTION(Server, Reliable)
-	void Server_OnActorDropped(FSlotStructure LocalSlot);
 	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
@@ -118,7 +114,4 @@ protected:
 
 	UFUNCTION()
 	void OnActorUsed(AActor* Actor);
-
-	UFUNCTION()
-	void OnActorDropped(FSlotStructure LocalSlot);
 };
