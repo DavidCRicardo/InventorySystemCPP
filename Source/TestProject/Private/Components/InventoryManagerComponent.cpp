@@ -359,19 +359,23 @@ void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory,
 	}
 	else
 	{
-		if (ToInventorySlot < (uint8)EEquipmentSlot::Count)
+		if (Cast<UEquipmentComponent>(ToInventory))
 		{
-			if (GetEquipmentTypeBySlot(ToInventorySlot) != GetEquipmentTypeBySlot(FromInventorySlot))
+			if (ToInventorySlot < (uint8)EEquipmentSlot::Count)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
-				return;
+				if (GetEquipmentTypeBySlot(ToInventorySlot) != GetEquipmentTypeBySlot(FromInventorySlot))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
+					return;
+				}
 			}
 		}
+		
 		AddItem2(ToInventory, ToInventorySlot, LocalInventoryItem);
 		RemoveItem2(FromInventory, FromInventorySlot);
 	}
 
-	UpdateEquippedMeshes(ToInventorySlot);
+	UpdateEquippedMeshes(FromInventorySlot);
 	UpdateEquippedStats();
 }
 
@@ -866,7 +870,7 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 {
 	if (IsValid(MainLayoutUI))
 	{
-		USlotLayout* SlotLayout {};
+		USlotLayout* SlotLayout;
 		if (InventorySlot >= (uint8)EEquipmentSlot::Count)
 		{
 			uint8 LocalIndex = InventorySlot - (uint8)EEquipmentSlot::Count;
@@ -877,7 +881,24 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 		}else
 		{
 			SlotLayout = MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot];
-			SlotLayout->SlotStructure = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+			
+			// SlotLayout->SlotStructure = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
+			FSlotStructure LocalSlot;
+			switch (InventorySlot)
+			{
+			case 0: LocalSlot = GetEmptySlot(EEquipmentSlot::Weapon);
+				break;
+			case 1: LocalSlot = GetEmptySlot(EEquipmentSlot::Chest);
+				break;
+			case 2: LocalSlot = GetEmptySlot(EEquipmentSlot::Feet);
+				break;
+			case 3: LocalSlot = GetEmptySlot(EEquipmentSlot::Hands);
+				break;
+			default: LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
+				break;
+			}
+			
+			SlotLayout->SlotStructure = LocalSlot;
 			SlotLayout->UpdateSlot2();
 		}
 	}
@@ -1055,7 +1076,24 @@ void UInventoryManagerComponent::InitializeInventoryManagerUI(UMainLayout* MainL
 
 EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
 {
-	return PlayerInventory->Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
+	if (PlayerInventory->Inventory[EquipmentSlot].Amount > 0)
+	{
+		return PlayerInventory->Inventory[EquipmentSlot].ItemStructure.EquipmentSlot;
+	}
+	
+	switch (EquipmentSlot)
+	{
+	case 0:
+		return EEquipmentSlot::Weapon;
+	case 1:
+		return EEquipmentSlot::Chest;
+	case 2:
+		return EEquipmentSlot::Feet;
+	case 3:
+		return EEquipmentSlot::Hands;
+	default:
+		return EEquipmentSlot::Undefined;
+	}
 }
 
 EItemType UInventoryManagerComponent::GetItemTypeBySlot(uint8 ItemSlot)

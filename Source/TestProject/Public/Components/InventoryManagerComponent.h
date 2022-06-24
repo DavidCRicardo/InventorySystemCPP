@@ -51,7 +51,7 @@ public:
 	UPROPERTY()
 	AMyPlayerController* ControllerReference;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="UserInterface")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UserInterface")
 	UMainLayout* MainLayoutUI;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -72,18 +72,10 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_DropItemFromInventory(const uint8& InventorySlot);
 
-	UFUNCTION(Client, Reliable)
-	void Client_SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
-
 	UFUNCTION(Server, Reliable)
 	void Server_UseContainer(AActor* Container);
 	UFUNCTION(Server, Reliable)
 	void Server_CloseContainer();
-
-	UFUNCTION(Client, Reliable)
-	void Client_OpenContainer(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
-	UFUNCTION(Client, Reliable)
-	void Client_CloseContainer();
 
 	UFUNCTION(Server, Reliable)
 	void Server_TakeContainerItem(const uint8& FromContainerSlot, const uint8& ToInventorySlot);
@@ -91,12 +83,21 @@ public:
 	void Server_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	UFUNCTION(Server, Reliable)
 	void Server_MoveContainerItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
-	
+
+	UFUNCTION(Client, Reliable)
+	void Client_SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	UFUNCTION(Client, Reliable)
 	void Client_SetContainerSlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	UFUNCTION(Client, Reliable)
 	void Client_ClearInventorySlotItem(uint8 InventorySlot);
+	UFUNCTION(Client, Reliable)
+	void Client_ClearContainerSlotItem(uint8 ContainerSlot);
 
+	UFUNCTION(Client, Reliable)
+	void Client_OpenContainer(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
+	UFUNCTION(Client, Reliable)
+	void Client_CloseContainer();
+	
 	UFUNCTION(Category= "Manager|Public")
 	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
 	
@@ -104,6 +105,9 @@ public:
 	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
 	UFUNCTION()
 	EItemType GetItemTypeBySlot(uint8 ItemSlot);
+
+	UFUNCTION(Category = "Manager|Private|Inventory")
+	void AddItem2(UInventoryComponent* Inventory, uint8 InventorySlot, FSlotStructure& InventoryItem);
 	
 	UFUNCTION()
 	bool AddItem(FName ID, uint8 Amount);
@@ -187,13 +191,8 @@ private:
 	UFUNCTION()
 	void DropItem(const uint8& InventorySlot);
 
-public:
-	UFUNCTION(Category = "Manager|Private|Inventory")
-	void AddItem2(UInventoryComponent* Inventory, uint8 InventorySlot, FSlotStructure& InventoryItem);
-private:
 	UFUNCTION(Category = "Manager|Private|Inventory")
 	void MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot, UInventoryComponent* ToInventory, uint8 ToInventorySlot);
-
 	UFUNCTION(Category = "Manager|Private|Inventory")
 	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
 
@@ -210,13 +209,11 @@ private:
 	void CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow);
 	UFUNCTION(Category = "UserInterface|Private|Container")
 	void SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem);
-	UFUNCTION(Client, Reliable)
-	void Client_ClearContainerSlotItem(uint8 ContainerSlot);
+	
 	UFUNCTION(Category = "UserInterface|Private|Container")
 	void ClearContainerSlotItem(uint8 ContainerSlot);
 	UFUNCTION(Category = "UserInterface|Private|Container")
 	void ClearViewersContainerSlot(uint8 ContainerSlot);
-	
 	UFUNCTION(Category = "UserInterface|Private|Container")
 	void SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index);
 	
@@ -224,13 +221,10 @@ private:
 	void OpenContainer(AActor* Container);
 	UFUNCTION(Category = "Manager|Private|Container")
 	void UseContainer(AActor* Container);
-	
 	UFUNCTION(Category = "Manager|Private|Container")
 	void CloseContainer();
-
 	UFUNCTION(Category = "Manager|Private|Container")
 	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
-
 	
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining);

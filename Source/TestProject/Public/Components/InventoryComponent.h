@@ -51,6 +51,11 @@ public:
 	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Array);
 
 	UFUNCTION()
+	virtual void ClearInventoryItem(uint8 InventorySlot);
+	UFUNCTION()
+	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item);
+	
+	UFUNCTION()
 	void GetInventoryItems(TArray<FSlotStructure>& InventoryItems);
 
 	/* If Item has Amount > 0 then is Valid and returns true, otherwise it is Invalid and returns false*/
@@ -60,12 +65,8 @@ public:
 	FReturnTupleBoolInt GetEmptyInventorySpace();
 	
 	UFUNCTION()
-	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item);
-	UFUNCTION()
 	FSlotStructure GetInventoryItem(uint8 InventorySlot);
-
-	UFUNCTION()
-	void ClearInventoryItem(uint8 Index);
+	
 	UFUNCTION()
 	void PrintInventory();
 

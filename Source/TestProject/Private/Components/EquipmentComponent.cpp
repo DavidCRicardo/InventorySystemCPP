@@ -65,3 +65,10 @@ void UEquipmentComponent::SetInventoryItem(uint8 InventorySlot, FSlotStructure& 
 
 	UpdateEquippedMeshes(InventorySlot);
 }
+
+void UEquipmentComponent::ClearInventoryItem(uint8 InventorySlot)
+{
+	Super::ClearInventoryItem(InventorySlot);
+	
+	UpdateEquippedMeshes(InventorySlot);
+}

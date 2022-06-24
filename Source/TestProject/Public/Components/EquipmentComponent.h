@@ -22,7 +22,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
+	virtual void ClearInventoryItem(uint8 InventorySlot) override;
 	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item) override;
 	
 	void UpdateEquippedMeshes(uint8 InventorySlot);
