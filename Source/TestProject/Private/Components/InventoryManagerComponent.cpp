@@ -700,63 +700,6 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 	return Slot;
 }
 
-void UInventoryManagerComponent::UseConsumableItem(const uint8& InventorySlot, FSlotStructure& InventoryItem)
-{
-	// Do something depending on the item properties if needed
-	// ...
-
-	// Remove from Item Amount
-	uint8 AmountToRemove = 1;
-	bool WasFullAmountRemoved = false;
-	uint8 AmountRemoved = 0;
-	
-	RemoveFromItemAmount(InventoryItem, AmountToRemove, WasFullAmountRemoved, AmountRemoved);
-
-	if (WasFullAmountRemoved)
-	{
-		InventoryItem = GetEmptySlot(EEquipmentSlot::Undefined);
-
-		RemoveItem(InventorySlot);
-	}else
-	{
-		PlayerInventory->Inventory[InventorySlot] = InventoryItem;
-	}
-}
-
-void UInventoryManagerComponent::UseEquipmentItem(const uint8& InventorySlot, const FSlotStructure& SlotStructure)
-{
-	// Are we Unequipping?
-	const uint8 NumberOfEntries = (uint8)EEquipmentSlot::Count;
-	if (InventorySlot < NumberOfEntries)
-	{
-		// Yes, we are Unequipping
-		uint8 Index = 0;
-		if (GetEmptyInventorySpace(Index))
-		{
-			//Server_UnEquipFromInventory(InventorySlot, Index);
-			return;	
-		}
-		UE_LOG(LogTemp, Warning, TEXT("NO FREE SPACE"))
-	}
-	else
-	{
-		EEquipmentSlot LocalEquipmentSlot = GetItemEquipmentSlot(SlotStructure);
-		uint8 Index = 0;
-		// Finds Empty Slot Of Type To Equip 
-		if( GetEmptyEquipmentSlotByType(LocalEquipmentSlot, Index) )
-		{
-			//Server_EquipFromInventory_Implementation(InventorySlot, Index);
-		}else
-		{
-			const uint8 ToInventorySlot = GetEquipmentSlotByType(LocalEquipmentSlot);
-			//Server_EquipFromInventory_Implementation(InventorySlot, ToInventorySlot);
-		}
-	}
-
-	//No, Find Empty Slot Of Type To Equip To
-	
-}
-
 bool UInventoryManagerComponent::GetEmptyInventorySpace(uint8& OutIndex)
 {
 	for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberOfSlots; Index++)
@@ -1121,18 +1064,24 @@ void UInventoryManagerComponent::Server_UseContainerItem_Implementation(const ui
 
 void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
 {
-	FSlotStructure LocalInventorySlot = GetInventorySlot(InventorySlot);
+	FSlotStructure LocalInventorySlot = PlayerInventory->GetInventoryItem(InventorySlot);
 
-	switch (LocalInventorySlot.ItemStructure.ItemType)
+	if (IsValid(CurrentContainer))
 	{
-	case EItemType::Consumable:
-		UseConsumableItem(InventorySlot, LocalInventorySlot);
-		break;
-	case EItemType::Equipment:
-		UseEquipmentItem(InventorySlot, LocalInventorySlot);
-		break;
-	default:
-		break;
+		
+	}else
+	{
+		switch (LocalInventorySlot.ItemStructure.ItemType)
+		{
+		case EItemType::Consumable:
+			UseConsumableItem(InventorySlot, LocalInventorySlot);
+			break;
+		case EItemType::Equipment:
+			UseEquipmentItem(InventorySlot, LocalInventorySlot, PlayerInventory);
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -1152,8 +1101,63 @@ void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
 	}
 }
 
+void UInventoryManagerComponent::UseConsumableItem(uint8 InventorySlot, FSlotStructure& InventoryItem)
+{
+	// Do something depending on the item properties if needed
+	// ...
+	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Consuming this Item...")));
+		UE_LOG(LogTemp, Warning, TEXT("Consuming this Item..."))
+	}
 
+	// Remove from Item Amount
+	uint8 AmountToRemove = 1;
+	bool WasFullAmountRemoved = false;
+	uint8 AmountRemoved = 0;
+	
+	RemoveFromItemAmount(InventoryItem, AmountToRemove, WasFullAmountRemoved, AmountRemoved);
 
+	if (WasFullAmountRemoved)
+	{
+		InventoryItem = GetEmptySlot(EEquipmentSlot::Undefined);
 
+		RemoveItem2(PlayerInventory, InventorySlot);
+	}else
+	{
+		AddItem2(PlayerInventory, InventorySlot, InventoryItem);
+	}
+}
 
+void UInventoryManagerComponent::UseEquipmentItem(uint8 InventorySlot, FSlotStructure& InventoryItem, UInventoryComponent* ToInventory)
+{
+	// Are we Unequipping?
+	if (InventorySlot < (uint8)EEquipmentSlot::Count)
+	{
+		uint8 Index = 0;
+		if (GetEmptyInventorySpace(Index))
+		{
+			UnEquipItem(PlayerInventory, InventorySlot, ToInventory, Index);
+			return;	
+		}
+		
+		UE_LOG(LogTemp, Warning, TEXT("NO FREE SPACE"))
+
+	}
+	else
+	{
+		EEquipmentSlot LocalEquipmentSlot = GetItemEquipmentSlot(InventoryItem);
+
+		uint8 OutInventorySlot = 0;
+		// Finds Empty Slot Of Type To Equip 
+		if( GetEmptyEquipmentSlotByType(LocalEquipmentSlot, OutInventorySlot) )
+		{
+			Server_EquipFromInventory(InventorySlot, OutInventorySlot);
+		}else
+		{
+			OutInventorySlot = GetEquipmentSlotByType(LocalEquipmentSlot);
+			Server_EquipFromInventory(InventorySlot, OutInventorySlot);
+		}
+	}
+}
 

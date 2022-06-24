@@ -204,7 +204,7 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SlotStructure = NewSlotStructure;
 	
-	if (!HasItem() || InventorySlotIndex < (uint8)EEquipmentSlot::Count)
+	if (!HasItem() || (InventorySlotIndex < (uint8)EEquipmentSlot::Count && NativeFromInventory))
 	{
 		AmountTextBlock->SetText(FText::FromString(""));
 	}
@@ -222,7 +222,7 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 
 void USlotLayout::UpdateSlot2()
 {
-	if (!HasItem() || InventorySlotIndex < (uint8)EEquipmentSlot::Count)
+	if (!HasItem() || (InventorySlotIndex < (uint8)EEquipmentSlot::Count && NativeFromInventory))
 	{
 		AmountTextBlock->SetText(FText::FromString(""));
 	}

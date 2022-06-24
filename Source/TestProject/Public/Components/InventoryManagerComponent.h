@@ -167,12 +167,6 @@ private:
 	bool ItemIsValid(FSlotStructure Item);
 	UFUNCTION()
 	bool GetEmptyEquipmentSlotByType(EEquipmentSlot EquipmentSlot, uint8& OutIndex);
-	
-	UFUNCTION()
-	void UseEquipmentItem(const uint8& InventorySlot, const FSlotStructure& SlotStructure);
-
-	UFUNCTION()
-	void UseConsumableItem(const uint8& InventorySlot, FSlotStructure& InventoryItem);
 
 	// Remove a specific amount from an existing item on Inventory
 	UFUNCTION()
@@ -198,8 +192,18 @@ private:
 	UFUNCTION(Category = "Manager|Private|Inventory")
 	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
 
+	// Equips Or Unequips The Inventory Item When Used Or Moves To A Container (If A Storage Container Is Open)
+	UFUNCTION(Category="Manager|Private|Items")
+	void UseEquipmentItem(uint8 InventorySlot, FSlotStructure& InventoryItem, UInventoryComponent* ToInventory);
+
+	//Consumes The Item When Used
+	UFUNCTION(Category="Manager|Private|Items")
+	void UseConsumableItem(uint8 InventorySlot, FSlotStructure& InventoryItem);
+	
+	//Server: Use Item In Inventory. Equips, Consumes Or Moves To A Container (If A Storage Container Is Open)
 	UFUNCTION(Category = "Manager|Private|Items")
 	void UseInventoryItem(const uint8& InventorySlot);
+	//Server: Use Item From Container (Moves It To Inventory)
 	UFUNCTION(Category = "Manager|Private|Container")
 	void UseContainerItem(const uint8& InventorySlot);
 	
