@@ -8,14 +8,14 @@ UEquipmentComponent::UEquipmentComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	
+	EquipmentCharacterReference = nullptr;
 }
-
 // Called when the game starts
 void UEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
 
 // Called every frame
 void UEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -29,6 +29,8 @@ void UEquipmentComponent::UpdateEquippedMeshes(uint8 InventorySlot)
 {
 	if (IsValid(EquipmentCharacterReference))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("CHARACTER REFERENCE VALID"))
+		
 		if (InventorySlot < (uint8)EEquipmentSlot::Count)
 		{
 			FSlotStructure Slot = GetInventoryItem(InventorySlot);
@@ -56,6 +58,10 @@ void UEquipmentComponent::UpdateEquippedMeshes(uint8 InventorySlot)
 				break;
 			}
 		}
+	}else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Character Reference Not Valid")));
+		UE_LOG(LogTemp, Warning, TEXT("CHARACTER REFERENCE NOT VALID"))
 	}
 }
 

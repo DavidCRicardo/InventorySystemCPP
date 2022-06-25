@@ -312,7 +312,6 @@ void AMyCharacter::Tick(float DeltaTime)
 				{
 					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
 					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
-
 				}
 				
 				TempUsableActor->SetScreenPosition(ScreenPosition);

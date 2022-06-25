@@ -28,8 +28,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory", Category="Inventory UI"))
 	TArray<FSlotStructure> Inventory;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	AMyCharacter* EquipmentCharacterReference;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

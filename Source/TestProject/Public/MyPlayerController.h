@@ -40,6 +40,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="EquipmentComponent"))
 	UEquipmentComponent* PlayerInventoryComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Character Reference", Category="Default", OverrideNativeName="CharacterReference"))
+	AMyCharacter* CharacterReference;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AMyHUD* HUD_Reference;
 	
@@ -99,9 +102,6 @@ protected:
 	virtual void BeginPlay() override;
 	
 	virtual void SetupInputComponent() override;
-
-	UPROPERTY(VisibleAnywhere, Category="Character")
-	AMyCharacter* CharacterReference;
 
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();

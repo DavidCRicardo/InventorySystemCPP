@@ -31,6 +31,7 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	}
 	
 	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count;
+
 }
 
 // Called when the game starts
@@ -311,7 +312,7 @@ void UInventoryManagerComponent::EquipItem(UInventoryComponent* FromInventory, u
 				RemoveItem2(FromInventory, FromInventorySlot);
 			}
 
-			UpdateEquippedMeshes(ToInventorySlot);
+			//UpdateEquippedMeshes(ToInventorySlot);
 			UpdateEquippedStats();
 			
 			return;
@@ -376,7 +377,7 @@ void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory,
 		RemoveItem2(FromInventory, FromInventorySlot);
 	}
 
-	UpdateEquippedMeshes(FromInventorySlot);
+	//UpdateEquippedMeshes(FromInventorySlot);
 	UpdateEquippedStats();
 }
 
@@ -927,6 +928,8 @@ void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot
 {
 	if (IsValid(CharacterReference))
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Character Reference Valid")));
+
 		if (InventorySlot >= (uint8)EEquipmentSlot::Count)
 		{
 			return;
@@ -952,6 +955,9 @@ void UInventoryManagerComponent::UpdateEquippedMeshes(const uint8& InventorySlot
 		default:
 			break;
 		}
+	}else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Character Reference Not Valid")));
 	}
 }
 

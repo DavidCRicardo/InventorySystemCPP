@@ -23,6 +23,7 @@ AMyGameModeBase::AMyGameModeBase() //: Super()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
 	/*static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Script/TestProject.MyCharacter"));
 	DefaultPawnClass = PlayerPawnBPClass.Class;*/
 }

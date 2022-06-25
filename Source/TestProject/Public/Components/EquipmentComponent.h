@@ -25,7 +25,10 @@ public:
 
 	virtual void ClearInventoryItem(uint8 InventorySlot) override;
 	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item) override;
-	
-	void UpdateEquippedMeshes(uint8 InventorySlot);
 
+	UFUNCTION()
+	virtual void UpdateEquippedMeshes(uint8 InventorySlot);
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Equipment Character Reference", Category="Default", OverrideNativeName="EquipmentCharacterReference"))
+	AMyCharacter* EquipmentCharacterReference;
 };

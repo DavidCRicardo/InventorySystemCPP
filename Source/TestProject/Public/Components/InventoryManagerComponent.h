@@ -47,9 +47,6 @@ public:
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	uint8 NumberOfSlots;
-
-	UPROPERTY()
-	AMyPlayerController* ControllerReference;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UserInterface")
 	UMainLayout* MainLayoutUI;

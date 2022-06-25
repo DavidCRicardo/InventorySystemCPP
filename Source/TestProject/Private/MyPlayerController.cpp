@@ -15,6 +15,8 @@ AMyPlayerController::AMyPlayerController()
 	InventoryManagerComponent->SetIsReplicated(true);
 	
 	PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+
+	CharacterReference = nullptr;
 	
 	bReplicates = true;
 }
@@ -52,19 +54,41 @@ void AMyPlayerController::BeginPlay()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Client")));
 	}
+
+	// Delay 0.5seconds
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("This text will appear in the console 3 seconds after execution"))
+
+		CharacterReference = Cast<AMyCharacter>(GetPawn());
+
+		PlayerInventoryComponent->EquipmentCharacterReference = CharacterReference;
+		InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
+
+		InventoryManagerComponent->CharacterReference = CharacterReference;
+
+		// Server: Initialize Inventory
+		InventoryManagerComponent->Server_InitInventory();
+
+		InventoryManagerComponent->InitializePlayerAttributes();
+
+		EnableInput(this);
+	}, 1, false);
 	
-	CharacterReference = Cast<AMyCharacter>(GetPawn());
-	InventoryManagerComponent->CharacterReference = Cast<AMyCharacter>(GetPawn());
-	PlayerInventoryComponent->EquipmentCharacterReference = Cast<AMyCharacter>(GetPawn());
+	/*CharacterReference = Cast<AMyCharacter>(GetPawn());
+
+	PlayerInventoryComponent->EquipmentCharacterReference = CharacterReference;
+	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
+	
+	InventoryManagerComponent->CharacterReference = CharacterReference;
 
 	// Server: Initialize Inventory
-	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
-
 	InventoryManagerComponent->Server_InitInventory();
 	
 	InventoryManagerComponent->InitializePlayerAttributes();
 
-	EnableInput(this);
+	EnableInput(this);*/
 }
 
 void AMyPlayerController::SetupHUDReferences()
@@ -82,7 +106,7 @@ void AMyPlayerController::SetupHUDReferences()
 }
 
 void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot,
-	const uint8& ToInventorySlot)
+                                                              const uint8& ToInventorySlot)
 {
 	InventoryManagerComponent->Server_MoveInventoryItem(FromInventorySlot, ToInventorySlot);
 }
