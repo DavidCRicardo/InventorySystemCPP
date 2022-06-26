@@ -30,7 +30,6 @@ void UContainerLayout::NativeConstruct()
 	if (IsValid(PlayerController))
 	{
 		//InitializeSlots();
-		//RefreshWindow();
 	}
 }
 
@@ -76,28 +75,6 @@ void UContainerLayout::SetIndexToChilds(uint8& IndexStart)
 		IndexStart++;
 	}
 }
-
-void UContainerLayout::RefreshWindow()
-{
-	//const uint8 InventoryLimit = PlayerController->InventoryManagerComponent->ContainerInventory->Inventory.Num();
-
-	FSlotStructure CurrentSlot = {};
-	FSlotStructure EmptySlot = {};
-	EmptySlot = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
-
-	for(int i = 0; i <  ContainerSlotsArray.Num(); i++)
-	{
-		CurrentSlot = ContainerSlotsArray[i]->SlotStructure;
-
-		/* Update Empty Slot */
-		if(CurrentSlot.Amount <= 0){
-			CurrentSlot = EmptySlot;
-		}
-		
-		ContainerSlotsArray[i]->UpdateSlot(CurrentSlot);
-	}
-}
-
 
 void UContainerLayout::UpdateContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
 {

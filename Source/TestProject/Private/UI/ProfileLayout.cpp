@@ -17,9 +17,6 @@ UProfileLayout::UProfileLayout()
 
 void UProfileLayout::ToggleWindow()
 {
-	// Avoid null slots (doesn't crash, purely design )
-	RefreshWindow(); 
-	
 	Super::ToggleWindow();
 }
 
@@ -128,51 +125,6 @@ void UProfileLayout::CreateAttributesEntry()
 			Attributes_ListView->AddItem(Entry);
 		}
 	}
-}
-
-void UProfileLayout::RefreshWindow()
-{
-	// if (!IsValid(PlayerController) || !IsValid(PlayerController->InventoryManagerComponent))
-	// {
-	// 	return;
-	// }
-	//
-	// //if (!PlayerController->InventoryManagerComponent->Inventory.IsValidIndex(0))
-	// if (!PlayerController->InventoryManagerComponent->PlayerInventory->Inventory.IsValidIndex(0))
-	// {
-	// 	return;
-	// }
-	//
-	//
-	// FSlotStructure CurrentSlot = {};
-	//
-	// for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
-	// {
-	// 	CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
-	//
-	// 	/* Update Empty Slot */
-	// 	if(CurrentSlot.Amount <= 0){
-	// 		FSlotStructure EmptySlot = {};
-	// 		//CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
-	// 		if (i == 0)
-	// 		{
-	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
-	// 		}else if(i == 1)
-	// 		{
-	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
-	// 		}else if(i == 2)
-	// 		{
-	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
-	// 		}else if(i == 3)
-	// 		{
-	// 			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
-	// 		}
-	// 		CurrentSlot = EmptySlot;
-	// 		PlayerController->InventoryManagerComponent->Client_SetInventorySlotItem(CurrentSlot, i);
-	// 	}
-	//
-	// 	EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
-	// }
 }
 
 void UProfileLayout::UpdatePlayerStatsUI(const TArray<uint8>& InAttributesArray)

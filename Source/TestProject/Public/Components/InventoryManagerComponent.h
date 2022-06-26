@@ -51,11 +51,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UserInterface")
 	UMainLayout* MainLayoutUI;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	AMyCharacter* CharacterReference;
-
 	UFUNCTION(Category="Manager|Public")
-	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure InventoryItem, bool& bOutSuccess);
+	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure& InventoryItem, bool& bOutSuccess);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_UseInventoryItem(const uint8& InventorySlot);
@@ -85,7 +82,12 @@ public:
 	void Server_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	UFUNCTION(Server, Reliable)
 	void Server_MoveContainerItem(uint8 FromInventorySlot, uint8 ToInventorySlot);
-
+	
+	UFUNCTION(Server, Reliable)
+	void Server_EquipFromContainer(uint8 FromInventorySlot, uint8 ToInventorySlot);
+	UFUNCTION(Server, Reliable)
+	void Server_UnEquipToContainer(uint8 FromInventorySlot, uint8 ToInventorySlot);
+	
 	UFUNCTION(Client, Reliable)
 	void Client_SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	UFUNCTION(Client, Reliable)
@@ -100,11 +102,12 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_CloseContainer();
 	
-	UFUNCTION(Category= "Manager|Public")
+	UFUNCTION(Category="Manager|Public")
 	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
 	
-	UFUNCTION()
+	UFUNCTION(Category="Manager|Private")
 	EEquipmentSlot GetEquipmentTypeBySlot(const uint8& EquipmentSlot);
+	
 	UFUNCTION()
 	EItemType GetItemTypeBySlot(uint8 ItemSlot);
 
@@ -118,15 +121,9 @@ public:
 	bool AddItemToInventory(FSlotStructure& ContentToAdd);
 
 	UFUNCTION()
-	FSlotStructure GetInventorySlot(const uint8& InventorySlot);
-
-	UFUNCTION()
 	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);
 	
 	FSlotStructure GetItemFromItemDB(FName Name);
-
-	UFUNCTION()
-	void UpdateEquippedMeshes(const uint8& InventorySlot);
 	
 	UFUNCTION(Client, Reliable)
 	void Client_SetAttributes(const TArray<uint8>& InAttributesArray);
@@ -162,8 +159,6 @@ private:
 	UFUNCTION()
 	bool AddToStack(FSlotStructure& ContentToAdd, const int8& Index);
 	
-	UFUNCTION()
-	bool GetEmptyInventorySpace(uint8& OutIndex);
 	UFUNCTION()
 	EEquipmentSlot GetItemEquipmentSlot(FSlotStructure Item);
 	UFUNCTION()
@@ -248,4 +243,10 @@ private:
 	
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
+
+public:
+	//UFUNCTION()
+	//bool GetEmptyInventorySpace(uint8& OutIndex);
+	//UFUNCTION()
+	//FSlotStructure GetInventorySlot(const uint8& InventorySlot);
 };

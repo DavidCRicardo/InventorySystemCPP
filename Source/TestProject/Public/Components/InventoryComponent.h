@@ -52,6 +52,11 @@ public:
 	virtual void ClearInventoryItem(uint8 InventorySlot);
 	UFUNCTION()
 	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item);
+
+	UFUNCTION()
+	FSlotStructure GetInventorySlot(uint8 InventorySlot);
+	UFUNCTION()
+	EEquipmentSlot GetEquipmentTypeBySlot(uint8 InventorySlot);
 	
 	UFUNCTION()
 	void GetInventoryItems(TArray<FSlotStructure>& InventoryItems);
@@ -61,7 +66,9 @@ public:
 	bool ItemIsValid(const FSlotStructure& Slot);
 
 	FReturnTupleBoolInt GetEmptyInventorySpace();
-	
+	FReturnTupleBoolInt GetEmptyContainerSpace();
+	bool GetEmptyInventorySpace(uint8& OutIndex);
+
 	UFUNCTION()
 	FSlotStructure GetInventoryItem(uint8 InventorySlot);
 	

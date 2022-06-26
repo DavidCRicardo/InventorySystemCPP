@@ -25,17 +25,11 @@ public:
 
 	UFUNCTION()
 	void ToggleWindow(const ELayout Layout);
-	
-	UFUNCTION()
-	void RefreshWidgetUILayout(ELayout Layout);
 
 	FWidgetsLayoutBP* GetWidgetBPClass(FName Name);
 	
 	UFUNCTION()
 	UUserWidget* GetInteractWidget();
-
-	UFUNCTION()
-	void RefreshContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows);
 
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UHUDLayout* HUDReference;

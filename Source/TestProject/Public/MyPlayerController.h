@@ -32,6 +32,8 @@ public:
 	virtual void UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot) override;
 	virtual void UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+	virtual void UI_EquipFromContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+	virtual void UI_UnEquipToContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	/* Ends Interface */
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="InventoryComponent"))
@@ -51,12 +53,6 @@ public:
 
 	UFUNCTION()
 	void SetupHUDReferences();
-
-	UFUNCTION()
-	TArray<uint8> GetPlayerAttributes();
-
-	UFUNCTION()
-	void RefreshContainerUI(uint8 SlotsPerSow, uint8 NumberOfRows);
 	
 	UFUNCTION()
 	void CollectFromPanel(const FName& Name);
@@ -73,10 +69,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleMenu();
-	void GetSelectedItemIndex(uint32& Index);
-
 	UFUNCTION()
-	void RefreshWidgets();
+	void GetSelectedItemIndex(uint32& Index);
 
 	UFUNCTION(Server, Reliable)
 	void Server_OnActorUsed(AActor* Actor);
@@ -98,6 +92,7 @@ public:
 
 	UFUNCTION()
 	UDataTable* GetItemDB();
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -106,12 +101,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
 	
-	//UFUNCTION()
-	//void PrintInventory();
+	UFUNCTION()
+	void OnActorUsed(AActor* Actor);
 	
 	UFUNCTION()
 	void QuitGame();
-
-	UFUNCTION()
-	void OnActorUsed(AActor* Actor);
 };

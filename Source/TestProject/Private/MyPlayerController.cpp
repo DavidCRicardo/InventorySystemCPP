@@ -55,7 +55,7 @@ void AMyPlayerController::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Client")));
 	}
 
-	// Delay 0.5seconds
+	// Delay: 1 second
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 	{
@@ -65,9 +65,7 @@ void AMyPlayerController::BeginPlay()
 
 		PlayerInventoryComponent->EquipmentCharacterReference = CharacterReference;
 		InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
-
-		InventoryManagerComponent->CharacterReference = CharacterReference;
-
+		
 		// Server: Initialize Inventory
 		InventoryManagerComponent->Server_InitInventory();
 
@@ -75,20 +73,6 @@ void AMyPlayerController::BeginPlay()
 
 		EnableInput(this);
 	}, 1, false);
-	
-	/*CharacterReference = Cast<AMyCharacter>(GetPawn());
-
-	PlayerInventoryComponent->EquipmentCharacterReference = CharacterReference;
-	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
-	
-	InventoryManagerComponent->CharacterReference = CharacterReference;
-
-	// Server: Initialize Inventory
-	InventoryManagerComponent->Server_InitInventory();
-	
-	InventoryManagerComponent->InitializePlayerAttributes();
-
-	EnableInput(this);*/
 }
 
 void AMyPlayerController::SetupHUDReferences()
@@ -151,6 +135,16 @@ void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& Invent
 void AMyPlayerController::UI_UseContainerItem_Implementation(const uint8& InventorySlot)
 {
 	InventoryManagerComponent->Server_UseContainerItem(InventorySlot);
+}
+
+void AMyPlayerController::UI_EquipFromContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	InventoryManagerComponent->Server_EquipFromContainer(FromInventorySlot, ToInventorySlot);
+}
+
+void AMyPlayerController::UI_UnEquipToContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	InventoryManagerComponent->Server_UnEquipToContainer(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
@@ -343,36 +337,6 @@ void AMyPlayerController::RemoveUsableActorToDropMenu(const FName& ID)
 		HUD_Reference->HUDReference->TertiaryHUD->RemoveInteractiveTextEntry(ID);
 	}
 }
-
-void AMyPlayerController::RefreshWidgets()
-{
-	/*HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);*/
-}
-
-TArray<uint8> AMyPlayerController::GetPlayerAttributes()
-{
-	return InventoryManagerComponent->AttributesArray;
-}
-
-void AMyPlayerController::RefreshContainerUI(uint8 SlotsPerRow, uint8 NumberOfRows)
-{
-	HUD_Reference->RefreshContainerSlotsUI(SlotsPerRow, NumberOfRows);
-}
-
-/*void AMyPlayerController::PrintInventory()
-{
-	for (int i = 0; i < InventoryManagerComponent->NumberOfSlots; i++)
-	{
-		FText a = InventoryManagerComponent->Inventory[i].ItemStructure.Name;
-		uint8 b = InventoryManagerComponent->Inventory[i].Amount;
-		//uint8 c = W_InventoryLayout->InventorySlotsArray[i]->InventorySlotIndex;
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"), *a.ToString(), b, c));
-	}
-}*/
 
 UDataTable* AMyPlayerController::GetItemDB()
 {

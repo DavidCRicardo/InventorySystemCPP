@@ -167,6 +167,16 @@ FSlotStructure UInventoryComponent::GetInventoryItem(uint8 InventorySlot)
 	return GetEmptySlot(EEquipmentSlot::Undefined);
 }
 
+EEquipmentSlot UInventoryComponent::GetEquipmentTypeBySlot(uint8 InventorySlot)
+{
+	return Inventory[InventorySlot].ItemStructure.EquipmentSlot;
+}
+
+FSlotStructure UInventoryComponent::GetInventorySlot(uint8 InventorySlot)
+{
+	return Inventory[InventorySlot];
+}
+
 void UInventoryComponent::ClearInventoryItem(uint8 InventorySlot)
 {
 	//Inventory[Index].Amount = 0;
@@ -187,6 +197,44 @@ void UInventoryComponent::PrintInventory()
 
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i, Index: %i"),*a.ToString(), b, i));
 	}
+}
+
+FReturnTupleBoolInt UInventoryComponent::GetEmptyContainerSpace()
+{
+	int8 LocalInteger = -1;
+	bool LocalBoolean = false;
+	
+	for (uint8 ArrayIndex = 0; ArrayIndex < Inventory.Num(); ArrayIndex++)
+	{
+		FSlotStructure Slot = Inventory[ArrayIndex];
+		if (!ItemIsValid(Slot))
+		{
+			LocalInteger = ArrayIndex;
+			LocalBoolean = true;
+			break;
+		}
+	}
+
+	if (LocalBoolean)
+	{
+		return {true, LocalInteger};
+	}
+	return {false, 0};
+}
+
+
+bool UInventoryComponent::GetEmptyInventorySpace(uint8& OutIndex)
+{
+	for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < Inventory.Num(); Index++)
+	{
+		FSlotStructure Slot = Inventory[Index];
+		if (!ItemIsValid(Slot))
+		{
+			OutIndex = Index;
+			return true;
+		}
+	}
+	return false;
 }
 
 FReturnTupleBoolInt UInventoryComponent::GetEmptyInventorySpace()

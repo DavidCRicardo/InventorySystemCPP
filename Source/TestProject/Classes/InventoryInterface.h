@@ -47,6 +47,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_DepositContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_EquipFromContainer(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
+	void UI_UnEquipToContainer(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
+
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_MoveContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);

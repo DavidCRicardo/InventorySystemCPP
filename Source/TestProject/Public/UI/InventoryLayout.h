@@ -19,7 +19,6 @@ public:
 	UInventoryLayout();
 
 	virtual void ToggleWindow() override;
-	virtual void RefreshWindow() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* InventoryGridPanel;

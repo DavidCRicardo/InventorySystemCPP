@@ -15,7 +15,6 @@ public:
 	UProfileLayout();
 	
 	virtual void ToggleWindow() override;
-	virtual void RefreshWindow() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* EquipmentGridPanel;

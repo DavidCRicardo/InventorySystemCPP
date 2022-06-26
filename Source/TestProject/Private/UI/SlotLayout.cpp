@@ -122,10 +122,17 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	{
 		if (NativeFromContainer)
 		{
+			// Check If Unequipping
+			if (IsUnequipping(LocalDraggedSlot))
+			{
+				IInventoryInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				return true;
+			}
+			
 			IInventoryInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
-		
+
 		// Check If Unequipping
 		if (IsUnequipping(LocalDraggedSlot))
 		{
@@ -140,11 +147,11 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			return true;
 		}
 
-		/*if (IsTryingToSplit())
+		bool bSplit = false;
+		if (bSplit)
 		{
-			Split();
-			return true;
-		}*/
+				
+		}
 
 		// To Inventory
 		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
@@ -159,6 +166,20 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		// To Inventory
 		if (NativeFromInventory)
 		{
+			// Are we Equipping
+			if (IsEquipping(InventorySlotIndex))
+			{
+				IInventoryInterface::Execute_UI_EquipFromContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				return true;
+			}
+
+			bool bSplit = false;
+			if (bSplit)
+			{
+				// ...
+				return true;
+			}
+			
 			IInventoryInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
@@ -166,14 +187,14 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		// To Container
 		if (NativeFromContainer)
 		{
+			bool bSplit = false;
+			if (bSplit)
+			{
+				// ...
+				return true;
+			}
+			
 			IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-			return true;
-		}
-		
-		// Are we Equipping
-		if (IsEquipping(InventorySlotIndex))
-		{
-			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}
@@ -189,7 +210,21 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 	// DragCancelled called when OnDrop returns false
 	
 	/* The Slot will stay bugged until the next Refresh() */
-	//PlayerController->RefreshWidgets();
+	/*UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
+	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
+	{
+		return;
+	}
+
+	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
+	if (DragDropOperation->IsDraggedFromInventory)
+	{
+		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+
+	}else if (DragDropOperation->IsDraggedFromContainer)
+	{
+		IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+	}*/
 }
 
 void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
