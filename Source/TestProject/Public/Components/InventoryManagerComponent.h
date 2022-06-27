@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Inventory/FContainerInfo.h"
 #include "InventoryComponent.h"
-#include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
 #include "MyCharacter.h"
@@ -112,13 +111,7 @@ public:
 	EItemType GetItemTypeBySlot(uint8 ItemSlot);
 
 	UFUNCTION(Category = "Manager|Private|Inventory")
-	void AddItem2(UInventoryComponent* Inventory, uint8 InventorySlot, FSlotStructure& InventoryItem);
-	
-	UFUNCTION()
-	bool AddItem(FName ID, uint8 Amount);
-
-	UFUNCTION()
-	bool AddItemToInventory(FSlotStructure& ContentToAdd);
+	void AddItem(UInventoryComponent* Inventory, uint8 InventorySlot, FSlotStructure& InventoryItem);
 
 	UFUNCTION()
 	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);
@@ -132,9 +125,6 @@ public:
 	
 	UFUNCTION()
 	void UpdateEquippedStats();
-	
-	UFUNCTION()
-	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
 
 	UFUNCTION()
 	UDataTable* GetItemDB();
@@ -152,27 +142,18 @@ private:
 	UPROPERTY()
 	UDataTable* ItemDB;
 	
-	FReturnTupleBoolInt HasPartialStack(const FSlotStructure& ContentToAdd);
-	
-	UFUNCTION()
-	bool CreateStack(FSlotStructure& ContentToAdd);
-	UFUNCTION()
-	bool AddToStack(FSlotStructure& ContentToAdd, const int8& Index);
-	
-	UFUNCTION()
+	UFUNCTION(Category = "Helper")
+	uint8 GetEquipmentSlotByType(EEquipmentSlot EquipmentSlot);
+	UFUNCTION(Category = "Helper")
 	EEquipmentSlot GetItemEquipmentSlot(FSlotStructure Item);
-	UFUNCTION()
+	UFUNCTION(Category = "Helper")
 	bool ItemIsValid(FSlotStructure Item);
-	UFUNCTION()
+	UFUNCTION(Category = "Helper")
 	bool GetEmptyEquipmentSlotByType(EEquipmentSlot EquipmentSlot, uint8& OutIndex);
 
 	// Remove a specific amount from an existing item on Inventory
 	UFUNCTION()
 	void RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove, bool& WasFullAmountRemoved, uint8& AmountRemoved);
-
-	// Remove Item From Inventory
-	UFUNCTION()
-	void RemoveItem(const uint8& InventorySlot);
 
 	UFUNCTION(Category="Manager|Private|Equipment")
 	void EquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
@@ -191,51 +172,51 @@ private:
 	UFUNCTION(Category="Manager|Private|Inventory")
 	void MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot, UInventoryComponent* ToInventory, uint8 ToInventorySlot);
 	UFUNCTION(Category="Manager|Private|Inventory")
-	void RemoveItem2(UInventoryComponent* Inventory, uint8 InventorySlot);
+	void RemoveItem(UInventoryComponent* Inventory, uint8 InventorySlot);
 
 	// Equips Or Unequips The Inventory Item When Used Or Moves To A Container (If A Storage Container Is Open)
 	UFUNCTION(Category="Manager|Private|Items")
-	void UseEquipmentItem(uint8 InventorySlot, FSlotStructure& InventoryItem, UInventoryComponent* ToInventory);
+	void UseEquipmentItem(uint8 InventorySlot, FSlotStructure InventoryItem, UInventoryComponent* ToInventory);
 
 	//Consumes The Item When Used
 	UFUNCTION(Category="Manager|Private|Items")
-	void UseConsumableItem(uint8 InventorySlot, FSlotStructure& InventoryItem);
+	void UseConsumableItem(uint8 InventorySlot, FSlotStructure InventoryItem);
 	
 	//Server: Use Item In Inventory. Equips, Consumes Or Moves To A Container (If A Storage Container Is Open)
-	UFUNCTION(Category = "Manager|Private|Items")
+	UFUNCTION(Category="Manager|Private|Items")
 	void UseInventoryItem(const uint8& InventorySlot);
 	//Server: Use Item From Container (Moves It To Inventory)
-	UFUNCTION(Category = "Manager|Private|Container")
+	UFUNCTION(Category="Manager|Private|Container")
 	void UseContainerItem(const uint8& InventorySlot);
-	
-	UFUNCTION(Category = "UserInterface|Private|Inventory")
+
+	UFUNCTION(Category="UserInterface|Private|Inventory")
 	void ClearInventoryItem(const uint8& InventorySlot);
-	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	UFUNCTION(Category="UserInterface|Private|Inventory")
 	void SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
-	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	UFUNCTION(Category="UserInterface|Private|Inventory")
 	void ClearInventorySlotItem(uint8 InventorySlot);
 	
-	UFUNCTION(Category = "UserInterface|Private|Container") 
+	UFUNCTION(Category="UserInterface|Private|Container") 
 	void ClearContainerSlots();
-	UFUNCTION(Category = "UserInterface|Private|Container")
+	UFUNCTION(Category="UserInterface|Private|Container")
 	void CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow);
-	UFUNCTION(Category = "UserInterface|Private|Container")
+	UFUNCTION(Category="UserInterface|Private|Container")
 	void SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem);
 	
-	UFUNCTION(Category = "UserInterface|Private|Container")
+	UFUNCTION(Category="UserInterface|Private|Container")
 	void ClearContainerSlotItem(uint8 ContainerSlot);
-	UFUNCTION(Category = "UserInterface|Private|Container")
+	UFUNCTION(Category="UserInterface|Private|Container")
 	void ClearViewersContainerSlot(uint8 ContainerSlot);
-	UFUNCTION(Category = "UserInterface|Private|Container")
+	UFUNCTION(Category="UserInterface|Private|Container")
 	void SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index);
 	
-	UFUNCTION(Category = "Manager|Private|Container")
+	UFUNCTION(Category="Manager|Private|Container")
 	void OpenContainer(AActor* Container);
-	UFUNCTION(Category = "Manager|Private|Container")
+	UFUNCTION(Category="Manager|Private|Container")
 	void UseContainer(AActor* Container);
-	UFUNCTION(Category = "Manager|Private|Container")
+	UFUNCTION(Category="Manager|Private|Container")
 	void CloseContainer();
-	UFUNCTION(Category = "Manager|Private|Container")
+	UFUNCTION(Category="Manager|Private|Container")
 	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
 	
 	UFUNCTION(Category="Manager|Private|Stacks")
@@ -243,10 +224,17 @@ private:
 	
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
-
-public:
-	//UFUNCTION()
-	//bool GetEmptyInventorySpace(uint8& OutIndex);
-	//UFUNCTION()
-	//FSlotStructure GetInventorySlot(const uint8& InventorySlot);
 };
+
+//FReturnTupleBoolInt HasPartialStack(const FSlotStructure& ContentToAdd);
+// Remove Item From Inventory
+//UFUNCTION()
+//void RemoveItem(const uint8& InventorySlot);
+//UFUNCTION()
+//bool CreateStack(FSlotStructure& ContentToAdd);
+//UFUNCTION()
+//bool AddToStack(FSlotStructure& ContentToAdd, const int8& Index);
+//UFUNCTION()
+//bool AddItem(FName ID, uint8 Amount);
+//UFUNCTION()
+//bool AddItemToInventory(FSlotStructure& ContentToAdd);

@@ -53,6 +53,7 @@ bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 				PlayerController->InventoryManagerComponent->Server_UseContainer(this);
 				
 				return Super::OnActorUsed_Implementation(Controller);
+				return true;
 			}
 		}
 	}

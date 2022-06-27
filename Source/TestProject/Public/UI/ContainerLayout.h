@@ -20,7 +20,8 @@ public:
 	UContainerLayout();
 	
 	virtual void ToggleWindow() override;
-
+	virtual void OnButtonQuitClicked() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* ContainerGridPanel;
 	
@@ -30,17 +31,8 @@ public:
 	UPROPERTY()
 	TArray<USlotLayout*>ContainerSlotsArray;
 
-	UPROPERTY()
-	UTexture2D* Background_Slot;
-
-	UFUNCTION()
-	void UpdateContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows);
-
 private:
 	virtual void NativeConstruct() override;
-	virtual void InitializeSlots() override;
-	virtual void CreateChildWidgets() override;
-	virtual void SetIndexToChilds(uint8& IndexStart) override;
 
 	UPROPERTY()
 	uint8 InventorySize;
