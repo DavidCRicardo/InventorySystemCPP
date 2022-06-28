@@ -33,9 +33,6 @@ F : Collect Items, and, Use Pot <br>
 Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode" <br>
 Escape : Quit Game
 
-### Known Bugs
-At the moment, containers doesn't support multiplayer.
-
 ## Author 
 Developer: David Ricardo
 <br>
