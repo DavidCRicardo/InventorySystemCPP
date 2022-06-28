@@ -4,9 +4,7 @@
 #include "MyHUD.h"
 #include "FWidgetsLayoutBP.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/TextBlock.h"
 #include "UI/ContainerLayout.h"
-#include "UI/InteractText.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
 

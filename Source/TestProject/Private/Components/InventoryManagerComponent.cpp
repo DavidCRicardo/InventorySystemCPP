@@ -4,15 +4,15 @@
 #include "Components/InventoryManagerComponent.h"
 
 #include "ContainerActor.h"
+#include "EAttributes.h"
 #include "MyHUD.h"
-#include "MyPlayerController.h"
 #include "Components/UniformGridPanel.h"
-#include "GameFramework/PlayerState.h"
-#include "Inventory/FContainerInfo.h"
-#include "Net/UnrealNetwork.h"
 #include "UI/ContainerLayout.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
+#include "GameFramework/PlayerState.h"
+#include "Inventory/FContainerInfo.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UInventoryManagerComponent::UInventoryManagerComponent()
@@ -992,7 +992,7 @@ void UInventoryManagerComponent::UseConsumableItem(uint8 InventorySlot, FSlotStr
 {
 	// Do something depending on the item properties if needed
 	// ...
-	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+	if (Cast<AMyPlayerController>(GetOwner()))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Consuming this Item...")));
 		UE_LOG(LogTemp, Warning, TEXT("Consuming this Item..."))

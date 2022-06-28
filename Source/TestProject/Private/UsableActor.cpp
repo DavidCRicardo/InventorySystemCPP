@@ -2,7 +2,6 @@
 
 
 #include "UsableActor.h"
-#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Internationalization/StringTableRegistry.h"

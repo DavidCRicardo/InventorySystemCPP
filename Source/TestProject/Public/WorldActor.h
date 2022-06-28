@@ -32,8 +32,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool StartWithPhysicsEnabled;
+	UPROPERTY()
 	UDataTable* ItemDB;
-
 
 	UFUNCTION()
 	bool LoadItemFromList();

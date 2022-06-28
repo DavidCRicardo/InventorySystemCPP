@@ -16,7 +16,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/ContainerLayout.h"
 #include "UI/HUDLayout.h"
 
 
@@ -268,7 +267,7 @@ void AMyCharacter::Tick(float DeltaTime)
 	
 	for (AActor*& UsableActor : UsableActorsInsideRange)
 	{
-		if (AWorldActor* TempAWorldActor = Cast<AWorldActor>(UsableActor))
+		if (Cast<AWorldActor>(UsableActor))
 		{
 			return;
 		}

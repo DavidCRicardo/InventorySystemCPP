@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
-#include "Internationalization/StringTableRegistry.h"
 #include "WindowLayout.generated.h"
 
 /**

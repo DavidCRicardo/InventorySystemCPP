@@ -2,8 +2,6 @@
 
 
 #include "UI/WindowLayout.h"
-
-#include "DragItem.h"
 #include "DragWidget.h"
 #include "MyHUD.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
@@ -36,9 +34,9 @@ void UWindowLayout::SetTitleToWindow(FText Text)
 
 FEventReply UWindowLayout::RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	FEventReply reply;
-	reply.NativeReply = NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-	return reply;
+	FEventReply Reply;
+	Reply.NativeReply = NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	return Reply;
 }
 
 FReply UWindowLayout::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

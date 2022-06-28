@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EAttributes.h"
 #include "Components/InventoryComponent.h"
 #include "UObject/Interface.h"
 #include "InventoryInterface.generated.h"

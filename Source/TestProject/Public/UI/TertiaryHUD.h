@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "InteractiveText_Panel.h"
 #include "InteractText.h"
-#include "MyPlayerController.h"
-#include "UsableActor.h"
 #include "Blueprint/UserWidget.h"
 #include "TertiaryHUD.generated.h"
 

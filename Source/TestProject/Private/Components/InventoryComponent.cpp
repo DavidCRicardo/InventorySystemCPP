@@ -3,9 +3,6 @@
 
 #include "Components/InventoryComponent.h"
 
-#include "MyPlayerController.h"
-
-
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
 {

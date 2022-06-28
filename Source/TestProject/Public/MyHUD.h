@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "FWidgetsLayoutBP.h"
-#include "UsableActor.h"
 #include "GameFramework/HUD.h"
 #include "UI/ELayout.h"
 #include "UI/HUDLayout.h"

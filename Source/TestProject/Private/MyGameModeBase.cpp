@@ -3,7 +3,6 @@
 
 #include "MyGameModeBase.h"
 #include "MyPlayerController.h"
-#include "MyCharacter.h"
 #include "MyPawn.h"
 #include "MyHUD.h"
 
