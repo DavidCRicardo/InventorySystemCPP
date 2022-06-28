@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyCharacter.h"
+#include "Tuples.h"
 #include "Components/ActorComponent.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryComponent.generated.h"
@@ -16,12 +18,12 @@ class INVENTORYSYSTEMCPP_API UInventoryComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="NumberOfRows", Category="Inventory UI"))
 	uint8 NumberOfRowsInventory = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="RowsPerSlot", Category="Inventory UI"))
-	uint8 RowsPerSlotInventory = 0;
+	uint8 SlotsPerRowInventory = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory", Category="Inventory UI"))
 	TArray<FSlotStructure> Inventory;
@@ -29,34 +31,47 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
-	UDataTable* GetItemDB();
-	UPROPERTY();
-	UDataTable* ItemDB;
 
+	UDataTable* GetItemDB();
+	UPROPERTY()
+	UDataTable* ItemDB;
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 	
 	UFUNCTION(Server, Reliable)
-	void Server_InitInventory(const uint8& Size);
+	virtual void Server_InitInventory(uint8 InventorySize);
 	UFUNCTION()
-	void InitInventory(const uint8& Size);
+	void InitInventory(uint8 InventorySize);
 
 	UFUNCTION()
 	bool LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Array);
 
 	UFUNCTION()
+	virtual void ClearInventoryItem(uint8 InventorySlot);
+	UFUNCTION()
+	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item);
+
+	UFUNCTION()
+	FSlotStructure GetInventorySlot(uint8 InventorySlot);
+	UFUNCTION()
+	EEquipmentSlot GetEquipmentTypeBySlot(uint8 InventorySlot);
+	
+	UFUNCTION()
 	void GetInventoryItems(TArray<FSlotStructure>& InventoryItems);
 
+	/* If Item has Amount > 0 then is Valid and returns true, otherwise it is Invalid and returns false*/
 	UFUNCTION()
-	void SetInventoryItem(uint8& Index, FSlotStructure& Item);
-	UFUNCTION()
-	FSlotStructure GetInventorySlot(uint8 Index);
+	bool ItemIsValid(const FSlotStructure& Slot);
+
+	FReturnTupleBoolInt GetEmptyInventorySpace();
+	FReturnTupleBoolInt GetEmptyContainerSpace();
+	bool GetEmptyInventorySpace(uint8& OutIndex);
 
 	UFUNCTION()
-	void ClearInventorySlot(uint8 Index);
+	FSlotStructure GetInventoryItem(uint8 InventorySlot);
+	
 	UFUNCTION()
 	void PrintInventory();
 

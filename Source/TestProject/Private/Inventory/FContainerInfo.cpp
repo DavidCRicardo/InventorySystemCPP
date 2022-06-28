@@ -3,7 +3,8 @@
 FContainerInfo::FContainerInfo()
 {
 	ContainerName = "NULL";
-	SlotsPerRow = 4;
+	NumberOfRows = 3;
+	SlotsPerRow = 3;
 	IsStorageContainer = true;
-	StorageInventorySize = 4;
+	StorageInventorySize = 9;
 }

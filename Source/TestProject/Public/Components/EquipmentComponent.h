@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InventoryComponent.h"
-#include "MyCharacter.h"
 #include "EquipmentComponent.generated.h"
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORYSYSTEMCPP_API UEquipmentComponent : public UInventoryComponent
@@ -25,7 +23,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY()
+	virtual void ClearInventoryItem(uint8 InventorySlot) override;
+	virtual void SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item) override;
+
+	UFUNCTION()
+	virtual void UpdateEquippedMeshes(uint8 InventorySlot);
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta=(DisplayName="Equipment Character Reference", Category="Default", OverrideNativeName="EquipmentCharacterReference"))
 	AMyCharacter* EquipmentCharacterReference;
-	// EquipmentCharacter
 };

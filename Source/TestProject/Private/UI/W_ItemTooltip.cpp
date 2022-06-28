@@ -3,6 +3,7 @@
 
 #include "UI/W_ItemTooltip.h"
 #include "MyPlayerController.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "Item/FItemType.h"
 
 void UW_ItemTooltip::NativeConstruct()

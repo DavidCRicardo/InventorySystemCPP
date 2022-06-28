@@ -17,18 +17,12 @@ UProfileLayout::UProfileLayout()
 
 void UProfileLayout::ToggleWindow()
 {
-	// Avoid null slots (doesn't crash, purely design )
-	RefreshWindow(); 
-	
 	Super::ToggleWindow();
 }
 
 void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
-	//Outdated - Before Localization
-	//Super::SetTitleToWindow(FString("PROFILE"));
 	
 	//FText Text = NSLOCTEXT("MyNamespace", "PROFILEKey", "PROFILE");
 	//If you're using a string table, LOCTABLE for string literals, FromStringTable otherwise.
@@ -42,9 +36,13 @@ void UProfileLayout::NativeConstruct()
 
 	if(IsValid(PlayerController))
 	{
-		CreateChildWidgets();
     	InitializeSlots();
 		CreateAttributesEntry();
+
+		TArray<uint8> InitAttributes;
+		InitAttributes.Init(0, (uint8)EAttributes::Count);
+		
+		UpdatePlayerStatsUI(InitAttributes);
 	}
 }
 
@@ -78,7 +76,41 @@ void UProfileLayout::CreateChildWidgets()
 
 void UProfileLayout::InitializeSlots()
 {
-	RefreshWindow();
+	CreateChildWidgets();
+	uint8 FirstIndex = 0;
+	SetIndexToChilds(FirstIndex);
+}
+
+void UProfileLayout::SetIndexToChilds(uint8& IndexStart)
+{
+	//const FSlotStructure SlotStructure = PlayerController->InventoryManagerComponent->GetEmptySlot(EEquipmentSlot::Undefined);
+	FSlotStructure EmptySlot{};
+
+	for (int i = 0; i < EquipmentSlotsArray.Num(); i++)
+	{
+		if (i == 0)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
+		}
+		else if (i == 1)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
+		}
+		else if (i == 2)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
+		}
+		else if (i == 3)
+		{
+			EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
+		}
+
+		EquipmentSlotsArray[i]->UpdateSlot(EmptySlot);
+		EquipmentSlotsArray[i]->InventorySlotIndex = IndexStart;
+		EquipmentSlotsArray[i]->NativeFromInventory = true;
+
+		IndexStart++;
+	}
 }
 
 void UProfileLayout::CreateAttributesEntry()
@@ -95,62 +127,15 @@ void UProfileLayout::CreateAttributesEntry()
 	}
 }
 
-void UProfileLayout::RefreshWindow()
+void UProfileLayout::UpdatePlayerStatsUI(const TArray<uint8>& InAttributesArray)
 {
-	if (!IsValid(PlayerController) || !IsValid(PlayerController->InventoryManagerComponent))
-	{
-		return;
-	}
-
-	//if (!PlayerController->InventoryManagerComponent->Inventory.IsValidIndex(0))
-	if (!PlayerController->InventoryManagerComponent->PlayerInventory->Inventory.IsValidIndex(0))
+	TArray<UObject*> EntriesArray = Attributes_ListView->GetListItems();
+	if (EntriesArray.Num() <= 0)
 	{
 		return;
 	}
 	
-	
-	FSlotStructure CurrentSlot = {};
-	
-	for(int i = 0; i < (uint8)EEquipmentSlot::Count; i++)
-	{
-		CurrentSlot = PlayerController->InventoryManagerComponent->GetInventorySlot(i);
-
-		/* Update Empty Slot */
-		if(CurrentSlot.Amount <= 0){
-			FSlotStructure EmptySlot = {};
-			//CurrentSlot = PlayerController->InventoryComponent->GetEmptySlot(CurrentSlot.ItemStructure.EquipmentSlot);
-			if (i == 0)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Weapon");
-			}else if(i == 1)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Chest");
-			}else if(i == 2)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Feet");
-			}else if(i == 3)
-			{
-				EmptySlot = PlayerController->InventoryManagerComponent->GetItemFromItemDB("No_Hands");
-			}
-			CurrentSlot = EmptySlot;
-			PlayerController->InventoryManagerComponent->Client_SetInventorySlot(CurrentSlot, i);
-		}
-	
-		EquipmentSlotsArray[i]->UpdateSlot(CurrentSlot);
-	}
-
-	UpdatePlayerStatsUI();
-}
-
-void UProfileLayout::UpdatePlayerStatsUI()
-{
-	TArray<UObject*> Array = Attributes_ListView->GetListItems();
-	if (Array.Num() <= 0)
-	{
-		return;
-	}
-	
-	TArray<uint8> Attributes = PlayerController->GetPlayerAttributes();
+	TArray<uint8> Attributes = InAttributesArray;
 	
 	FFormatNamedArguments Args;
 	FText FormattedText;
@@ -187,10 +172,9 @@ void UProfileLayout::UpdatePlayerStatsUI()
 			);
 		}
 		
-		if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(Array[Index]))
+		if (UAttribute_Entry* Entry = Cast<UAttribute_Entry>(EntriesArray[Index]))
 		{
 			Entry->SetAttributeText(FormattedText);
-			Array[Index] = Entry;
 		}
 	}
 	Attributes_ListView->RegenerateAllEntries();

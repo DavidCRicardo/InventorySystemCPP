@@ -1,9 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI/InteractiveText_Entry.h"
-
 #include "MyPlayerController.h"
-#include "WorldActor.h"
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -13,10 +11,7 @@
 void UInteractiveText_Entry::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	//	const UDataTable* ItemTable = ItemDB;
-	//	FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(ID), "", true);
-
+	
 	if (IsValid(NameLabel))
 	{
 		NameLabel->SetText(FText::FromName("Default Text"));

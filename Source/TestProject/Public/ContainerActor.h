@@ -19,11 +19,14 @@ public:
 	
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
 
-	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
-	virtual UInventoryComponent* GetContainerInventory_Implementation() override;
+	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
+	virtual void GetContainerInventory_Implementation(UInventoryComponent*& OutInventoryComponent) override;
+	virtual TArray<APlayerState*> GetPlayersViewing_Implementation() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<APlayerState*> PlayersViewing;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -38,6 +41,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Name", Category="Properties"))
 	FName C_Name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
+	uint8 C_NumberOfRows;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
 	uint8 C_SlotsPerRow;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Can Store Items", Category="Properties"))

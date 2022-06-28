@@ -9,12 +9,6 @@
 
 AMyGameModeBase::AMyGameModeBase() //: Super()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/CharacterCPP/BP_MyCharacter"));
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
-	
 	ConstructorHelpers::FClassFinder<AMyPlayerController> PlayerControllerClassFinder(TEXT("/Script/TestProject.MyPlayerController"));
 	PlayerControllerClass = PlayerControllerClassFinder.Class;
 
@@ -23,4 +17,13 @@ AMyGameModeBase::AMyGameModeBase() //: Super()
 
 	ConstructorHelpers::FClassFinder<AMyHUD> HUDClassFinder(TEXT("/Script/TestProject.MyHUD"));
 	HUDClass = HUDClassFinder.Class;
+
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/CharacterCPP/BP_MyCharacter"));
+	if (PlayerPawnBPClass.Class != NULL)
+	{
+		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
+
+	/*static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Script/TestProject.MyCharacter"));
+	DefaultPawnClass = PlayerPawnBPClass.Class;*/
 }

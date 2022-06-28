@@ -3,11 +3,9 @@
 
 #include "MyCharacter.h"
 
-#include "MyHUD.h"
 #include "MyPlayerController.h"
 #include "UsableActor.h"
 #include "UsableActorInterface.h"
-#include "MyPlayerController.h"
 #include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
@@ -56,11 +54,7 @@ AMyCharacter::AMyCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
-	/**/
-	MyPlayerController = Cast<AMyPlayerController>(GetOwner());
-
-	/**/
+	
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
 
@@ -90,30 +84,7 @@ AMyCharacter::AMyCharacter()
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
 	
- 	/*// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	// Instantiating your class Components
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
-
-	//Set the location and rotation of the Character Mesh Transform
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FQuat(FRotator(0.0f, 0.0f, 0.0f)));
-
-	// Attaching your class Components to the default character's Skeletal Mesh Component.
-	SpringArmComp->SetupAttachment(GetMesh());
-	CameraComp->SetupAttachment(SpringArmComp,USpringArmComponent::SocketName);
-
-	//Setting class variables of the spring arm
-	SpringArmComp->bUsePawnControlRotation = true;
-
-	//Setting class variables of the Character movement component
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->bIgnoreBaseRotation = true;*/
-
 	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
-	
 }
 
 void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -249,10 +220,9 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 						UsableActorsInsideRange.Remove(UsableActor);
 
 						// At the moment, Containers are the only case that run the code until here
-						if(MyPlayerController->IsContainerVisible())
+						if(MyPlayerController->IsContainerOpen())
 						{
-							MyPlayerController->InventoryManagerComponent->Server_CloseContainer_Implementation();
-							//MyPlayerController->ToggleContainer();
+							MyPlayerController->InventoryManagerComponent->Server_CloseContainer();
 						}
 
 						return;
@@ -314,7 +284,6 @@ void AMyCharacter::Tick(float DeltaTime)
 				{
 					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
 					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
-
 				}
 				
 				TempUsableActor->SetScreenPosition(ScreenPosition);
@@ -325,52 +294,6 @@ void AMyCharacter::Tick(float DeltaTime)
 		}
 	}
 }
-
-// Server Events
-void AMyCharacter::Server_UpdateWeaponMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	MainWeaponMesh = NewMesh;
-	OnRep_MainWeaponMesh();
-}
-
-void AMyCharacter::Server_UpdateChestMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	ChestMesh = NewMesh;
-	OnRep_MainChestMesh();
-}
-
-void AMyCharacter::Server_UpdateFeetMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	FeetMesh = NewMesh;
-	OnRep_MainFeetMesh();
-}
-
-void AMyCharacter::Server_UpdateHandsMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	HandsMesh = NewMesh;
-	OnRep_MainHandsMesh();
-}
-
-bool AMyCharacter::Server_UpdateWeaponMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
-bool AMyCharacter::Server_UpdateChestMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
-bool AMyCharacter::Server_UpdateFeetMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
-bool AMyCharacter::Server_UpdateHandsMesh_Validate(USkeletalMesh* NewMesh)
-{
-	return true;
-}
-
 
 /* OnRep Functions */
 void AMyCharacter::OnRep_MainWeaponMesh()

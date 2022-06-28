@@ -49,9 +49,9 @@ void AMyHUD::BeginPlay()
 		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 	
-	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner()))
+	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
 	{
-		PC->SetupHUDReferences();
+		PlayerController->SetupHUDReferences();
 	}
 }
 
@@ -61,11 +61,6 @@ UUserWidget* AMyHUD::GetInteractWidget()
 	FWidgetsLayoutBP* NewWidgetData = nullptr;
 	
 	return CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
-}
-
-void AMyHUD::RefreshContainerSlotsUI(uint8 SlotsPerSow, uint8 NumberOfRows)
-{
-	HUDReference->MainLayout->Container->UpdateContainerSlotsUI(SlotsPerSow, NumberOfRows);
 }
 
 bool AMyHUD::IsAnyWidgetVisible()
@@ -108,22 +103,6 @@ void AMyHUD::ToggleWindow(const ELayout Layout)
 		{
 			HUDReference->MainLayout->Container->ToggleWindow();
 		}
-	}
-}
-
-void AMyHUD::RefreshWidgetUILayout(const ELayout Layout)
-{
-	if (Layout == ELayout::Inventory)
-	{
-		HUDReference->MainLayout->Inventory->RefreshWindow();
-	}
-	else if (Layout == ELayout::Equipment)
-	{
-		HUDReference->MainLayout->Profile->RefreshWindow();
-	}
-	else if (Layout == ELayout::Container)
-	{
-		HUDReference->MainLayout->Container->RefreshWindow();
 	}
 }
 

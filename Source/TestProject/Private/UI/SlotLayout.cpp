@@ -32,28 +32,13 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 {
 	if (NativeFromContainer)
 	{
-		//TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->Inventory;
-		TArray<FSlotStructure> LocalInventory = PlayerController->InventoryManagerComponent->PlayerInventory->Inventory;
-		uint8 NumberSlotsWithoutCountWithCurrentContainer = PlayerController->InventoryManagerComponent->NumberOfSlots - 9;
-		uint8 EmptySlotIndex = 0;
-		
-		for (uint8 Index = (uint8)EEquipmentSlot::Count; Index < NumberSlotsWithoutCountWithCurrentContainer; Index++)
-		{
-			if (LocalInventory[Index].Amount == 0)
-			{
-				EmptySlotIndex = Index;
-
-				break;
-			}
-		}
-		
-		PlayerController->UI_TakeContainerItem_Implementation(InventorySlotIndex, EmptySlotIndex);
+		IInventoryInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
 	}
 	else
 	{
 		if (HasItem())
 		{
-			PlayerController->UI_UseInventoryItem_Implementation(InventorySlotIndex);
+			IInventoryInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
 		}
 	}
 	
@@ -132,44 +117,44 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	
 	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
 
+	// Is Dragged From Inventory
 	if (DragDropOperation->IsDraggedFromInventory)
 	{
 		if (NativeFromContainer)
 		{
-			PlayerController->UI_DepositContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+			// Check If Unequipping
+			if (IsUnequipping(LocalDraggedSlot))
+			{
+				IInventoryInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				return true;
+			}
+			
+			IInventoryInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
-		
+
 		// Check If Unequipping
 		if (IsUnequipping(LocalDraggedSlot))
 		{
-			PlayerController->UI_UnEquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-			// Unequip Item From Equipment To Inventory
-			// Unequip Item To Inventory
-			
+			IInventoryInterface::Execute_UI_UnEquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
 		// Check If Equipping
 		if (IsEquipping(InventorySlotIndex))
 		{
-			PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-			// Equip Item From Inventory to Equipment
-			// Equip Item From Inventory
-
+			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
-		/*MoveItemsInInventory();
-		if (IsTryingToSplit())
+		bool bSplit = false;
+		if (bSplit)
 		{
-			Split();
-			return true;
-		}*/
-		
-		// MoveInventoryItem()
-		PlayerController->UI_MoveInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
-		//PlayerController->MoveInventoryItem(LocalDraggedSlot, InventorySlotIndex);
+				
+		}
+
+		// To Inventory
+		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
 		
 		return true;
@@ -178,18 +163,38 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	// Is Dragged From Container
 	if (DragDropOperation->IsDraggedFromContainer)
 	{
+		// To Inventory
 		if (NativeFromInventory)
 		{
-			PlayerController->UI_TakeContainerItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
+			// Are we Equipping
+			if (IsEquipping(InventorySlotIndex))
+			{
+				IInventoryInterface::Execute_UI_EquipFromContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				return true;
+			}
 
+			bool bSplit = false;
+			if (bSplit)
+			{
+				// ...
+				return true;
+			}
+			
+			IInventoryInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
-		
-		// Are we Equipping
-		if (IsEquipping(InventorySlotIndex))
-		{
-			PlayerController->UI_EquipInventoryItem_Implementation(LocalDraggedSlot, InventorySlotIndex);
 
+		// To Container
+		if (NativeFromContainer)
+		{
+			bool bSplit = false;
+			if (bSplit)
+			{
+				// ...
+				return true;
+			}
+			
+			IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}
@@ -205,7 +210,21 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 	// DragCancelled called when OnDrop returns false
 	
 	/* The Slot will stay bugged until the next Refresh() */
-	PlayerController->RefreshWidgets();
+	/*UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
+	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
+	{
+		return;
+	}
+
+	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
+	if (DragDropOperation->IsDraggedFromInventory)
+	{
+		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+
+	}else if (DragDropOperation->IsDraggedFromContainer)
+	{
+		IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+	}*/
 }
 
 void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
@@ -220,21 +239,31 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SlotStructure = NewSlotStructure;
 	
-	if (HasItem())
+	if (!HasItem() || (InventorySlotIndex < (uint8)EEquipmentSlot::Count && NativeFromInventory))
 	{
-		// if (thisSlotNativeFromProfile)
-		//if (InventorySlotIndex < (uint8)EEquipmentSlot::Count)
-		//{
-		//	AmountTextBlock->SetText(FText::FromString(""));
-		//}
-		//else
-		//{
-			AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
-		//}
+		AmountTextBlock->SetText(FText::FromString(""));
 	}
 	else
 	{
+		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
+	}
+
+	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
+	ItemBorder->SetBrushColor(GetBorderColor());
+	ItemBorder->SetVisibility(ESlateVisibility::Visible);
+
+	ToggleTooltip();
+}
+
+void USlotLayout::UpdateSlot2()
+{
+	if (!HasItem() || (InventorySlotIndex < (uint8)EEquipmentSlot::Count && NativeFromInventory))
+	{
 		AmountTextBlock->SetText(FText::FromString(""));
+	}
+	else
+	{
+		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
 	}
 
 	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
