@@ -29,8 +29,6 @@ void UEquipmentComponent::UpdateEquippedMeshes(uint8 InventorySlot)
 {
 	if (IsValid(EquipmentCharacterReference))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CHARACTER REFERENCE VALID"))
-		
 		if (InventorySlot < (uint8)EEquipmentSlot::Count)
 		{
 			FSlotStructure Slot = GetInventoryItem(InventorySlot);

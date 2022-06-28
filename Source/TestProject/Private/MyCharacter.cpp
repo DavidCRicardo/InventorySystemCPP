@@ -54,11 +54,7 @@ AMyCharacter::AMyCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
-	/**/
-	//MyPlayerController = Cast<AMyPlayerController>(GetOwner());
-
-	/**/
+	
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
 
@@ -88,30 +84,7 @@ AMyCharacter::AMyCharacter()
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
 	
- 	/*// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	// Instantiating your class Components
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
-
-	//Set the location and rotation of the Character Mesh Transform
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FQuat(FRotator(0.0f, 0.0f, 0.0f)));
-
-	// Attaching your class Components to the default character's Skeletal Mesh Component.
-	SpringArmComp->SetupAttachment(GetMesh());
-	CameraComp->SetupAttachment(SpringArmComp,USpringArmComponent::SocketName);
-
-	//Setting class variables of the spring arm
-	SpringArmComp->bUsePawnControlRotation = true;
-
-	//Setting class variables of the Character movement component
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->bIgnoreBaseRotation = true;*/
-
 	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
-	
 }
 
 void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -275,7 +248,6 @@ void AMyCharacter::BeginPlay()
 	/* Overlap Events */
 	InteractionField->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnBeginOverlap);
 	InteractionField->OnComponentEndOverlap.AddDynamic(this, &AMyCharacter::OnEndOverlap);
-
 }
 
 // Called every frame
@@ -321,31 +293,6 @@ void AMyCharacter::Tick(float DeltaTime)
 			}
 		}
 	}
-}
-
-// Server Events
-void AMyCharacter::Server_UpdateWeaponMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	MainWeaponMesh = NewMesh;
-	OnRep_MainWeaponMesh();
-}
-
-void AMyCharacter::Server_UpdateChestMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	ChestMesh = NewMesh;
-	OnRep_MainChestMesh();
-}
-
-void AMyCharacter::Server_UpdateFeetMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	FeetMesh = NewMesh;
-	OnRep_MainFeetMesh();
-}
-
-void AMyCharacter::Server_UpdateHandsMesh_Implementation(USkeletalMesh* NewMesh)
-{
-	HandsMesh = NewMesh;
-	OnRep_MainHandsMesh();
 }
 
 /* OnRep Functions */

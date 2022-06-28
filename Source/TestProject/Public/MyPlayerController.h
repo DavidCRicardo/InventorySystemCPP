@@ -97,7 +97,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	virtual void SetupInputComponent() override;
-
+	
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void Interact();
 	

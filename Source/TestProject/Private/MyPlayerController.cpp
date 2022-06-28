@@ -36,6 +36,7 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("QuitGame", IE_Pressed, this, &AMyPlayerController::QuitGame);
 
 }
+
 void AMyPlayerController::QuitGame()
 {
 	FGenericPlatformMisc::RequestExit(false);

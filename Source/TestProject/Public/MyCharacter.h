@@ -98,18 +98,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainHandsMesh", meta=(DisplayName="Main Hands Mesh", Category="Inventory|Equipment"))
 	USkeletalMesh* HandsMesh;
 	
-	UFUNCTION(Server, Reliable)
-	void Server_UpdateWeaponMesh(USkeletalMesh* NewMesh);
-	
-	UFUNCTION(Server, Reliable)
-	void Server_UpdateChestMesh(USkeletalMesh* NewMesh);
-	
-	UFUNCTION(Server, Reliable)
-	void Server_UpdateFeetMesh(USkeletalMesh* NewMesh);
-
-	UFUNCTION(Server, Reliable)
-	void Server_UpdateHandsMesh(USkeletalMesh* NewMesh);
-	
 	UFUNCTION(meta=(OverrideNativeName="OnRep_MainWeaponMesh"))
 	void OnRep_MainWeaponMesh();
 
