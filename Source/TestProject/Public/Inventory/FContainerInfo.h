@@ -16,6 +16,9 @@ struct INVENTORYSYSTEMCPP_API FContainerInfo
 	FName ContainerName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
+	uint8 NumberOfRows;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	uint8 SlotsPerRow;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")

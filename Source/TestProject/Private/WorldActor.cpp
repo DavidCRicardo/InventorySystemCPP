@@ -17,13 +17,23 @@ AWorldActor::AWorldActor()
 	ID = FName(TEXT("None"));
 	Amount = 1;
 	StartWithPhysicsEnabled = true;
+
+	// Get ItemDB 
+	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+	if (BP_ItemDB.Succeeded())
+	{
+		ItemDB = BP_ItemDB.Object;
+	}else{
+		UE_LOG(LogTemp, Warning, TEXT ("ItemDB DataTable not found!!"));
+	}
 }
 
 // Called when the game starts or when spawned
 void AWorldActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Server_InitializeItemData();
 }
 
 // Called every frame
@@ -32,54 +42,50 @@ void AWorldActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-bool AWorldActor::LoadItemFromList()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("LoadItemFromList being called"));
-
-	return true;
-}
-
-void AWorldActor::UpdateItemAmount()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("UpdateItemAmount being called"));
-
-}
-
-bool AWorldActor::Server_InitializeItemData_Validate()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Server_InitializeItemData_Validate being called"));
-
-	return true;
-}
-
 void AWorldActor::Server_InitializeItemData_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Server_InitializeItemData_Implementation being called"));
+	LoadItemFromList();
+}
+
+bool AWorldActor::LoadItemFromList()
+{
+	FItemStructure* NewItemData = ItemDB->FindRow<FItemStructure>(FName(ID), "", true);
+
+	if (!NewItemData)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Loading Item... returned NULL."));
+		return false;
+	}
+
+	InventoryItem.InitSlot(*NewItemData, Amount);
+	
+	InventoryItem.Amount = Amount;
+	InventoryItem.ItemStructure = *NewItemData;
+
+	return true;
 }
 
 bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 {
 	if (HasAuthority())
 	{
-		// Not Tested
-		/*if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+		if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(Controller))
 		{
 			bool OutSuccess = false;
-			auto a = PlayerController->PlayerInventoryComponent;
-			PlayerController->InventoryManagerComponent->TryToAddItemToInventory(a, OutSuccess);
+			UInventoryComponent* InventoryComp = PlayerController->PlayerInventoryComponent;
+			
+			PlayerController->InventoryManagerComponent->TryToAddItemToInventory(InventoryComp, InventoryItem, OutSuccess);
 
 			if (OutSuccess)
 			{
 				Destroy();
-
-				return Super::OnActorUsed_Implementation(Controller);
 			}
-		}*/
-		
-		Destroy();
+			
+			return Super::OnActorUsed_Implementation(Controller);
+		}
 	}
 	
-	return Super::OnActorUsed_Implementation(Controller);
+	return false;
 }
 
 void AWorldActor::OnRep_WorldMesh()
@@ -89,6 +95,7 @@ void AWorldActor::OnRep_WorldMesh()
 	StaticMesh->SetStaticMesh(WorldMesh);
 }
 
-
-
-
+void AWorldActor::UpdateItemAmount()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("UpdateItemAmount being called"));
+}

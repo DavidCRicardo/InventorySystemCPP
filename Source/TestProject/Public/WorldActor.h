@@ -32,17 +32,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool StartWithPhysicsEnabled;
+	UDataTable* ItemDB;
 
-	
+
 	UFUNCTION()
 	bool LoadItemFromList();
 	UFUNCTION()
 	void UpdateItemAmount();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void Server_InitializeItemData();
-	bool Server_InitializeItemData_Validate();
-	void Server_InitializeItemData_Implementation();
 	
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
 

@@ -2,6 +2,8 @@
 
 
 #include "MyPlayerController.h"
+
+#include "ContainerActor.h"
 #include "MyHUD.h"
 #include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
@@ -10,8 +12,13 @@
 AMyPlayerController::AMyPlayerController()
 {
 	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>(TEXT("InventoryComponent"));
+	InventoryManagerComponent->SetIsReplicated(true);
 	
 	PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+
+	CharacterReference = nullptr;
+	
+	bReplicates = true;
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -29,6 +36,7 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("QuitGame", IE_Pressed, this, &AMyPlayerController::QuitGame);
 
 }
+
 void AMyPlayerController::QuitGame()
 {
 	FGenericPlatformMisc::RequestExit(false);
@@ -38,18 +46,34 @@ void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CharacterReference = Cast<AMyCharacter>(GetPawn());
+	DisableInput(this);
 
-	// Server: Initialize Inventory
-	PlayerInventoryComponent->EquipmentCharacterReference = CharacterReference;
+	if (HasAuthority())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Server")));
+	}else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Client")));
+	}
 
-	InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
+	// Delay: 1 second
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("This text will appear in the console 3 seconds after execution"))
 
-	InventoryManagerComponent->CharacterReference = CharacterReference;
-	
-	InventoryManagerComponent->Server_InitInventory_Implementation();
+		CharacterReference = Cast<AMyCharacter>(GetPawn());
 
-	InventoryManagerComponent->InitializePlayerAttributes();
+		PlayerInventoryComponent->EquipmentCharacterReference = CharacterReference;
+		InventoryManagerComponent->InitializeInventoryManager(PlayerInventoryComponent);
+		
+		// Server: Initialize Inventory
+		InventoryManagerComponent->Server_InitInventory();
+
+		InventoryManagerComponent->InitializePlayerAttributes();
+
+		EnableInput(this);
+	}, 1, false);
 }
 
 void AMyPlayerController::SetupHUDReferences()
@@ -66,146 +90,77 @@ void AMyPlayerController::SetupHUDReferences()
 	}
 }
 
-void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
-{
-	InventoryManagerComponent->UseInventoryItem(InventorySlot);
-	
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-}
-
 void AMyPlayerController::UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot,
-	const uint8& ToInventorySlot)
+                                                              const uint8& ToInventorySlot)
 {
-	if (InventoryManagerComponent->MoveInventoryItem(FromInventorySlot, ToInventorySlot))
-	{
-		HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	}
+	InventoryManagerComponent->Server_MoveInventoryItem(FromInventorySlot, ToInventorySlot);
 }
 
-void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& InventorySlot)
+void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
-	IInventoryInterface::UI_DropInventoryItem_Implementation(InventorySlot);
+	InventoryManagerComponent->Server_MoveContainerItem(FromInventorySlot, ToInventorySlot);
+}
 
-	InventoryManagerComponent->Server_DropItemFromInventory_Implementation(InventorySlot);
-	RefreshWidgets();
+void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	InventoryManagerComponent->Server_DepositContainerItem(FromInventorySlot, ToInventorySlot);
+}
+
+void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot)
+{
+	InventoryManagerComponent->Server_TakeContainerItem(FromContainerSlot, ToInventorySlot);
 }
 
 void AMyPlayerController::UI_EquipInventoryItem_Implementation(const uint8& FromInventorySlot,
                                                                const uint8& ToInventorySlot)
 {
-	IInventoryInterface::UI_EquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
-
-	InventoryManagerComponent->Server_EquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
-	RefreshWidgets();
+	InventoryManagerComponent->Server_EquipFromInventory(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot,
 	const uint8& ToInventorySlot)
 {
-	IInventoryInterface::UI_UnEquipInventoryItem_Implementation(FromInventorySlot, ToInventorySlot);
-
-	InventoryManagerComponent->Server_UnEquipFromInventory_Implementation(FromInventorySlot, ToInventorySlot);
-	RefreshWidgets();
+	InventoryManagerComponent->Server_UnEquipToInventory(FromInventorySlot, ToInventorySlot);
 }
 
-void AMyPlayerController::UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+void AMyPlayerController::UI_DropInventoryItem_Implementation(const uint8& InventorySlot)
 {
-
-	RefreshWidgets();
+	InventoryManagerComponent->Server_DropItemFromInventory(InventorySlot);
 }
 
-void AMyPlayerController::UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+void AMyPlayerController::UI_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
-	InventoryManagerComponent->Server_DepositContainerItem_Implementation(FromInventorySlot, ToInventorySlot);
-	RefreshWidgets();
+	InventoryManagerComponent->Server_UseInventoryItem(InventorySlot);
 }
 
-void AMyPlayerController::UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot)
+void AMyPlayerController::UI_UseContainerItem_Implementation(const uint8& InventorySlot)
 {
-	InventoryManagerComponent->Server_TakeContainerItem_Implementation(FromContainerSlot, ToInventorySlot);
-	RefreshWidgets();
+	InventoryManagerComponent->Server_UseContainerItem(InventorySlot);
+}
+
+void AMyPlayerController::UI_EquipFromContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	InventoryManagerComponent->Server_EquipFromContainer(FromInventorySlot, ToInventorySlot);
+}
+
+void AMyPlayerController::UI_UnEquipToContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
+{
+	InventoryManagerComponent->Server_UnEquipToContainer(FromInventorySlot, ToInventorySlot);
 }
 
 void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 {
 	OnActorUsed(Actor);
 }
+
 void AMyPlayerController::OnActorUsed(AActor* Actor)
 {
 	if (HasAuthority())
 	{
 		if (IsValid(Actor))
 		{
-			if(AWorldActor* WorldActor = Cast<AWorldActor>(Actor))
-			{
-				WorldActor->OnActorUsed_Implementation(this);
-				
-				//InventoryManagerComponent->Server_RefreshInventorySlots();
-				//InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-
-				return;
-			}
-
-			/*if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
-			{	
-				UsableActor->OnActorUsed_Implementation(this);
-				return;
-			}*/
-			
-			if (AContainerActor* ContainerActor = Cast<AContainerActor>(Actor))
-			{	
-				ContainerActor->OnActorUsed_Implementation(this);
-
-				return;
-			}
+			IUsableActorInterface::Execute_OnActorUsed(Actor, this);
 		}
-	}
-}
-
-void AMyPlayerController::Server_OnActorDropped_Implementation(FSlotStructure LocalSlot)
-{
-	OnActorDropped(LocalSlot);
-}
-
-void AMyPlayerController::OnActorDropped(FSlotStructure LocalSlot)
-{
-	UClass* LocalClass = LocalSlot.ItemStructure.Class;
-
-	// Drop at character feet
-	FVector LocalLocation {0.0f, 0.0f, -98.0f};
-			
-	FVector PawnLocation = GetPawn()->GetActorLocation();
-
-	//Drop Distance Range From Character
-	//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
-	const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
-	FVector DistanceFromPawn {(float)DropDistanceRangeX,1.0f,1.0f};
-
-	// Drop Items 360 Degrees Around Player
-	const float DropItemsRotation = FMath::FRandRange(-180, 180);
-	//FRotator Rotation {1.0f, DropItemsRotation, DropItemsRotation}; // Drop Around Player
-	FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
-
-	FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
-
-	FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated; 
-
-	// Give The Dropped Object A Random Rotation
-	// const int8 RandomRotation = FMath::RandRange(-10, 10);
-	// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
-	FRotator FinalRotator {1.0f, 1.0f, 1.0f};
-
-	FVector FinalScale {1.0f,1.0f,1.0f};
-		
-	FTransform OutTransform {};
-	OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
-	
-	// Spawn World Actor
-	AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(LocalClass, OutTransform);
-	if (WActor)
-	{
-		WActor->Amount = LocalSlot.Amount;
 	}
 }
 
@@ -305,14 +260,7 @@ void AMyPlayerController::Interact()
 	}
 }
 
-void AMyPlayerController::UseWorldActor(AWorldActor* WorldActor)
-{
-	Server_OnActorUsed(WorldActor);
-
-	InventoryManagerComponent->AddItem(WorldActor->ID, WorldActor->Amount);
-}
-
-bool AMyPlayerController::IsContainerVisible()
+bool AMyPlayerController::IsContainerOpen()
 {
 	return HUD_Reference->HUDReference->MainLayout->Container->IsVisible();
 }
@@ -325,9 +273,8 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 		{
 			if (WorldActor->ID == Name)
 			{
-				UseWorldActor(WorldActor);
+				Server_OnActorUsed(WorldActor);
 				
-				HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
 				return;
 			}
 		}
@@ -391,55 +338,6 @@ void AMyPlayerController::RemoveUsableActorToDropMenu(const FName& ID)
 		HUD_Reference->HUDReference->TertiaryHUD->RemoveInteractiveTextEntry(ID);
 	}
 }
-
-void AMyPlayerController::RefreshWidgets()
-{
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Inventory);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Equipment);
-	HUD_Reference->RefreshWidgetUILayout(ELayout::Container);
-}
-
-
-void AMyPlayerController::AddItemToInventoryAndToIndex(TArray<FSlotStructure> Inventory, FSlotStructure& ContentToAdd, const uint8& InventorySlot)
-{
-	//Inventory[InventorySlot] = ContentToAdd;
-	InventoryManagerComponent->PlayerInventory->Inventory[InventorySlot] = ContentToAdd;
-}
-
-TArray<uint8> AMyPlayerController::GetPlayerAttributes()
-{
-	return InventoryManagerComponent->AttributesArray;
-}
-
-void AMyPlayerController::RefreshContainerUI(uint8 SlotsPerRow, uint8 NumberOfRows)
-{
-	HUD_Reference->RefreshContainerSlotsUI(SlotsPerRow, NumberOfRows);
-}
-
-FSlotStructure AMyPlayerController::GetItemFrom(TArray<FSlotStructure> Inventory, const int8& SlotIndex)
-{
-	//return Inventory[SlotIndex];
-	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
-}
-
-FSlotStructure AMyPlayerController::GetItemFromInventory(const int8& SlotIndex)
-{
-	//return InventoryManagerComponent->Inventory[SlotIndex];
-	return InventoryManagerComponent->PlayerInventory->Inventory[SlotIndex];
-}
-
-/*void AMyPlayerController::PrintInventory()
-{
-	for (int i = 0; i < InventoryManagerComponent->NumberOfSlots; i++)
-	{
-		FText a = InventoryManagerComponent->Inventory[i].ItemStructure.Name;
-		uint8 b = InventoryManagerComponent->Inventory[i].Amount;
-		//uint8 c = W_InventoryLayout->InventorySlotsArray[i]->InventorySlotIndex;
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i"),*a.ToString(), b));
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s , Amount %i, Index: %i"), *a.ToString(), b, c));
-	}
-}*/
 
 UDataTable* AMyPlayerController::GetItemDB()
 {

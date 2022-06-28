@@ -15,7 +15,6 @@ public:
 	UProfileLayout();
 	
 	virtual void ToggleWindow() override;
-	virtual void RefreshWindow() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UUniformGridPanel* EquipmentGridPanel;
@@ -25,17 +24,17 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UListView* Attributes_ListView;
-
+	
+	UFUNCTION()
+	void UpdatePlayerStatsUI(const TArray<uint8>& InAttributesArray);
 private:
 	virtual void NativeConstruct() override;
 	virtual void CreateChildWidgets() override;
 	virtual void InitializeSlots() override;
+	virtual void SetIndexToChilds(uint8& IndexStart) override;
 
 	UFUNCTION()
 	void CreateAttributesEntry();
-	
-	UFUNCTION()
-	void UpdatePlayerStatsUI();
 
 	UPROPERTY()
 	uint8 NumberOfColumns;

@@ -1,5 +1,4 @@
 ﻿#include "UI/InteractiveText_Panel.h"
-
 #include "MyPlayerController.h"
 #include "Components/Image.h"
 #include "Components/ListView.h"

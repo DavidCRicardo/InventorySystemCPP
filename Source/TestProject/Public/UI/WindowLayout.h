@@ -20,9 +20,6 @@ public:
 	UFUNCTION()
 	virtual void ToggleWindow();
 	
-	UFUNCTION()
-	virtual void RefreshWindow();
-	
 	UPROPERTY(EditAnywhere, Category = "Default")
 	TSubclassOf<UUserWidget> WidgetClass;
 

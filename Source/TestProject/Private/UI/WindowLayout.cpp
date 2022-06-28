@@ -58,10 +58,6 @@ void UWindowLayout::ToggleWindow()
 		SetVisibility(ESlateVisibility::Hidden);
 	}
 }
-/*Testing Description 2*/
-void UWindowLayout::RefreshWindow()
-{
-}
 
 void UWindowLayout::InitializeSlots()
 {

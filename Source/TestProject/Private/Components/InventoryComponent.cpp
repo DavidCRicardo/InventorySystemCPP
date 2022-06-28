@@ -33,7 +33,6 @@ void UInventoryComponent::BeginPlay()
 	
 }
 
-
 // Called every frame
 void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                         FActorComponentTickFunction* ThisTickFunction)
@@ -43,29 +42,44 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
-void UInventoryComponent::Server_InitInventory_Implementation(const uint8& InventorySize)
+void UInventoryComponent::Server_InitInventory_Implementation(uint8 InventorySize)
 {
 	InitInventory(InventorySize);
 }
 
-void UInventoryComponent::InitInventory(const uint8& Size)
+void UInventoryComponent::InitInventory(uint8 InventorySize)
 {
-	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+	Inventory.Reserve(InventorySize);
+
+	FSlotStructure SlotStructure = {};
+	Inventory.Init(SlotStructure, InventorySize);
+
+	// Add Customized Icons to Slots
+	for (uint8 Index = 0; Index < Inventory.Num(); Index++)
 	{
-		Inventory.Reserve(Size);
-
-		FSlotStructure SlotStructure = {};
-		Inventory.Init(SlotStructure, Size);
-
-	}else
-	{
-		// Cast Failed on Containers
-
-		// If inventory is empty
-		Inventory.Reserve(Size);
-
-		FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-		Inventory.Init(SlotStructure, Size);
+		if (Index == 0)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Weapon);
+		}
+		else if (Index == 1)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);
+		}
+		else if (Index == 2)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Feet);
+		}
+		else if (Index == 3)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Hands);
+		}
+		else
+		{
+			// Default Icon
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+		}
+		//Inventory.Add(SlotStructure);
+		Inventory[Index] = SlotStructure;
 	}
 }
 
@@ -78,13 +92,8 @@ bool UInventoryComponent::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> 
 {
 	Inventory.Reset();
 	FSlotStructure TempSlot = {};
-
-	/*if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>())
-	{
-		
-	}*/
+	
 	FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-
 	
 	for (uint8 i = 0; i < Size - 1; i++)
 	{
@@ -136,19 +145,47 @@ FSlotStructure UInventoryComponent::GetItemFromItemDB(const FName Name)
 	return Slot;
 }
 
-void UInventoryComponent::SetInventoryItem(uint8& Index, FSlotStructure& Item)
+UDataTable* UInventoryComponent::GetItemDB()
 {
-	Inventory[Index] = Item;
+	return nullptr;
 }
 
-FSlotStructure UInventoryComponent::GetInventorySlot(uint8 Index)
+void UInventoryComponent::SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item)
 {
-	return Inventory[Index];
+	Inventory[InventorySlot] = Item;
 }
 
-void UInventoryComponent::ClearInventorySlot(uint8 Index)
+FSlotStructure UInventoryComponent::GetInventoryItem(uint8 InventorySlot)
+{	
+	if (Inventory.Num() > 0)
+	{
+		if (Inventory[InventorySlot].Amount > 0)
+		{
+			return Inventory[InventorySlot];
+		}
+	}
+	return GetEmptySlot(EEquipmentSlot::Undefined);
+}
+
+EEquipmentSlot UInventoryComponent::GetEquipmentTypeBySlot(uint8 InventorySlot)
 {
-	Inventory[Index].Amount = 0;
+	return Inventory[InventorySlot].ItemStructure.EquipmentSlot;
+}
+
+FSlotStructure UInventoryComponent::GetInventorySlot(uint8 InventorySlot)
+{
+	return Inventory[InventorySlot];
+}
+
+void UInventoryComponent::ClearInventoryItem(uint8 InventorySlot)
+{
+	//Inventory[Index].Amount = 0;
+	EEquipmentSlot EquipmentSlot = EEquipmentSlot::Undefined;
+	if (InventorySlot < (uint8)EEquipmentSlot::Count)
+	{
+		EquipmentSlot = Inventory[InventorySlot].ItemStructure.EquipmentSlot;
+	}
+	Inventory[InventorySlot] = GetEmptySlot(EquipmentSlot);
 }
 
 void UInventoryComponent::PrintInventory()
@@ -160,4 +197,74 @@ void UInventoryComponent::PrintInventory()
 
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i, Index: %i"),*a.ToString(), b, i));
 	}
+}
+
+FReturnTupleBoolInt UInventoryComponent::GetEmptyContainerSpace()
+{
+	int8 LocalInteger = -1;
+	bool LocalBoolean = false;
+	
+	for (uint8 ArrayIndex = 0; ArrayIndex < Inventory.Num(); ArrayIndex++)
+	{
+		FSlotStructure Slot = Inventory[ArrayIndex];
+		if (!ItemIsValid(Slot))
+		{
+			LocalInteger = ArrayIndex;
+			LocalBoolean = true;
+			break;
+		}
+	}
+
+	if (LocalBoolean)
+	{
+		return {true, LocalInteger};
+	}
+	return {false, 0};
+}
+
+
+bool UInventoryComponent::GetEmptyInventorySpace(uint8& OutIndex)
+{
+	for(uint8 Index = (uint8)EEquipmentSlot::Count; Index < Inventory.Num(); Index++)
+	{
+		FSlotStructure Slot = Inventory[Index];
+		if (!ItemIsValid(Slot))
+		{
+			OutIndex = Index;
+			return true;
+		}
+	}
+	return false;
+}
+
+FReturnTupleBoolInt UInventoryComponent::GetEmptyInventorySpace()
+{
+	int8 LocalInteger = -1;
+	bool LocalBoolean = false;
+	
+	for (uint8 ArrayIndex = (uint8)EEquipmentSlot::Count; ArrayIndex < Inventory.Num(); ArrayIndex++)
+	{
+		FSlotStructure Slot = Inventory[ArrayIndex];
+		if (!ItemIsValid(Slot))
+		{
+			LocalInteger = ArrayIndex;
+			LocalBoolean = true;
+			break;
+		}
+	}
+
+	if (LocalBoolean)
+	{
+		return {true, LocalInteger};
+	}
+	return {false, 0};
+}
+
+bool UInventoryComponent::ItemIsValid(const FSlotStructure& Slot)
+{
+	if (Slot.Amount > 0)
+	{
+		return true;
+	}
+	return false;
 }
