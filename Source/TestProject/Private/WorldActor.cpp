@@ -7,7 +7,6 @@
 #include "Components/InventoryManagerComponent.h"
 #include "Net/UnrealNetwork.h"
 
-
 // Sets default values
 AWorldActor::AWorldActor()
 {
@@ -17,21 +16,21 @@ AWorldActor::AWorldActor()
 	ID = FName(TEXT("None"));
 	Amount = 1;
 	StartWithPhysicsEnabled = true;
-
-	// Get ItemDB 
-	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
-	if (BP_ItemDB.Succeeded())
-	{
-		ItemDB = BP_ItemDB.Object;
-	}else{
-		UE_LOG(LogTemp, Warning, TEXT ("ItemDB DataTable not found!!"));
-	}
 }
 
 // Called when the game starts or when spawned
 void AWorldActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UDataTable* BP_ItemDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+	if (IsValid(BP_ItemDB))
+	{
+		ItemDB = BP_ItemDB;
+	}else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UDataTable not Loaded"))
+	}
 	
 	Server_InitializeItemData();
 }
