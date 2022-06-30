@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SlotLayout.h"
 #include "WindowLayout.h"
 #include "InventoryLayout.generated.h"
 
+class USlotLayout;
 /**
  * 
  */

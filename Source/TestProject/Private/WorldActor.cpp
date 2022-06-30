@@ -2,9 +2,9 @@
 
 
 #include "WorldActor.h"
-
-#include "MyHUD.h"
 #include "MyPlayerController.h"
+#include "Components/EquipmentComponent.h"
+#include "Components/InventoryManagerComponent.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -32,7 +32,7 @@ AWorldActor::AWorldActor()
 void AWorldActor::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	Server_InitializeItemData();
 }
 

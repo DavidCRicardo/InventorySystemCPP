@@ -16,9 +16,6 @@ class INVENTORYSYSTEMCPP_API UInteractText : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	//UPROPERTY(meta = (BindWidget))
-	//class UTextBlock* KeyToInteract;
-	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* InteractText;
 	

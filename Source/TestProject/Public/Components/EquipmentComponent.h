@@ -6,6 +6,7 @@
 #include "InventoryComponent.h"
 #include "EquipmentComponent.generated.h"
 
+class AMyCharacter;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORYSYSTEMCPP_API UEquipmentComponent : public UInventoryComponent
 {

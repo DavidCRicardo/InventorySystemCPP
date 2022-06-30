@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "Item/FItemStructure.h"
 #include "FSlotStructure.generated.h"
 

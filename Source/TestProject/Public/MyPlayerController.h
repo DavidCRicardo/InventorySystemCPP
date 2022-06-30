@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "InventoryInterface.h"
-#include "WorldActor.h"
-#include "Components/EquipmentComponent.h"
-#include "Components/InventoryManagerComponent.h"
 #include "MyPlayerController.generated.h"
 
+class UDataTable;
+class AMyCharacter;
+class UEquipmentComponent;
+class UInventoryManagerComponent;
 static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
 
 /**

@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MainLayout.h"
-#include "TertiaryHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "HUDLayout.generated.h"
 
+class UTertiaryHUD;
+class UMainLayout;
 /**
  * 
  */

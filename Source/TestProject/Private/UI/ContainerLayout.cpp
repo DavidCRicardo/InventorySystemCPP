@@ -2,8 +2,7 @@
 
 
 #include "UI/ContainerLayout.h"
-
-#include "MyHUD.h"
+#include "Components/InventoryManagerComponent.h"
 #include "Internationalization/StringTableRegistry.h"
 
 UContainerLayout::UContainerLayout()

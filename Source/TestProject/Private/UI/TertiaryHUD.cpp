@@ -2,10 +2,11 @@
 
 
 #include "UI/TertiaryHUD.h"
-
 #include "FWidgetsLayoutBP.h"
 #include "MyHUD.h"
+#include "MyPlayerController.h"
 #include "UI/InteractiveText_Entry.h"
+#include "UI/InteractiveText_Panel.h"
 
 void UTertiaryHUD::NativeConstruct()
 {

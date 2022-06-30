@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractiveText_Panel.h"
-#include "InteractText.h"
 #include "Blueprint/UserWidget.h"
 #include "TertiaryHUD.generated.h"
 
+class AMyPlayerController;
+class UInteractiveText_Panel;
+class UInteractText;
 /**
  * 
  */
@@ -37,5 +38,4 @@ public:
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
-	
 };

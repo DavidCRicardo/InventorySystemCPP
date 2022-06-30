@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MyCharacter.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
+#include "Item/EEquipmentSlot.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryComponent.generated.h"
 
-
+class UDataTable;
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class INVENTORYSYSTEMCPP_API UInventoryComponent : public UActorComponent
 {

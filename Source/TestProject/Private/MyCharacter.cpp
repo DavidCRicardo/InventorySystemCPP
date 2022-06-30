@@ -10,14 +10,13 @@
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/InventoryManagerComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/HUDLayout.h"
-
 
 // Sets default values
 AMyCharacter::AMyCharacter()

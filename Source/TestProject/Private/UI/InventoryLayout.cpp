@@ -2,10 +2,14 @@
 
 
 #include "UI/InventoryLayout.h"
+
+#include "FWidgetsLayoutBP.h"
 #include "UI/SlotLayout.h"
 #include "MyHUD.h"
 #include "MyPlayerController.h"
+#include "Components/InventoryManagerComponent.h"
 #include "Components/UniformGridPanel.h"
+#include "Internationalization/StringTableRegistry.h"
 
 UInventoryLayout::UInventoryLayout()
 {

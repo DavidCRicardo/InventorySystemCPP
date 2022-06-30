@@ -2,10 +2,15 @@
 
 
 #include "UI/ProfileLayout.h"
+
+#include "EAttributes.h"
+#include "FWidgetsLayoutBP.h"
 #include "MyHUD.h"
 #include "MyPlayerController.h"
+#include "Components/InventoryManagerComponent.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "UI/Attribute_Entry.h"
 
 //static const FName COMMON_WORDS = "/Game/UI/Strings/CommonWords.CommonWords";

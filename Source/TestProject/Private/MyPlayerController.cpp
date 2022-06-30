@@ -3,11 +3,17 @@
 
 #include "MyPlayerController.h"
 
-#include "ContainerActor.h"
+#include "MyCharacter.h"
 #include "MyHUD.h"
 #include "WorldActor.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/EquipmentComponent.h"
+#include "Components/InventoryManagerComponent.h"
 #include "UI/ContainerLayout.h"
+#include "UI/HUDLayout.h"
+#include "UI/InteractiveText_Panel.h"
+#include "UI/MainLayout.h"
+#include "UI/TertiaryHUD.h"
 
 AMyPlayerController::AMyPlayerController()
 {

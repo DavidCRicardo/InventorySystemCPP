@@ -7,6 +7,7 @@
 #include "Inventory/FSlotStructure.h"
 #include "WorldActor.generated.h"
 
+class UDataTable;
 UCLASS()
 class INVENTORYSYSTEMCPP_API AWorldActor : public AUsableActor
 {

@@ -7,7 +7,7 @@
 #include "Engine/DataTable.h"
 #include "FItemStructure.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 {
 	GENERATED_BODY()

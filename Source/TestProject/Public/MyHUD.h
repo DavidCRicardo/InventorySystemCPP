@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FWidgetsLayoutBP.h"
 #include "GameFramework/HUD.h"
 #include "UI/ELayout.h"
-#include "UI/HUDLayout.h"
 #include "MyHUD.generated.h"
 
+class UHUDLayout;
+struct FWidgetsLayoutBP;
 class UDataTable;
 /**
  * 

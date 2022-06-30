@@ -4,15 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Border.h"
+#include "Components/Image.h"
 #include "ItemDragVisual.generated.h"
-
-class UBorder;
-class UImage;
 
 UCLASS()
 class INVENTORYSYSTEMCPP_API UItemDragVisual : public UUserWidget
 {
-private:
 	GENERATED_BODY()
 
 public:

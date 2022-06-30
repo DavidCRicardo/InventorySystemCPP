@@ -2,6 +2,9 @@
 
 #include "Components/EquipmentComponent.h"
 
+#include "MyCharacter.h"
+#include "Inventory/FSlotStructure.h"
+
 // Sets default values for this component's properties
 UEquipmentComponent::UEquipmentComponent()
 {

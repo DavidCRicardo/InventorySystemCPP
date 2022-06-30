@@ -5,6 +5,7 @@
 #include "ContainerActor.h"
 
 #include "MyPlayerController.h"
+#include "Components/InventoryManagerComponent.h"
 
 // Sets default values
 AContainerActor::AContainerActor()

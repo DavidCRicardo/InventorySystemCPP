@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inventory/FContainerInfo.h"
-#include "InventoryComponent.h"
 #include "Components/ActorComponent.h"
+#include "Item/EEquipmentSlot.h"
+#include "Item/EItemType.h"
+#include "Inventory/FContainerInfo.h"
 #include "Inventory/FSlotStructure.h"
-#include "MyCharacter.h"
-#include "UI/MainLayout.h"
 #include "InventoryManagerComponent.generated.h"
 
-struct FContainerInfo;
+class UDataTable;
+class UMainLayout;
+class UInventoryComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORYSYSTEMCPP_API UInventoryManagerComponent : public UActorComponent

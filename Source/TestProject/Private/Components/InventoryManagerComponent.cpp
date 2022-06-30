@@ -5,7 +5,10 @@
 
 #include "ContainerActor.h"
 #include "EAttributes.h"
+#include "FWidgetsLayoutBP.h"
 #include "MyHUD.h"
+#include "WorldActor.h"
+#include "Components/EquipmentComponent.h"
 #include "Components/UniformGridPanel.h"
 #include "UI/ContainerLayout.h"
 #include "UI/InventoryLayout.h"
@@ -13,6 +16,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Inventory/FContainerInfo.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/MainLayout.h"
 
 // Sets default values for this component's properties
 UInventoryManagerComponent::UInventoryManagerComponent()

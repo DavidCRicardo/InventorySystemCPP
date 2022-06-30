@@ -5,8 +5,13 @@
 #include "FWidgetsLayoutBP.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/ContainerLayout.h"
+#include "UI/HUDLayout.h"
+#include "UI/InteractiveText_Panel.h"
+#include "UI/ELayout.h"
 #include "UI/InventoryLayout.h"
+#include "UI/MainLayout.h"
 #include "UI/ProfileLayout.h"
+#include "UI/TertiaryHUD.h"
 
 AMyHUD::AMyHUD()
 {
