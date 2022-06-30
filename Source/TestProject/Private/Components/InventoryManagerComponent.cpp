@@ -74,13 +74,21 @@ void UInventoryManagerComponent::FindAndAddAmountToStacks(UInventoryComponent* I
 {
 	uint8 LocalAmount = Amount;
 	FName LocalItemID = ItemID;
-	uint8 LocalInventorySlot = 4;
+	UInventoryComponent* LocalInventory = Inventory;
 
-	for (uint8 i = 4; i < 32; i++)
+	uint8 LocalInventorySlot = 0;
+	uint8 InitialIndex = 0;
+	if (LocalInventory == PlayerInventory)
 	{
-		if (LocalItemID == Inventory->Inventory[LocalInventorySlot].ItemStructure.ID)
+		InitialIndex = (uint8)EEquipmentSlot::Count;
+		LocalInventorySlot = (uint8)EEquipmentSlot::Count;
+	}
+	
+	for (uint8 i = InitialIndex; i < LocalInventory->Inventory.Num(); i++)
+	{
+		if (LocalItemID == LocalInventory->Inventory[LocalInventorySlot].ItemStructure.ID)
 		{
-			AddItemToStack(Inventory, LocalInventorySlot, LocalAmount, AmountRemaining);
+			AddItemToStack(LocalInventory, LocalInventorySlot, LocalAmount, AmountRemaining);
 			LocalAmount = AmountRemaining;
 			
 			if (LocalAmount == 0)

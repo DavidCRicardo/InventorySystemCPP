@@ -3,6 +3,7 @@
 
 #include "UI/SlotLayout.h"
 #include "DragItem.h"
+#include "FWidgetsLayoutBP.h"
 #include "MyHUD.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "MyPlayerController.h"
