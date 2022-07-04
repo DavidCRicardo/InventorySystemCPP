@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/UniformGridPanel.h"
 #include "Components/VerticalBox.h"
 #include "Item/FItemStructure.h"
 #include "W_ItemTooltip.generated.h"
@@ -39,8 +40,11 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Type;
 
+	//UPROPERTY(meta = (BindWidget))
+	//UVerticalBox* VerticalBoxAttributes;
+	
 	UPROPERTY(meta = (BindWidget))
-	UVerticalBox* VerticalBoxAttributes;
+	UUniformGridPanel* AttributesGrid;
 
 private:
     virtual void NativeConstruct() override;

@@ -7,6 +7,7 @@
 #include "Item/FItemStructure.h"
 #include "FSlotStructure.generated.h"
 
+enum class EAttributes : int8;
 USTRUCT(BlueprintType)
 struct INVENTORYSYSTEMCPP_API FSlotStructure : public FTableRowBase
 {
@@ -21,5 +22,6 @@ struct INVENTORYSYSTEMCPP_API FSlotStructure : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	uint8 Amount;
-	
+
+	uint8 GetAttributeValueByAttribute(EAttributes Attribute);
 };
