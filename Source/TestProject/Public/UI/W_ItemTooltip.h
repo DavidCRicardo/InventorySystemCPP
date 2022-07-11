@@ -9,6 +9,7 @@
 #include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/VerticalBox.h"
+#include "Inventory/FSlotStructure.h"
 #include "Item/FItemStructure.h"
 #include "W_ItemTooltip.generated.h"
 
@@ -21,8 +22,13 @@ class INVENTORYSYSTEMCPP_API UW_ItemTooltip : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UPROPERTY()
+	FSlotStructure EquippedSlotOnProfile;
+
 	UFUNCTION()
 	void InitializeTooltip(const FItemStructure& Item);
+	UFUNCTION()
+	void InitializeTooltip2(const FItemStructure& Item, const FSlotStructure& EquippedSlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint8 Index;
@@ -54,5 +60,5 @@ private:
 	void SetAttributes(const FItemStructure& Item);
 
 	UFUNCTION()
-	void GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, uint8& Value);
+	void GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, int8& Value);
 };

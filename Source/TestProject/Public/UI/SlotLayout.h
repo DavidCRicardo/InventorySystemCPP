@@ -50,10 +50,10 @@ UFUNCTION()
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
-	class UImage* Icon;
+	UImage* Icon;
 	
 	UPROPERTY(meta = (BindWidget))
-	class UBorder* SlotBorder;
+	UBorder* SlotBorder;
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* ItemBorder;
