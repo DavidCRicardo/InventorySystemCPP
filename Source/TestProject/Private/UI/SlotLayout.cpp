@@ -253,7 +253,7 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	ItemBorder->SetBrushColor(GetBorderColor());
 	ItemBorder->SetVisibility(ESlateVisibility::Visible);
 
-	ToggleTooltip();
+	//ToggleTooltip();
 }
 
 void USlotLayout::UpdateSlot2()
@@ -271,7 +271,7 @@ void USlotLayout::UpdateSlot2()
 	ItemBorder->SetBrushColor(GetBorderColor());
 	ItemBorder->SetVisibility(ESlateVisibility::Visible);
 
-	ToggleTooltip();
+	//ToggleTooltip();
 }
 
 bool USlotLayout::HasItem()
@@ -325,14 +325,21 @@ FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget*
 
 void USlotLayout::ToggleTooltip()
 {
-	if (HasItem())
+	if (IsValid(ToolTipWidget))
 	{
-		DisplayTooltip();
-	}else
-	{
-		HideTooltip();
+		if (HasItem())
+		{
+			ToolTipWidget->SetVisibility(ESlateVisibility::Visible);
+				//DisplayTooltip();
+		}
+		else
+		{
+			ToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
+				//HideTooltip();
+		}
 	}
 }
+
 void USlotLayout::DisplayTooltip()
 {
 	if (ItemBorder->ToolTipWidget)

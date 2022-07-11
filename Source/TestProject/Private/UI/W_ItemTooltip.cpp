@@ -10,7 +10,7 @@
 
 void UW_ItemTooltip::NativeConstruct()
 {
-	
+
 }
 
 void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
@@ -24,7 +24,21 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 	SetDescription(Item);
 
 	SetAttributes(Item);
-	
+}
+
+void UW_ItemTooltip::InitializeTooltip2(const FItemStructure& Item, const FSlotStructure& EquippedSlot)
+{
+	EquippedSlotOnProfile = EquippedSlot;
+
+	SetItemName(Item);
+
+	Icon->SetBrushFromTexture(Item.Icon);
+
+	SetItemType(Item);
+
+	SetDescription(Item);
+
+	SetAttributes(Item);
 }
 
 void UW_ItemTooltip::SetDescription(const FItemStructure& Item)
@@ -68,7 +82,7 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 {
 	uint8 InRow = 0;
 	uint8 InColumn = 0;
-	
+
 	uint8 TempIndex = 0;
 	for (EAttributes Attribute : TEnumRange<EAttributes>())
 	{
@@ -77,42 +91,57 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 
 		FString AttributeString = *UEnum::GetDisplayValueAsText(Attribute).ToString();
 
-		uint8 Value;
-		GetAttributeValueFromItem(Item, Attribute, Value);
+		int8 CurrentItemValue = 0;
+		int8 FinalValue = 0;
+		GetAttributeValueFromItem(Item, Attribute, CurrentItemValue);
 
-		if (Value != 0)
+		if (CurrentItemValue != 0)
 		{
-			FString String = AttributeString + ": " + FString::FromInt(Value);
+			FString String = AttributeString + ": " + FString::FromInt(CurrentItemValue);
 			FText Text = FText::FromString(String);
-		
+
 			SingleAttribute->SetText(Text);
 			SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
 			SingleAttribute->Font.Size = 12;
 
-			//VerticalBoxAttributes->AddChild(SingleAttribute);
+			FText Text2 = FText::FromString("Default String");
+			FString StringPositive = " ( + 0 ) ";
+			FString StringNegative = " ( - 0 ) ";
+			int8 EquippedItemValue = 0;
+		
+			// There is one equipped Item on that Slot
+			if (EquippedSlotOnProfile.Amount > 0)
+			{
+				GetAttributeValueFromItem(EquippedSlotOnProfile.ItemStructure, Attribute, EquippedItemValue);
+				FinalValue = CurrentItemValue - EquippedItemValue;
 
-			/**/
-			FString StringPositive = " ( +" + FString::FromInt(Value) + ") ";
-			FString StringNegative = " ( -" + FString::FromInt(Value) + ") ";
-			FText Text2 = FText::FromString(StringPositive);
-			
+				if (FinalValue < 0) {
+					StringNegative = " ( " + FString::FromInt(FinalValue) + ") ";
+					Text2 = FText::FromString(StringNegative);
+
+					TextBlockTest->SetColorAndOpacity(FSlateColor({ 1, 0, 0, 1 }));
+				}
+				else
+				{
+					StringPositive = " ( +" + FString::FromInt(FinalValue) + ") ";
+					Text2 = FText::FromString(StringPositive);
+					
+					TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));
+				}
+			}
+			else {
+				// There is no Equipped Item on that Slot
+				FinalValue = CurrentItemValue;
+				StringPositive = " ( +" + FString::FromInt(FinalValue) + ") ";
+				Text2 = FText::FromString(StringPositive);
+
+				TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));
+			}
+
 			TextBlockTest->SetText(Text2);
 			TextBlockTest->Font.TypefaceFontName = FName(TEXT("Regular"));
 			TextBlockTest->Font.Size = 12;
-			TextBlockTest->SetColorAndOpacity(FSlateColor({0,1,0,1}));
-
-			/*if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwningPlayer()))
-			{
-				if (IsValid(PlayerController->InventoryManagerComponent) && IsValid(PlayerController->InventoryManagerComponent->PlayerInventory))
-				{
-					FSlotStructure LocalSlot = PlayerController->InventoryManagerComponent->PlayerInventory->GetInventorySlot(AttributeIndex);
-
-					for (EAttributes Attribute1 : TEnumRange<EAttributes>())
-					{
-						uint8 AttributeValue = LocalSlot.GetAttributeValueByAttribute(Attribute1);
-					}
-				}
-			}*/
+			/**/
 
 			AttributesGrid->AddChildToUniformGrid(SingleAttribute, InRow, InColumn);
 			InColumn++;
@@ -120,46 +149,45 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 
 			InRow++;
 			InColumn = 0;
-			/**/
 		}
 
 		FFormatNamedArguments Args;
 		FText FormattedText;
 
-		Args.Add("Value", Value);
-		
-		if(TempIndex == 0)
+		Args.Add("Value", CurrentItemValue);
+
+		if (TempIndex == 0)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
 				Args
 			);
 		}
-		else if(TempIndex == 1)
+		else if (TempIndex == 1)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
 			);
 		}
-		else if(TempIndex == 2)
+		else if (TempIndex == 2)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
 			);
 		}
-		else if(TempIndex == 3)
+		else if (TempIndex == 3)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
 			);
 		}
 		SingleAttribute->SetText(FormattedText);
-		
+
 		TempIndex++;
 	}
 }
 
-void UW_ItemTooltip::GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, uint8& Value)
+void UW_ItemTooltip::GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, int8& Value)
 {
 	if (Attribute == EAttributes::Strength)
 	{
@@ -176,7 +204,8 @@ void UW_ItemTooltip::GetAttributeValueFromItem(const FItemStructure& Item, EAttr
 	else if (Attribute == EAttributes::Intelligence)
 	{
 		Value = Item.Intelligence;
-	}else
+	}
+	else
 	{
 		Value = 0;
 	}

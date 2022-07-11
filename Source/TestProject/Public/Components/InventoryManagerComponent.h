@@ -91,14 +91,18 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_SetInventorySlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
 	UFUNCTION(Client, Reliable)
-	void Client_SetContainerSlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot);
+	void Client_SetContainerSlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot, UWidget* Tooltip);
+
+	UFUNCTION()
+	void UpdateTooltips(const FSlotStructure& SlotToCompare);
+
 	UFUNCTION(Client, Reliable)
 	void Client_ClearInventorySlotItem(uint8 InventorySlot);
 	UFUNCTION(Client, Reliable)
 	void Client_ClearContainerSlotItem(uint8 ContainerSlot);
 
 	UFUNCTION(Client, Reliable)
-	void Client_OpenContainer(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
+	void Client_OpenContainer(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory);
 	UFUNCTION(Client, Reliable)
 	void Client_CloseContainer();
 	
@@ -203,14 +207,14 @@ private:
 	void CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow);
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem);
-	
+
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void ClearContainerSlotItem(uint8 ContainerSlot);
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void ClearViewersContainerSlot(uint8 ContainerSlot);
 	UFUNCTION(Category="UserInterface|Private|Container")
-	void SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index);
-	
+	void SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index, UWidget* Tooltip);
+
 	UFUNCTION(Category="Manager|Private|Container")
 	void OpenContainer(AActor* Container);
 	UFUNCTION(Category="Manager|Private|Container")
@@ -218,7 +222,7 @@ private:
 	UFUNCTION(Category="Manager|Private|Container")
 	void CloseContainer();
 	UFUNCTION(Category="Manager|Private|Container")
-	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory);
+	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory);
 	
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining);
