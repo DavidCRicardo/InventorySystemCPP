@@ -116,23 +116,26 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 				FinalValue = CurrentItemValue - EquippedItemValue;
 
 				if (FinalValue < 0) {
-					StringNegative = " ( " + FString::FromInt(FinalValue) + ") ";
+					StringNegative = " ( " + FString::FromInt(FinalValue) + " ) ";
 					Text2 = FText::FromString(StringNegative);
 
 					TextBlockTest->SetColorAndOpacity(FSlateColor({ 1, 0, 0, 1 }));
 				}
-				else
+				else if (FinalValue > 0)
 				{
-					StringPositive = " ( +" + FString::FromInt(FinalValue) + ") ";
+					StringPositive = " ( +" + FString::FromInt(FinalValue) + " ) ";
 					Text2 = FText::FromString(StringPositive);
 					
 					TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));
+				}
+				else {
+					TextBlockTest->SetVisibility(ESlateVisibility::Hidden);
 				}
 			}
 			else {
 				// There is no Equipped Item on that Slot
 				FinalValue = CurrentItemValue;
-				StringPositive = " ( +" + FString::FromInt(FinalValue) + ") ";
+				StringPositive = " ( +" + FString::FromInt(FinalValue) + " ) ";
 				Text2 = FText::FromString(StringPositive);
 
 				TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));

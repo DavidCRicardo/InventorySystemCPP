@@ -229,6 +229,12 @@ private:
 	
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
+
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateTooltips(const TArray<FSlotStructure>& InPlayerInventory);
+
+	//UFUNCTION(Category = "Manager|Private|Tooltip")
+	//void CreateTooltip(const TArray<FSlotStructure>& Inventory, UW_ItemTooltip& OutTooltip);
 };
 
 //FReturnTupleBoolInt HasPartialStack(const FSlotStructure& ContentToAdd);
