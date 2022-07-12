@@ -206,6 +206,7 @@ void UInventoryManagerComponent::EquipItem(UInventoryComponent* FromInventory, u
 
 			UpdateEquippedStats();
 
+
 			return;
 
 		}
@@ -441,9 +442,9 @@ void UInventoryManagerComponent::SetViewersContainerSlot(uint8 ContainerSlot, FS
 	{
 		if (AMyPlayerController* PC = Cast<AMyPlayerController>(PlayerState->GetOwner()))
 		{
-			// make specific tooltip for each client
-
 			PC->InventoryManagerComponent->Client_SetContainerSlotItem(InventoryItem, ContainerSlot, nullptr);
+		
+			Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
 		}
 	}
 }
@@ -483,45 +484,112 @@ void UInventoryManagerComponent::SetContainerSlotItem(const FSlotStructure& Slot
 	SlotLayout->SetToolTip(Tooltip);
 }
 
-void UInventoryManagerComponent::Client_UpdateTooltips_Implementation(const TArray<FSlotStructure>& InPlayerInventory)
+void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory)
 {
 	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+	if (!IsValid(PC))
+	{
+		return;
+	}
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("ItemTooltip_WBP");
 
-	uint8 Index = 0;
-	for (FSlotStructure Slot : InPlayerInventory)
-	{
-		UW_ItemTooltip* Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
-		FSlotStructure TempSlot{};
+	UW_ItemTooltip* Tooltip{};
+	FSlotStructure TempSlot{};
+	USlotLayout* SlotLayout{};
 
-		if (InPlayerInventory.Num())
+	uint8 Index = 0;
+	uint8 LocalIndex = 0;
+
+	for (FSlotStructure Slot : InOtherInventory)
+	{
+		TempSlot = GetEmptySlot(EEquipmentSlot::Undefined);
+
+		for (uint8 j = 0; j < (uint8)EEquipmentSlot::Count; j++)
 		{
+			if (GetItemEquipmentSlot(InPlayerInventory[j]) == GetItemEquipmentSlot(Slot))
+			{
+				TempSlot = InPlayerInventory[j];
+				break;
+			}
+		}
+
+		SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];	
+
+		Tooltip = Cast<UW_ItemTooltip>(SlotLayout->ToolTipWidget);
+		if (!IsValid(Tooltip))
+		{
+			// Tooltips must be initialized on Load
+			Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
+			Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+
+			SlotLayout->SetToolTip(Tooltip);
+		}
+		else {
+			Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+
+			SlotLayout->SetToolTip(Tooltip);
+		}
+
+		Index++;
+	}
+}
+
+void UInventoryManagerComponent::Client_UpdateInventoryTooltips_Implementation(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory)
+{
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+	if (!IsValid(PC))
+	{
+		return;
+	}
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("ItemTooltip_WBP");
+
+	UW_ItemTooltip* Tooltip{};
+	FSlotStructure TempSlot{};
+	USlotLayout* SlotLayout{};
+
+	uint8 Index = 0;
+	uint8 LocalIndex = 0;
+
+	for (FSlotStructure Slot : InOtherInventory)
+	{
+		//if (Slot.ItemStructure.ItemType == EItemType::Equipment)
+		//{
+		TempSlot = GetEmptySlot(EEquipmentSlot::Undefined);
+
 			for (uint8 j = 0; j < (uint8)EEquipmentSlot::Count; j++)
 			{
 				if (GetItemEquipmentSlot(InPlayerInventory[j]) == GetItemEquipmentSlot(Slot))
 				{
 					TempSlot = InPlayerInventory[j];
+					break;
 				}
-				Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
 			}
-		}
 
-		//SetContainerSlotItem(Slot, Index, Tooltip);
-		if (IsValid(MainLayoutUI))
-		{
-			USlotLayout* SlotLayout{};
-
-			if (Index >= (uint8)EEquipmentSlot::Count)
-			{
-				uint8 LocalIndex = Index - (uint8)EEquipmentSlot::Count;
-				SlotLayout = MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex];
-			}
-			else
+			if (Index < (uint8)EEquipmentSlot::Count)
 			{
 				SlotLayout = MainLayoutUI->Profile->EquipmentSlotsArray[Index];
 			}
-			SlotLayout->SetToolTip(Tooltip);
-		}
+			else
+			{
+				LocalIndex = Index - (uint8)EEquipmentSlot::Count;
+				SlotLayout = MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex];
+			}
+
+			Tooltip = Cast<UW_ItemTooltip>(SlotLayout->ToolTipWidget);
+			if (!IsValid(Tooltip))
+			{
+				// Tooltips must be initialized on Load
+				Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
+				Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+
+				SlotLayout->SetToolTip(Tooltip);
+			}
+			else {	
+				Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+
+				SlotLayout->SetToolTip(Tooltip);
+			}		
+		//}
 
 		Index++;
 	}
@@ -538,7 +606,23 @@ void UInventoryManagerComponent::AddItem(UInventoryComponent* Inventory,
 		//Client: Update HUD Inventory Slot Info
 		Client_SetInventorySlotItem(InventoryItem, InventorySlot);
 
-		Client_UpdateTooltips(Inventory->Inventory);
+		if (PlayerInventory->Inventory.Num() > 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PlayerInventory NotEmpty"))
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("PlayerInventory Empty"))
+		}
+
+		if (Inventory->Inventory.Num() > 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Inventory NotEmpty"))
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("Inventory Empty"))
+		}
+		
+		Client_UpdateInventoryTooltips(PlayerInventory->Inventory, Inventory->Inventory);
 	}
 	else
 	{
@@ -739,46 +823,6 @@ void UInventoryManagerComponent::SetInventorySlotItem(const FSlotStructure& Cont
 	}
 }
 
-void UInventoryManagerComponent::UpdateTooltips(const FSlotStructure& SlotToCompare) {
-
-	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
-	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("ItemTooltip_WBP");
-	UW_ItemTooltip* Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
-
-	FSlotStructure TempSlot = SlotToCompare;
-	FSlotStructure MySlot{};
-
-	Tooltip->InitializeTooltip2(SlotToCompare.ItemStructure, TempSlot);
-
-	USlotLayout* LocalSlot{};
-	for (uint8 i = 0; i < 32; i++)
-	{
-		if (i < (uint8)EEquipmentSlot::Count)
-		{
-			LocalSlot = MainLayoutUI->Profile->EquipmentSlotsArray[i];
-
-		}
-		else
-		{
-			i -= (uint8)EEquipmentSlot::Count;
-			LocalSlot = MainLayoutUI->Inventory->InventorySlotsArray[i];
-			i += (uint8)EEquipmentSlot::Count;
-		}
-
-		LocalSlot->SetToolTip(Tooltip);
-	}
-
-	if (IsValid(CurrentContainer))
-	{
-		for (uint8 i = 0; i < ContainerInventory->Inventory.Num(); i++)
-		{
-			LocalSlot = MainLayoutUI->Container->ContainerSlotsArray[i];
-		}
-
-		LocalSlot->SetToolTip(Tooltip);
-	}
-}
-
 void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 {
 	if (IsValid(MainLayoutUI))
@@ -940,23 +984,24 @@ void UInventoryManagerComponent::LoadContainerSlots(FContainerInfo ContainerProp
 	{
 		FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("ItemTooltip_WBP");
 
+		FSlotStructure TempSlot{};
+		UW_ItemTooltip* Tooltip{};
+
 		uint8 Index = 0;
 		for (FSlotStructure Slot : InContainerInventory)
 		{
-			UW_ItemTooltip* Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
-			FSlotStructure TempSlot{};
+			Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
 
-			if (InPlayerInventory.Num())
+			for (uint8 j = 0; j < (uint8)EEquipmentSlot::Count; j++)
 			{
-				for (uint8 j = 0; j < (uint8)EEquipmentSlot::Count; j++)
+				if (GetItemEquipmentSlot(InPlayerInventory[j]) == GetItemEquipmentSlot(Slot))
 				{
-					if (GetItemEquipmentSlot(InPlayerInventory[j]) == GetItemEquipmentSlot(Slot))
-					{
-						TempSlot = InPlayerInventory[j];
-					}
-					Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+					TempSlot = InPlayerInventory[j];
+					break;
 				}
 			}
+
+			Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
 
 			SetContainerSlotItem(Slot, Index, Tooltip);
 
@@ -964,6 +1009,46 @@ void UInventoryManagerComponent::LoadContainerSlots(FContainerInfo ContainerProp
 		}
 
 		PC->ToggleContainer();
+	}
+}
+
+void UInventoryManagerComponent::RefreshContainerTooltips(TArray<FSlotStructure> InPlayerInventory, TArray<FSlotStructure> InOtherInventory)
+{
+	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner()))
+	{
+		FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("ItemTooltip_WBP");
+
+		USlotLayout* SlotLayout{};
+		UW_ItemTooltip* Tooltip{};
+		FSlotStructure TempSlot{};
+
+		uint8 Index = 0;
+
+		for (FSlotStructure Slot : InOtherInventory)
+		{
+			if (Slot.ItemStructure.ItemType == EItemType::Equipment)
+			{
+				for (uint8 j = 0; j < (uint8)EEquipmentSlot::Count; j++)
+				{
+					if (GetItemEquipmentSlot(InPlayerInventory[j]) == GetItemEquipmentSlot(Slot))
+					{
+						SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];
+
+						Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
+
+						TempSlot = InPlayerInventory[j];
+
+						break;
+					}
+				}
+			}
+
+			Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+
+			SlotLayout->SetToolTip(Tooltip);
+
+			Index++;
+		}
 	}
 }
 

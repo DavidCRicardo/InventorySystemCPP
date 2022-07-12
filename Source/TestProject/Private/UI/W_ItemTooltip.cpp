@@ -80,10 +80,12 @@ void UW_ItemTooltip::SetItemName(const FItemStructure& Item)
 
 void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 {
+	AttributesGrid->ClearChildren();
+
 	uint8 InRow = 0;
 	uint8 InColumn = 0;
 
-	uint8 TempIndex = 0;
+	uint8 AttributeIndex = 0;
 	for (EAttributes Attribute : TEnumRange<EAttributes>())
 	{
 		UTextBlock* SingleAttribute = NewObject<UTextBlock>();
@@ -97,16 +99,16 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 
 		if (CurrentItemValue != 0)
 		{
-			FString String = AttributeString + ": " + FString::FromInt(CurrentItemValue);
-			FText Text = FText::FromString(String);
+			FString LocalString = AttributeString + ": " + FString::FromInt(CurrentItemValue);
+			FText CurrentAttributeText = FText::FromString(LocalString);
 
-			SingleAttribute->SetText(Text);
+			SingleAttribute->SetText(CurrentAttributeText);
 			SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
 			SingleAttribute->Font.Size = 12;
 
-			FText Text2 = FText::FromString("Default String");
-			FString StringPositive = " ( + 0 ) ";
-			FString StringNegative = " ( - 0 ) ";
+			FText AttributeDifference = FText::FromString("Default String");
+
+			FString AttributeDifferenceString = "";
 			int8 EquippedItemValue = 0;
 		
 			// There is one equipped Item on that Slot
@@ -116,15 +118,13 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 				FinalValue = CurrentItemValue - EquippedItemValue;
 
 				if (FinalValue < 0) {
-					StringNegative = " ( " + FString::FromInt(FinalValue) + " ) ";
-					Text2 = FText::FromString(StringNegative);
+					AttributeDifferenceString = " ( " + FString::FromInt(FinalValue) + " ) ";
 
 					TextBlockTest->SetColorAndOpacity(FSlateColor({ 1, 0, 0, 1 }));
 				}
 				else if (FinalValue > 0)
 				{
-					StringPositive = " ( +" + FString::FromInt(FinalValue) + " ) ";
-					Text2 = FText::FromString(StringPositive);
+					AttributeDifferenceString = " ( +" + FString::FromInt(FinalValue) + " ) ";
 					
 					TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));
 				}
@@ -135,13 +135,12 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 			else {
 				// There is no Equipped Item on that Slot
 				FinalValue = CurrentItemValue;
-				StringPositive = " ( +" + FString::FromInt(FinalValue) + " ) ";
-				Text2 = FText::FromString(StringPositive);
+				AttributeDifferenceString = " ( +" + FString::FromInt(FinalValue) + " ) ";
 
 				TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));
 			}
 
-			TextBlockTest->SetText(Text2);
+			TextBlockTest->SetText(FText::FromString(AttributeDifferenceString));
 			TextBlockTest->Font.TypefaceFontName = FName(TEXT("Regular"));
 			TextBlockTest->Font.Size = 12;
 			/**/
@@ -159,26 +158,26 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 
 		Args.Add("Value", CurrentItemValue);
 
-		if (TempIndex == 0)
+		if (AttributeIndex == 0)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "StrengthKey", "Strength: {Value}"),
 				Args
 			);
 		}
-		else if (TempIndex == 1)
+		else if (AttributeIndex == 1)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "EnduranceKey", "Endurance: {Value}"), Args
 			);
 		}
-		else if (TempIndex == 2)
+		else if (AttributeIndex == 2)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "DexterityKey", "Dexterity: {Value}"), Args
 			);
 		}
-		else if (TempIndex == 3)
+		else if (AttributeIndex == 3)
 		{
 			FormattedText = FText::Format(
 				NSLOCTEXT("MyNamespace", "IntelligenceKey", "Intelligence: {Value}"), Args
@@ -186,7 +185,7 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 		}
 		SingleAttribute->SetText(FormattedText);
 
-		TempIndex++;
+		AttributeIndex++;
 	}
 }
 

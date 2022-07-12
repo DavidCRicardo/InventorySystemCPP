@@ -93,9 +93,6 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_SetContainerSlotItem(const FSlotStructure& ContentToAdd, const uint8& InventorySlot, UWidget* Tooltip);
 
-	UFUNCTION()
-	void UpdateTooltips(const FSlotStructure& SlotToCompare);
-
 	UFUNCTION(Client, Reliable)
 	void Client_ClearInventorySlotItem(uint8 InventorySlot);
 	UFUNCTION(Client, Reliable)
@@ -231,10 +228,12 @@ private:
 	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
 
 	UFUNCTION(Client, Reliable)
-	void Client_UpdateTooltips(const TArray<FSlotStructure>& InPlayerInventory);
+	void Client_UpdateInventoryTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateContainerTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
 
-	//UFUNCTION(Category = "Manager|Private|Tooltip")
-	//void CreateTooltip(const TArray<FSlotStructure>& Inventory, UW_ItemTooltip& OutTooltip);
+	UFUNCTION()
+	void RefreshContainerTooltips(TArray<FSlotStructure> InPlayerInventory, TArray<FSlotStructure> InOtherInventory);
 };
 
 //FReturnTupleBoolInt HasPartialStack(const FSlotStructure& ContentToAdd);
