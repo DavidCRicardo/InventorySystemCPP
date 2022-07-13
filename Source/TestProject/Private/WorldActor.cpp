@@ -73,10 +73,20 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 			bool OutSuccess = false;
 			UInventoryComponent* InventoryComp = PlayerController->PlayerInventoryComponent;
 			
-			PlayerController->InventoryManagerComponent->TryToAddItemToInventory(InventoryComp, InventoryItem, OutSuccess);
+			UInventoryManagerComponent* InventoryManager = PlayerController->InventoryManagerComponent;
+			InventoryManager->TryToAddItemToInventory(InventoryComp, InventoryItem, OutSuccess);
 
 			if (OutSuccess)
 			{
+				if (IsValid(InventoryManager->ContainerInventory))
+				{
+					InventoryManager->Client_UpdateContainerTooltips(PlayerController->InventoryManagerComponent->PlayerInventory->Inventory, InventoryManager->ContainerInventory->Inventory);
+				}
+
+				InventoryManager->Client_UpdateInventoryTooltips(InventoryManager->PlayerInventory->Inventory, InventoryManager->PlayerInventory->Inventory);
+
+				//PlayerController->InventoryManagerComponent->Server_UpdateTooltips();
+				
 				Destroy();
 			}
 			

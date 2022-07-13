@@ -23,7 +23,7 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 
 	SetDescription(Item);
 
-	SetAttributes(Item);
+	//SetAttributes(Item);
 }
 
 void UW_ItemTooltip::InitializeTooltip2(const FItemStructure& Item, const FSlotStructure& EquippedSlot)
