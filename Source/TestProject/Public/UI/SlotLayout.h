@@ -16,7 +16,7 @@ class AMyPlayerController;
 UCLASS()
 class INVENTORYSYSTEMCPP_API USlotLayout : public UUserWidget
 {
-GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
 	USlotLayout(const FObjectInitializer& ObjectInitializer);
@@ -38,6 +38,9 @@ public:
 	bool IsStorageSlot = false;
 	
 	UFUNCTION()
+	void ToggleTooltip();
+
+	UFUNCTION()
 	void SetSlotIndex(uint8 Index);
 	UFUNCTION()
 	void SetSlotStructure(const FSlotStructure& SlotToSet);
@@ -46,9 +49,6 @@ public:
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
 	UFUNCTION()
 	void UpdateSlotInfo();
-
-UFUNCTION()
-	void InitializeSlot(UTexture2D* BackgroundRef);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AMyPlayerController* PlayerController;
@@ -68,22 +68,14 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* AmountTextBlock;
-
-	UFUNCTION()
-	FLinearColor GetBorderColor();
 	
+protected:
+
 	virtual void NativeConstruct() override;
 
-protected:
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
-	UFUNCTION()
-	void ToggleTooltip();
-	UFUNCTION()
-	void DisplayTooltip();
-	UFUNCTION()
-	void HideTooltip();
+	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
@@ -96,20 +88,22 @@ protected:
 	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
-	
-	UFUNCTION()
-	bool HasItem();
+
+	UFUNCTION(Category="Default")
+		FLinearColor GetBorderColor();
+	UFUNCTION(Category="Default")
+		void DisplayTooltip();
+	UFUNCTION(Category="Default")
+		void HideTooltip();
+	UFUNCTION(Category="Default")
+		bool HasItem();
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UItemDragVisual> ItemDragVisualClass;
 	
 private:
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
-	UImage* Background;
-	
 	UFUNCTION()
 	bool IsUnequipping(const uint8& LocalDraggedSlotIndex);
 	UFUNCTION()
 	bool IsEquipping(const uint8& InventorySlot);
-	
 };

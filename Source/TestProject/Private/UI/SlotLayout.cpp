@@ -70,7 +70,7 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 	
 	if (HasItem())
 	{
-		ItemBorder->SetVisibility(ESlateVisibility::HitTestInvisible);
+		HideTooltip();
 		
 		UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
 		DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
@@ -96,8 +96,6 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		}
 		
 		OutOperation = DragDropOperation;
-
-		HideTooltip();
 	}else
 	{
 		OutOperation = nullptr;
@@ -228,24 +226,17 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 	}*/
 }
 
-void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
-{
-	Background->SetBrushFromTexture(BackgroundRef);
-	AmountTextBlock->SetText(FText::FromString(""));
-	ItemBorder->SetBrushColor(GetBorderColor());
-}
-
-/* UpdateSlot Info Outdated */
+/* Update SlotStructure Info */
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
-	SlotStructure = NewSlotStructure;
+	SetSlotStructure(NewSlotStructure);
 	
 	UpdateSlotInfo();
 
-	//ToggleTooltip();
+	ToggleTooltip();
 }
 
-/* Update Slot Info Updated */
+/* Update Slot Info */
 void USlotLayout::UpdateSlotInfo()
 {
 	if (!HasItem() || (InventorySlotIndex < (uint8)EEquipmentSlot::Count && NativeFromInventory))
@@ -259,7 +250,6 @@ void USlotLayout::UpdateSlotInfo()
 
 	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
 	ItemBorder->SetBrushColor(GetBorderColor());
-	ItemBorder->SetVisibility(ESlateVisibility::Visible);
 }
 
 void USlotLayout::SetSlotIndex(uint8 Index) {
@@ -325,39 +315,22 @@ void USlotLayout::ToggleTooltip()
 	{
 		if (HasItem())
 		{
-			ToolTipWidget->SetVisibility(ESlateVisibility::Visible);
-				//DisplayTooltip();
+			DisplayTooltip();
 		}
 		else
 		{
-			ToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
-				//HideTooltip();
+			HideTooltip();
 		}
 	}
 }
 
 void USlotLayout::DisplayTooltip()
 {
-	if (ItemBorder->ToolTipWidget)
-	{
-		return;
-	}
-
-	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("ItemTooltip_WBP");
-	if (WidgetLayout)
-	{
-		UW_ItemTooltip* Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
-		Tooltip->InitializeTooltip(SlotStructure.ItemStructure);
-
-		ItemBorder->SetToolTip(Tooltip);
-	}
+	ToolTipWidget->SetVisibility(ESlateVisibility::Visible);
 }
 void USlotLayout::HideTooltip()
 {
-	if (ItemBorder->ToolTipWidget)
-	{
-		ItemBorder->SetToolTip(nullptr);
-	}
+	ToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 /* Returns true if slot dragged and dropped its from equipment layout */

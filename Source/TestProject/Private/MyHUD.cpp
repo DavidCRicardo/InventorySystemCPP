@@ -16,11 +16,6 @@
 
 AMyHUD::AMyHUD()
 {
-	/*static ConstructorHelpers::FObjectFinder<UDataTable> BP_WidgetDB(TEXT("/Game/Blueprints/Widgets_DB.Widgets_DB"));
-	if (BP_WidgetDB.Succeeded())
-	{
-		WidgetDB = BP_WidgetDB.Object;
-	}*/
 }
 
 void AMyHUD::DrawHUD()

@@ -17,6 +17,7 @@ UEquipmentComponent::UEquipmentComponent()
 	NumberOfRowsInventory = 7;
 	SlotsPerRowInventory = 4;
 }
+
 // Called when the game starts
 void UEquipmentComponent::BeginPlay()
 {

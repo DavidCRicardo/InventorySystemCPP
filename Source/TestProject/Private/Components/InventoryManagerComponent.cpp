@@ -373,7 +373,7 @@ void UInventoryManagerComponent::DropItem(UInventoryComponent* Inventory, uint8 
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DROPPED ITEM"))
 
-			UClass* LocalClass;
+		UClass* LocalClass;
 		FTransform OutTransform;
 		RandomizeDropLocation(LocalSlot, LocalClass, OutTransform);
 
@@ -519,8 +519,7 @@ void UInventoryManagerComponent::Client_ClearContainerSlotItem_Implementation(ui
 void UInventoryManagerComponent::ClearContainerSlotItem(uint8 ContainerSlot)
 {
 	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[ContainerSlot];
-	SlotLayout->SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-	SlotLayout->UpdateSlotInfo();
+	SlotLayout->UpdateSlot(GetEmptySlot(EEquipmentSlot::Undefined));
 }
 
 void UInventoryManagerComponent::ClearViewersContainerSlot(uint8 ContainerSlot)
@@ -539,8 +538,7 @@ void UInventoryManagerComponent::ClearViewersContainerSlot(uint8 ContainerSlot)
 void UInventoryManagerComponent::SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index)
 {
 	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];
-	SlotLayout->SlotStructure = Slot;
-	SlotLayout->UpdateSlotInfo();
+	SlotLayout->UpdateSlot(Slot); 
 }
 
 void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory)
@@ -588,7 +586,7 @@ void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(c
 		}
 
 		Tooltip->UpdateTooltipAttributes(Slot.ItemStructure, TempSlot);
-		Tooltip->SetVisibility(ESlateVisibility::Hidden);
+		SlotLayout->ToggleTooltip();
 		SlotLayout->SetToolTip(Tooltip);
 
 		Index++;
@@ -648,7 +646,7 @@ void UInventoryManagerComponent::Client_UpdateInventoryTooltips_Implementation(c
 		}
 		
 		Tooltip->UpdateTooltipAttributes(Slot.ItemStructure, TempSlot);
-		Tooltip->SetVisibility(ESlateVisibility::Hidden);
+		SlotLayout->ToggleTooltip();
 		SlotLayout->SetToolTip(Tooltip);
 		
 		Index++;
@@ -861,17 +859,18 @@ void UInventoryManagerComponent::SetInventorySlotItem(const FSlotStructure& Cont
 {
 	if (IsValid(MainLayoutUI))
 	{
+		USlotLayout* SlotLayout{};
 		if (InventorySlot >= (uint8)EEquipmentSlot::Count)
 		{
 			uint8 LocalIndex = InventorySlot - (uint8)EEquipmentSlot::Count;
-			MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex]->SlotStructure = ContentToAdd;
-			MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex]->UpdateSlotInfo();
+			SlotLayout = MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex];
 		}
 		else
 		{
-			MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot]->SlotStructure = ContentToAdd;
-			MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot]->UpdateSlotInfo();
+			SlotLayout = MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot];
 		}
+
+		SlotLayout->UpdateSlot(ContentToAdd);
 	}
 }
 
@@ -879,21 +878,19 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 {
 	if (IsValid(MainLayoutUI))
 	{
-		USlotLayout* SlotLayout;
+		USlotLayout* SlotLayout{};
+		FSlotStructure LocalSlot{};
 		if (InventorySlot >= (uint8)EEquipmentSlot::Count)
 		{
 			uint8 LocalIndex = InventorySlot - (uint8)EEquipmentSlot::Count;
 
 			SlotLayout = MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex];
-			SlotLayout->SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-			SlotLayout->UpdateSlotInfo();
+			LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
 		}
 		else
 		{
 			SlotLayout = MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot];
-
-			// SlotLayout->SlotStructure = GetEmptySlot(GetEquipmentTypeBySlot(InventorySlot));
-			FSlotStructure LocalSlot;
+		
 			switch (InventorySlot)
 			{
 			case 0: LocalSlot = GetEmptySlot(EEquipmentSlot::Weapon);
@@ -907,10 +904,9 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 			default: LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
 				break;
 			}
-
-			SlotLayout->SlotStructure = LocalSlot;
-			SlotLayout->UpdateSlotInfo();
 		}
+
+		SlotLayout->UpdateSlot(LocalSlot);
 	}
 }
 
@@ -947,9 +943,6 @@ void UInventoryManagerComponent::CreateContainerSlots(uint8 NumberOfRows, uint8 
 
 		for (int i = 0; i < MainLayoutUI->Container->ContainerSlotsArray.Num(); i++)
 		{
-			//MainLayoutUI->Container->ContainerSlotsArray[i]->SlotStructure = SlotStructure;
-			//MainLayoutUI->Container->ContainerSlotsArray[i]->UpdateSlot2();
-
 			MainLayoutUI->Container->ContainerSlotsArray[i]->UpdateSlot(SlotStructure);
 			MainLayoutUI->Container->ContainerSlotsArray[i]->InventorySlotIndex = i;
 			MainLayoutUI->Container->ContainerSlotsArray[i]->NativeFromContainer = true;
