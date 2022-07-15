@@ -235,28 +235,18 @@ void USlotLayout::InitializeSlot(UTexture2D* BackgroundRef)
 	ItemBorder->SetBrushColor(GetBorderColor());
 }
 
-/* UpdateSlot needs to be updated and cleaned correctly */
+/* UpdateSlot Info Outdated */
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SlotStructure = NewSlotStructure;
 	
-	if (!HasItem() || (InventorySlotIndex < (uint8)EEquipmentSlot::Count && NativeFromInventory))
-	{
-		AmountTextBlock->SetText(FText::FromString(""));
-	}
-	else
-	{
-		AmountTextBlock->SetText(FText::AsNumber(SlotStructure.Amount));
-	}
-
-	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
-	ItemBorder->SetBrushColor(GetBorderColor());
-	ItemBorder->SetVisibility(ESlateVisibility::Visible);
+	UpdateSlotInfo();
 
 	//ToggleTooltip();
 }
 
-void USlotLayout::UpdateSlot2()
+/* Update Slot Info Updated */
+void USlotLayout::UpdateSlotInfo()
 {
 	if (!HasItem() || (InventorySlotIndex < (uint8)EEquipmentSlot::Count && NativeFromInventory))
 	{
@@ -270,8 +260,14 @@ void USlotLayout::UpdateSlot2()
 	Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
 	ItemBorder->SetBrushColor(GetBorderColor());
 	ItemBorder->SetVisibility(ESlateVisibility::Visible);
+}
 
-	//ToggleTooltip();
+void USlotLayout::SetSlotIndex(uint8 Index) {
+	InventorySlotIndex = Index;
+}
+
+void USlotLayout::SetSlotStructure(const FSlotStructure& SlotToSet) {
+	SlotStructure = SlotToSet;
 }
 
 bool USlotLayout::HasItem()

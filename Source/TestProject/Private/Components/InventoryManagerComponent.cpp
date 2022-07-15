@@ -36,13 +36,58 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 		UE_LOG(LogTemp, Warning, TEXT("ItemDB DataTable not found!!"));
 	}
 
-	NumberOfSlots = 28 + (uint8)EEquipmentSlot::Count;
+	NumberOfRowsInventory = 0;
+	SlotsPerRowInventory = 0;
+
+	TotalNumberOfSlots = 0;
 }
 
 // Called when the game starts
 void UInventoryManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TotalNumberOfSlots = (NumberOfRowsInventory * SlotsPerRowInventory) + (uint8)EEquipmentSlot::Count;
+}
+
+void UInventoryManagerComponent::Client_LoadInventory_Implementation() 
+{
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
+	{
+		USlotLayout* W_Slot = nullptr;
+
+		for (int i = 0; i < NumberOfRowsInventory; i++)
+		{
+			for (int j = 0; j < SlotsPerRowInventory; j++)
+			{
+				W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+				MainLayoutUI->Inventory->InventoryGridPanel->AddChildToUniformGrid(W_Slot, i, j);
+
+				MainLayoutUI->Inventory->InventorySlotsArray.Add(W_Slot);
+			}
+		}
+
+		const FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+
+		USlotLayout* LocalSlot{};
+		for (int i = 0; i < MainLayoutUI->Inventory->InventorySlotsArray.Num(); i++)
+		{
+			LocalSlot = MainLayoutUI->Inventory->InventorySlotsArray[i];
+
+			LocalSlot->SetSlotStructure(SlotStructure);
+			LocalSlot->SetSlotIndex(i + (uint8)EEquipmentSlot::Count);
+			LocalSlot->NativeFromInventory = true;
+
+			LocalSlot->UpdateSlotInfo();
+
+			//MainLayoutUI->Inventory->InventorySlotsArray[i]->UpdateSlot(SlotStructure);
+			//MainLayoutUI->Inventory->InventorySlotsArray[i]->InventorySlotIndex = i + (uint8)EEquipmentSlot::Count;
+			//MainLayoutUI->Inventory->InventorySlotsArray[i]->NativeFromInventory = true;
+		}
+	}
 }
 
 // Called every frame
@@ -57,13 +102,13 @@ void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UInventoryManagerComponent, NumberOfSlots);
+	DOREPLIFETIME(UInventoryManagerComponent, TotalNumberOfSlots);
 	DOREPLIFETIME(UInventoryManagerComponent, AttributesArray);
 }
 
 void UInventoryManagerComponent::Server_InitInventory_Implementation()
 {
-	PlayerInventory->Server_InitInventory(NumberOfSlots);
+	PlayerInventory->Server_InitInventory(TotalNumberOfSlots);
 }
 
 void UInventoryManagerComponent::InitializeInventoryManager(UInventoryComponent* EquipmentComponent)
@@ -216,13 +261,7 @@ void UInventoryManagerComponent::EquipItem(UInventoryComponent* FromInventory, u
 
 			UpdateEquippedStats();
 
-			if (IsValid(ContainerInventory))
-			{
-				Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
-			}
-
-			Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
-			//Server_UpdateTooltips();
+			Server_UpdateTooltips();
 
 			return;
 
@@ -289,13 +328,7 @@ void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory,
 
 	UpdateEquippedStats();
 
-	if (IsValid(ContainerInventory))
-	{
-		Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
-	}
-
-	Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
-	//Server_UpdateTooltips();
+	Server_UpdateTooltips();
 }
 
 void UInventoryManagerComponent::RandomizeDropLocation(FSlotStructure LocalSlot, UClass*& LocalClass, FTransform& OutTransform)
@@ -487,7 +520,7 @@ void UInventoryManagerComponent::ClearContainerSlotItem(uint8 ContainerSlot)
 {
 	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[ContainerSlot];
 	SlotLayout->SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-	SlotLayout->UpdateSlot2();
+	SlotLayout->UpdateSlotInfo();
 }
 
 void UInventoryManagerComponent::ClearViewersContainerSlot(uint8 ContainerSlot)
@@ -507,7 +540,7 @@ void UInventoryManagerComponent::SetContainerSlotItem(const FSlotStructure& Slot
 {
 	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];
 	SlotLayout->SlotStructure = Slot;
-	SlotLayout->UpdateSlot2();
+	SlotLayout->UpdateSlotInfo();
 }
 
 void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory)
@@ -554,7 +587,8 @@ void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(c
 			}
 		}
 
-		Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+		Tooltip->UpdateTooltipAttributes(Slot.ItemStructure, TempSlot);
+		Tooltip->SetVisibility(ESlateVisibility::Hidden);
 		SlotLayout->SetToolTip(Tooltip);
 
 		Index++;
@@ -609,12 +643,12 @@ void UInventoryManagerComponent::Client_UpdateInventoryTooltips_Implementation(c
 				if (GetItemEquipmentSlot(InPlayerInventory[j]) == GetItemEquipmentSlot(Slot))
 				{
 					TempSlot = InPlayerInventory[j];
-					break;
 				}
 			}
 		}
 		
-		Tooltip->InitializeTooltip2(Slot.ItemStructure, TempSlot);
+		Tooltip->UpdateTooltipAttributes(Slot.ItemStructure, TempSlot);
+		Tooltip->SetVisibility(ESlateVisibility::Hidden);
 		SlotLayout->SetToolTip(Tooltip);
 		
 		Index++;
@@ -831,12 +865,12 @@ void UInventoryManagerComponent::SetInventorySlotItem(const FSlotStructure& Cont
 		{
 			uint8 LocalIndex = InventorySlot - (uint8)EEquipmentSlot::Count;
 			MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex]->SlotStructure = ContentToAdd;
-			MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex]->UpdateSlot2();
+			MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex]->UpdateSlotInfo();
 		}
 		else
 		{
 			MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot]->SlotStructure = ContentToAdd;
-			MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot]->UpdateSlot2();
+			MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot]->UpdateSlotInfo();
 		}
 	}
 }
@@ -852,7 +886,7 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 
 			SlotLayout = MainLayoutUI->Inventory->InventorySlotsArray[LocalIndex];
 			SlotLayout->SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-			SlotLayout->UpdateSlot2();
+			SlotLayout->UpdateSlotInfo();
 		}
 		else
 		{
@@ -875,7 +909,7 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 			}
 
 			SlotLayout->SlotStructure = LocalSlot;
-			SlotLayout->UpdateSlot2();
+			SlotLayout->UpdateSlotInfo();
 		}
 	}
 }
@@ -1034,26 +1068,14 @@ void UInventoryManagerComponent::Server_EquipFromContainer_Implementation(uint8 
 {
 	EquipItem(ContainerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
 
-	if (IsValid(ContainerInventory))
-	{
-		Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
-	}
-
-	Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
-	//Server_UpdateTooltips();
+	Server_UpdateTooltips();
 }
 
 void UInventoryManagerComponent::Server_UnEquipToContainer_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
 {
 	UnEquipItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
 
-	if (IsValid(ContainerInventory))
-	{
-		Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
-	}
-
-	Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
-	//Server_UpdateTooltips();
+	Server_UpdateTooltips();
 }
 
 void UInventoryManagerComponent::Client_SetContainerSlotItem_Implementation(const FSlotStructure& ContentToAdd,
@@ -1175,13 +1197,7 @@ void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
 		}
 	}
 
-	if (IsValid(ContainerInventory))
-	{
-		Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
-	}
-
-	Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
-	//Server_UpdateTooltips();
+	Server_UpdateTooltips();
 }
 
 void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
@@ -1200,13 +1216,7 @@ void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
 		AddItem(ContainerInventory, InventorySlot, LocalInventoryItem);
 	}
 
-	if (IsValid(ContainerInventory))
-	{
-		Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
-	}
-
-	Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
-	//Server_UpdateTooltips();
+	Server_UpdateTooltips();
 }
 
 void UInventoryManagerComponent::UseConsumableItem(uint8 InventorySlot, FSlotStructure InventoryItem)

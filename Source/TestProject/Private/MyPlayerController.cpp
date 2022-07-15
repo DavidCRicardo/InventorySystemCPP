@@ -22,6 +22,10 @@ AMyPlayerController::AMyPlayerController()
 	
 	PlayerInventoryComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 
+	InventoryManagerComponent->NumberOfRowsInventory = PlayerInventoryComponent->NumberOfRowsInventory;
+	InventoryManagerComponent->SlotsPerRowInventory = PlayerInventoryComponent->SlotsPerRowInventory;
+	//InventoryManagerComponent->Client_LoadInventory();
+
 	CharacterReference = nullptr;
 	
 	bReplicates = true;
@@ -93,6 +97,8 @@ void AMyPlayerController::SetupHUDReferences()
 		
 		//Client: Init InventoryManagerUI
 		InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
+	
+		InventoryManagerComponent->Client_LoadInventory();
 	}
 }
 

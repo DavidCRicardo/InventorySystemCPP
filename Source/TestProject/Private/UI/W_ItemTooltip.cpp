@@ -26,7 +26,7 @@ void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
 	//SetAttributes(Item);
 }
 
-void UW_ItemTooltip::InitializeTooltip2(const FItemStructure& Item, const FSlotStructure& EquippedSlot)
+void UW_ItemTooltip::UpdateTooltipAttributes(const FItemStructure& Item, const FSlotStructure& EquippedSlot)
 {
 	EquippedSlotOnProfile = EquippedSlot;
 

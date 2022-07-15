@@ -38,9 +38,14 @@ public:
 	bool IsStorageSlot = false;
 	
 	UFUNCTION()
+	void SetSlotIndex(uint8 Index);
+	UFUNCTION()
+	void SetSlotStructure(const FSlotStructure& SlotToSet);
+	
+	UFUNCTION()
 	void UpdateSlot(const FSlotStructure& NewSlotStructure);
 	UFUNCTION()
-	void UpdateSlot2();
+	void UpdateSlotInfo();
 
 UFUNCTION()
 	void InitializeSlot(UTexture2D* BackgroundRef);

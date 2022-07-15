@@ -78,14 +78,7 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 
 			if (OutSuccess)
 			{
-				if (IsValid(InventoryManager->ContainerInventory))
-				{
-					InventoryManager->Client_UpdateContainerTooltips(PlayerController->InventoryManagerComponent->PlayerInventory->Inventory, InventoryManager->ContainerInventory->Inventory);
-				}
-
-				InventoryManager->Client_UpdateInventoryTooltips(InventoryManager->PlayerInventory->Inventory, InventoryManager->PlayerInventory->Inventory);
-
-				//PlayerController->InventoryManagerComponent->Server_UpdateTooltips();
+				InventoryManager->Server_UpdateTooltips();
 				
 				Destroy();
 			}

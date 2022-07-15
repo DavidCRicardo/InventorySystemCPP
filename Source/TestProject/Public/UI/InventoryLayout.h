@@ -24,19 +24,8 @@ public:
 	class UUniformGridPanel* InventoryGridPanel;
 	
 	UPROPERTY()
-	UTexture2D* Background_Slot;
-	
-	UPROPERTY()
 	TArray<USlotLayout*>InventorySlotsArray;
 	
 private:
 	virtual void NativeConstruct() override;
-	virtual void InitializeSlots() override;
-	virtual void CreateChildWidgets() override;
-	virtual void SetIndexToChilds(uint8& IndexStart) override;
-
-	UPROPERTY()
-	uint8 NumberOfColumns;
-	UPROPERTY()
-	uint8 NumberOfRows;
 };

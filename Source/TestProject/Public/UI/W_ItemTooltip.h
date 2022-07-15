@@ -28,7 +28,7 @@ public:
 	UFUNCTION()
 	void InitializeTooltip(const FItemStructure& Item);
 	UFUNCTION()
-	void InitializeTooltip2(const FItemStructure& Item, const FSlotStructure& EquippedSlot);
+	void UpdateTooltipAttributes(const FItemStructure& Item, const FSlotStructure& EquippedSlot);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint8 Index;

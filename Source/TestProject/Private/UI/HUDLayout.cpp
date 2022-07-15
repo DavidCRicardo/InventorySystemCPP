@@ -6,5 +6,4 @@
 void UHUDLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
-
 }

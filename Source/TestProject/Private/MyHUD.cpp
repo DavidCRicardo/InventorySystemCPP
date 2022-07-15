@@ -12,14 +12,15 @@
 #include "UI/MainLayout.h"
 #include "UI/ProfileLayout.h"
 #include "UI/TertiaryHUD.h"
+#include "Components/InventoryManagerComponent.h"
 
 AMyHUD::AMyHUD()
 {
-	static ConstructorHelpers::FObjectFinder<UDataTable> BP_WidgetDB(TEXT("/Game/Blueprints/Widgets_DB.Widgets_DB"));
+	/*static ConstructorHelpers::FObjectFinder<UDataTable> BP_WidgetDB(TEXT("/Game/Blueprints/Widgets_DB.Widgets_DB"));
 	if (BP_WidgetDB.Succeeded())
 	{
 		WidgetDB = BP_WidgetDB.Object;
-	}
+	}*/
 }
 
 void AMyHUD::DrawHUD()
@@ -30,7 +31,13 @@ void AMyHUD::DrawHUD()
 void AMyHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UDataTable* BP_WidgetDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Widgets_DB.Widgets_DB"));
+	if (IsValid(BP_WidgetDB))
+	{
+		WidgetDB = BP_WidgetDB;
+	}
+
 	const UDataTable* WidgetTable = WidgetDB;
 	FWidgetsLayoutBP* NewWidgetData = nullptr;
 
@@ -122,5 +129,11 @@ UUserWidget* AMyHUD::CreateWidgetFromDataTable(const UDataTable* WidgetTable, FW
 FWidgetsLayoutBP* AMyHUD::GetWidgetBPClass(const FName Name)
 {
 	const UDataTable* WidgetTable = WidgetDB;
+	
+	if (!IsValid(WidgetTable))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WidgetTable Not Valid"))
+	}
+
 	return WidgetTable->FindRow<FWidgetsLayoutBP>(Name, "", true);
 }

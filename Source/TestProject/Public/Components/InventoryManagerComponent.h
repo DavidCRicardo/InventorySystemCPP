@@ -46,11 +46,14 @@ public:
 	UInventoryComponent* ContainerInventory;
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
-	uint8 NumberOfSlots;
+	uint8 TotalNumberOfSlots;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UserInterface")
 	UMainLayout* MainLayoutUI;
 	
+	uint8 NumberOfRowsInventory;
+	uint8 SlotsPerRowInventory;
+
 	UFUNCTION(Category="Manager|Public")
 	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure& InventoryItem, bool& bOutSuccess);
 	
@@ -109,6 +112,9 @@ public:
 		void Client_UpdateContainerTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
 	UFUNCTION(Server, Reliable)
 		void Server_UpdateTooltips();
+
+	UFUNCTION(Client, Reliable)
+		void Client_LoadInventory();
 
 	UFUNCTION(Category="Manager|Public")
 	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
