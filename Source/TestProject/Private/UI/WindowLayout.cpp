@@ -15,17 +15,11 @@ void UWindowLayout::NativeConstruct()
 
 	QuitButton->OnClicked.AddUniqueDynamic(this, &UWindowLayout::OnButtonQuitClicked);
 	
-	//TopBorder->OnMouseButtonDownEvent.BindUFunction(this,"MyFunction");
 	
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 
 	SetVisibility(ESlateVisibility::Hidden);
 }
-
-/*void UWindowLayout::MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	//UE_LOG (LogTemp, Warning, TEXT ("Border1 - Mouse Button Down Event!"))
-}*/
 
 void UWindowLayout::SetTitleToWindow(FText Text)
 {
@@ -55,18 +49,6 @@ void UWindowLayout::ToggleWindow()
 	{
 		SetVisibility(ESlateVisibility::Hidden);
 	}
-}
-
-void UWindowLayout::InitializeSlots()
-{
-}
-
-void UWindowLayout::CreateChildWidgets()
-{
-}
-
-void UWindowLayout::SetIndexToChilds(uint8& IndexStart)
-{
 }
 
 void UWindowLayout::OnButtonQuitClicked()

@@ -2,7 +2,6 @@
 
 
 #include "UI/InventoryLayout.h"
-#include "Components/UniformGridPanel.h"
 #include "Internationalization/StringTableRegistry.h"
 
 UInventoryLayout::UInventoryLayout() {}

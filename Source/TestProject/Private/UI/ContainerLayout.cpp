@@ -5,9 +5,7 @@
 #include "Components/InventoryManagerComponent.h"
 #include "Internationalization/StringTableRegistry.h"
 
-UContainerLayout::UContainerLayout()
-{
-}
+UContainerLayout::UContainerLayout() {}
 
 void UContainerLayout::NativeConstruct()
 {

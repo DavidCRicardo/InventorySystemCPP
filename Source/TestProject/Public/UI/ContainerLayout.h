@@ -34,6 +34,4 @@ public:
 private:
 	virtual void NativeConstruct() override;
 
-	UPROPERTY()
-	uint8 InventorySize;
 };

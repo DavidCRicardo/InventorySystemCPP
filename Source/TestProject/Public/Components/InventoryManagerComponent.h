@@ -28,7 +28,7 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -50,15 +50,13 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UserInterface")
 	UMainLayout* MainLayoutUI;
-	
-	uint8 NumberOfRowsInventory;
-	uint8 SlotsPerRowInventory;
 
 	UFUNCTION(Category="Manager|Public")
 	void TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure& InventoryItem, bool& bOutSuccess);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_UseInventoryItem(const uint8& InventorySlot);
+
 	UFUNCTION(Server, Reliable)
 	void Server_UseContainerItem(const uint8& InventorySlot);
 
@@ -106,15 +104,13 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_CloseContainer();
 	
-	UFUNCTION(Client, Reliable)
-		void Client_UpdateInventoryTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
-	UFUNCTION(Client, Reliable)
-		void Client_UpdateContainerTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
 	UFUNCTION(Server, Reliable)
 		void Server_UpdateTooltips();
 
 	UFUNCTION(Client, Reliable)
-		void Client_LoadInventory();
+		void Client_LoadInventoryUI();
+	UFUNCTION(Client, Reliable)
+		void Client_LoadProfileUI();
 
 	UFUNCTION(Category="Manager|Public")
 	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
@@ -141,7 +137,7 @@ public:
 	UFUNCTION()
 	void UpdateEquippedStats();
 
-	UFUNCTION()
+	UFUNCTION(Category="Manager|Getter")
 	UDataTable* GetItemDB();
 
 	UFUNCTION()
@@ -153,6 +149,17 @@ public:
 	UPROPERTY()
 	AActor* CurrentContainer;
 	
+	UPROPERTY()
+		uint8 NumberOfRowsInventory;
+	UPROPERTY()
+		uint8 SlotsPerRowInventory;
+
+protected:
+	UFUNCTION(Client, Reliable)
+		void Client_UpdateInventoryTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
+	UFUNCTION(Client, Reliable)
+		void Client_UpdateContainerTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
+
 private:
 	UPROPERTY()
 	UDataTable* ItemDB;
@@ -240,16 +247,3 @@ private:
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd, uint8& AmountRemaining);
 };
-
-//FReturnTupleBoolInt HasPartialStack(const FSlotStructure& ContentToAdd);
-// Remove Item From Inventory
-//UFUNCTION()
-//void RemoveItem(const uint8& InventorySlot);
-//UFUNCTION()
-//bool CreateStack(FSlotStructure& ContentToAdd);
-//UFUNCTION()
-//bool AddToStack(FSlotStructure& ContentToAdd, const int8& Index);
-//UFUNCTION()
-//bool AddItem(FName ID, uint8 Amount);
-//UFUNCTION()
-//bool AddItemToInventory(FSlotStructure& ContentToAdd);

@@ -53,26 +53,8 @@ protected:
 	virtual void NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
-	
-	//virtual void MyFunction(FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
-	
+		
 private:
-	UFUNCTION()
-	virtual void InitializeSlots();
-
-	// Creates the Widgets that will belong to the parent Widget.
-	UFUNCTION()
-	virtual void CreateChildWidgets();
-
-	/**
-	 * Set an index to an array of Child Widgets.
-	 *
-	 * @param IndexStart The first index that it will added to the array.
-	 */
-	UFUNCTION()
-	virtual void SetIndexToChilds(uint8& IndexStart);
-
-	
 	UPROPERTY()
 	class UDragWidget* DragWidget;
 	

@@ -24,7 +24,6 @@ AMyPlayerController::AMyPlayerController()
 
 	InventoryManagerComponent->NumberOfRowsInventory = PlayerInventoryComponent->NumberOfRowsInventory;
 	InventoryManagerComponent->SlotsPerRowInventory = PlayerInventoryComponent->SlotsPerRowInventory;
-	//InventoryManagerComponent->Client_LoadInventory();
 
 	CharacterReference = nullptr;
 	
@@ -98,7 +97,8 @@ void AMyPlayerController::SetupHUDReferences()
 		//Client: Init InventoryManagerUI
 		InventoryManagerComponent->InitializeInventoryManagerUI(HUDLayoutReference->MainLayout);
 	
-		InventoryManagerComponent->Client_LoadInventory();
+		InventoryManagerComponent->Client_LoadInventoryUI();
+		InventoryManagerComponent->Client_LoadProfileUI();
 	}
 }
 
