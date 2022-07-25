@@ -25,11 +25,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint8 Amount;
+
+	UPROPERTY(Replicated)
+	UStaticMesh* WorldMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool StartWithPhysicsEnabled;

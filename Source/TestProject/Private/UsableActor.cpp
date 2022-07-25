@@ -17,11 +17,11 @@ AUsableActor::AUsableActor()
 	bReplicates = true;
 	
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	
 	SetRootComponent(Scene);
+	StaticMesh->AttachToComponent(Scene, FAttachmentTransformRules::KeepRelativeTransform);
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	StaticMesh->SetupAttachment(Scene);
 	
 	Name = FText::FromString("NULL");
 	Action = FText::FromString("Use");
@@ -39,7 +39,6 @@ void AUsableActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AUsableActor, Name);
 	DOREPLIFETIME(AUsableActor, IsUsable);
 	DOREPLIFETIME(AUsableActor, WasUsed);
-	DOREPLIFETIME(AUsableActor, WorldMesh);
 }
 
 FText AUsableActor::GetUseActionText_Implementation()
@@ -59,9 +58,8 @@ FText AUsableActor::GetUseActionText_Implementation()
 
 bool AUsableActor::GetIsActorUsable_Implementation()
 {
-	// return IUsableActorInterface::GetIsActorUsable_Implementation();
-
 	return IsUsable;
+	// return IUsableActorInterface::GetIsActorUsable_Implementation();
 }
 
 bool AUsableActor::BeginOutlineFocus_Implementation()
@@ -92,12 +90,12 @@ bool AUsableActor::OnActorUsed_Implementation(APlayerController* Controller)
 		else {
 			WasUsed = true;
 		}
+		OnRep_WasUsed();
+
 		return true;
 	}
 	
 	return false;
-	
-
 	// return IUsableActorInterface::OnActorUsed_Implementation(Controller);
 }
 
@@ -105,24 +103,12 @@ bool AUsableActor::OnActorUsed_Implementation(APlayerController* Controller)
 void AUsableActor::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
 void AUsableActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-bool AUsableActor::OnRep_WasUsed_Validate()
-{
-	return true;
-}
-
-void AUsableActor::OnRep_WasUsed_Implementation()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnRep_WasUsed_Implementation being called"));
-	OnWasUsed();
 }
 
 void AUsableActor::SetInteractText(FText Text)
@@ -138,13 +124,16 @@ void AUsableActor::SetScreenPosition(FVector2D ScreenPosition)
 	InteractUserWidget->SetPositionInViewport(ScreenPosition);
 }
 
+void AUsableActor::OnRep_WasUsed()
+{
+	OnWasUsed();
+}
+
 bool AUsableActor::OnWasUsed()
 {
 	if (IsValid(UsedSound)) {
 		UGameplayStatics::PlaySoundAtLocation(this, UsedSound, GetActorLocation());
 	}
 	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("WasUsed being called"));
-
 	return true;
 }

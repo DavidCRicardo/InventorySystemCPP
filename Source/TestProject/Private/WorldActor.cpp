@@ -18,6 +18,13 @@ AWorldActor::AWorldActor()
 	StartWithPhysicsEnabled = true;
 }
 
+void AWorldActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AWorldActor, WorldMesh);
+}
+
 // Called when the game starts or when spawned
 void AWorldActor::BeginPlay()
 {

@@ -103,7 +103,7 @@ protected:
 	void Interact();
 	
 	UFUNCTION()
-	void OnActorUsed(AActor* Actor);
+	void OnActorUsed(AActor* Actor1);
 	
 	UFUNCTION()
 	void QuitGame();

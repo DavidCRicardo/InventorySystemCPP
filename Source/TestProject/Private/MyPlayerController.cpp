@@ -14,6 +14,7 @@
 #include "UI/InteractiveText_Panel.h"
 #include "UI/MainLayout.h"
 #include "UI/TertiaryHUD.h"
+#include "UsableDoor.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -165,13 +166,25 @@ void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 	OnActorUsed(Actor);
 }
 
-void AMyPlayerController::OnActorUsed(AActor* Actor)
+void AMyPlayerController::OnActorUsed(AActor* Actor1)
 {
 	if (HasAuthority())
 	{
-		if (IsValid(Actor))
+		/*AActor* Actor{};
+
+		// Get Usable Actor
+		if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 		{
-			IUsableActorInterface::Execute_OnActorUsed(Actor, this);
+			// Get Selected Item
+			uint32 Index = 0;
+			GetSelectedItemIndex(Index);
+
+			Actor = CharacterReference->UsableActorsInsideRange[Index];
+		}*/
+
+		if (IsValid(Actor1))
+		{
+			IUsableActorInterface::Execute_OnActorUsed(Actor1, this);
 		}
 	}
 }
@@ -241,6 +254,8 @@ void AMyPlayerController::GetSelectedItemIndex(uint32& Index)
 
 void AMyPlayerController::Interact()
 {
+	//Server_OnActorUsed();
+	//OnActorUsed();	
 	if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 	{
 		// Get Selected Item
@@ -262,6 +277,7 @@ void AMyPlayerController::Interact()
 		//if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 		//{
 		//	Actor = CharacterReference->UsableActorsInsideRange[Index];
+ 						
 			if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
 			{
 				Server_OnActorUsed(UsableActor);
@@ -269,6 +285,9 @@ void AMyPlayerController::Interact()
 				return;
 			}
 		//}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Character Reference is null"))
 	}
 }
 
