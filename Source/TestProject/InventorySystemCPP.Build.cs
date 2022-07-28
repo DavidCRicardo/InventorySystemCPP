@@ -31,7 +31,5 @@ public class InventorySystemCPP : ModuleRules
 		{
 			Path.Combine(ModuleDirectory, "Private")
 		});
-		
-		// PrivateIncludePaths.AddRange(new string[] { "TestProject", "TestProject/Item" });
 	}
 }

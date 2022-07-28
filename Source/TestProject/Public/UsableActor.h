@@ -6,7 +6,10 @@
 #include "UsableActorInterface.h"
 #include "GameFramework/Actor.h"
 #include "Sound/SoundCue.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "UsableActor.generated.h"
+
+static const FName LCOMMON_WORDS2 = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
 
 UCLASS()
 class INVENTORYSYSTEMCPP_API AUsableActor : public AActor, public IUsableActorInterface

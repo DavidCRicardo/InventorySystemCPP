@@ -2,6 +2,8 @@
 
 
 #include "UsableDoor.h"
+#include "Internationalization/StringTableRegistry.h"
+#include "UI/InteractText.h"
 
 AUsableDoor::AUsableDoor() {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> LocalStaticMesh(TEXT("/Game/Environment/Meshes/SM_Door.SM_Door"));
@@ -10,8 +12,12 @@ AUsableDoor::AUsableDoor() {
 	static ConstructorHelpers::FObjectFinder<USoundCue> LocalSoundCue(TEXT("/Game/Environment/Sounds/Environment/SFX_Door_Cue.SFX_Door_Cue"));
 	UsedSound = LocalSoundCue.Object;
 
-	Name = FText::FromString("Door");
-	Action = FText::FromString("Open");
+	Name = LOCTABLE(COMMON_WORDS2, "Door");
+	
+	OpenText = LOCTABLE(COMMON_WORDS2, "Open");
+	CloseText = LOCTABLE(COMMON_WORDS2, "Close");
+	//Action = LOCTABLE(COMMON_WORDS2, "Use");
+	Action = OpenText;
 
 
 	StaticMesh->SetMobility(EComponentMobility::Movable);
@@ -26,13 +32,19 @@ bool AUsableDoor::OnWasUsed()
 
 	if (WasUsed)
 	{
+		Action = CloseText;
+		
 		StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		LocalRotation = -90;
 	}
 	else {
+		Action = OpenText;
+		
 		StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		LocalRotation = 90;
 	}
+
+	SetInteractText(IUsableActorInterface::Execute_GetUseActionText(this));
 
 	FRotator Rotator = StaticMesh->GetComponentRotation();	
 	

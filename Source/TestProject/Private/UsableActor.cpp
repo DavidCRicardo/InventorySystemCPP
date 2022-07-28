@@ -4,7 +4,6 @@
 #include "UsableActor.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "Internationalization/StringTableRegistry.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/InteractText.h"

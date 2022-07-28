@@ -17,4 +17,8 @@ class INVENTORYSYSTEMCPP_API AUsableDoor : public AUsableActor
 	AUsableDoor();
 
 	bool OnWasUsed() override;
+
+protected:
+	FText OpenText;
+	FText CloseText;
 };

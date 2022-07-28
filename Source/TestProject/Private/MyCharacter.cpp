@@ -152,7 +152,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
 					{
 						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
-						WorldActor->BeginOutlineFocus_Implementation();
+						IUsableActorInterface::Execute_BeginOutlineFocus(WorldActor);
 						SetActorTickEnabled(true);
 						WorldActorsInsideRange.Add(WorldActor);
 						UsableActorsInsideRange.Add(WorldActor);
@@ -162,7 +162,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
-						UsableActor->BeginOutlineFocus_Implementation();
+						IUsableActorInterface::Execute_BeginOutlineFocus(UsableActor);
 						
 						if (!UsableActor->InteractUserWidget)
 						{
@@ -171,7 +171,7 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 						}
 						
 						// Set Interact Text
-						FText MessageText = UsableActor->GetUseActionText_Implementation();
+						FText MessageText = IUsableActorInterface::Execute_GetUseActionText(UsableActor);
 						UsableActor->SetInteractText(MessageText);
 
 						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
@@ -202,7 +202,7 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
 					{
 						MyPlayerController->RemoveUsableActorToDropMenu(WorldActor->ID);
-						WorldActor->EndOutlineFocus_Implementation();
+						IUsableActorInterface::Execute_EndOutlineFocus(WorldActor);
 						
 						WorldActorsInsideRange.Remove(WorldActor);
 						UsableActorsInsideRange.Remove(WorldActor);
@@ -212,7 +212,7 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 					
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
-						UsableActor->EndOutlineFocus_Implementation();
+						IUsableActorInterface::Execute_EndOutlineFocus(UsableActor);
 						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 						
 						UsableActorsInsideRange.Remove(UsableActor);
