@@ -16,6 +16,8 @@ UEquipmentComponent::UEquipmentComponent()
 
 	NumberOfRowsInventory = 7;
 	SlotsPerRowInventory = 4;
+
+	NumberOfSlotsOnHotbar = 5;
 }
 
 // Called when the game starts

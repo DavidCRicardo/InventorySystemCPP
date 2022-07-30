@@ -25,7 +25,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="RowsPerSlot", Category="Inventory UI"))
 	uint8 SlotsPerRowInventory = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory", Category="Inventory UI"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Slots On Hotbar", Category = "Inventory UI"))
+	uint8 NumberOfSlotsOnHotbar = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(DisplayName="Inventory", Category="Inventory UI"))
 	TArray<FSlotStructure> Inventory;
 
 protected:

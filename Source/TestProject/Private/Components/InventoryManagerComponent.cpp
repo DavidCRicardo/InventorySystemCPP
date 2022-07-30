@@ -15,6 +15,7 @@
 #include "UI/ContainerLayout.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
+#include "UI/Hotbar.h"
 #include "UI/W_ItemTooltip.h"
 #include "UI/SlotLayout.h"
 #include "GameFramework/PlayerState.h"
@@ -37,11 +38,6 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("ItemDB DataTable not found!!"));
 	}
-
-	NumberOfRowsInventory = 0;
-	SlotsPerRowInventory = 0;
-
-	TotalNumberOfSlots = 0;
 }
 
 // Called when the game starts
@@ -140,6 +136,45 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 
 			LocalSlot->SetSlotIndex(i);
 			LocalSlot->NativeFromInventory = true;
+
+			LocalSlot->UpdateSlot(SlotStructure);
+		}
+	}
+}
+
+void UInventoryManagerComponent::Client_LoadHotbarUI_Implementation() {
+	LoadHotbarUI();
+}
+
+void UInventoryManagerComponent::LoadHotbarUI() {
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
+	{
+		USlotLayout* W_Slot = nullptr;
+		uint8 Row = 0;
+		uint8 Column = 0;
+
+		for (uint8 i = 0; i < NumberOfSlotsOnHotbar; i++)
+		{
+			Column = i;
+
+			W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+			MainLayoutUI->Hotbar->HotbarGridPanel->AddChildToUniformGrid(W_Slot, Row, Column);
+
+			MainLayoutUI->Hotbar->HotbarSlotsArray.Add(W_Slot);	
+		}
+
+		FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+
+		USlotLayout* LocalSlot{};
+		for (int i = 0; i < MainLayoutUI->Hotbar->HotbarSlotsArray.Num(); i++)
+		{
+			LocalSlot = MainLayoutUI->Hotbar->HotbarSlotsArray[i];
+
+			LocalSlot->SetSlotIndex(i + (uint8)EEquipmentSlot::Count);
+			LocalSlot->NativeFromHotbar = true;
 
 			LocalSlot->UpdateSlot(SlotStructure);
 		}

@@ -111,6 +111,11 @@ public:
 		void Client_LoadInventoryUI();
 	UFUNCTION(Client, Reliable)
 		void Client_LoadProfileUI();
+	UFUNCTION(Client, Reliable)
+		void Client_LoadHotbarUI();
+
+	UFUNCTION()
+		void LoadHotbarUI();
 
 	UFUNCTION(Category="Manager|Public")
 	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
@@ -131,8 +136,6 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void Client_SetAttributes(const TArray<uint8>& InAttributesArray);
-	UFUNCTION()
-	void SetAttributes(const TArray<uint8>& InAttributesArray);
 	
 	UFUNCTION()
 	void UpdateEquippedStats();
@@ -149,10 +152,10 @@ public:
 	UPROPERTY()
 	AActor* CurrentContainer;
 	
-	UPROPERTY()
-		uint8 NumberOfRowsInventory;
-	UPROPERTY()
-		uint8 SlotsPerRowInventory;
+	/*Defined on Player Controller*/
+	uint8 NumberOfRowsInventory = 0;
+	uint8 SlotsPerRowInventory = 0;
+	uint8 NumberOfSlotsOnHotbar = 0;
 
 protected:
 	UFUNCTION(Client, Reliable)
@@ -172,6 +175,9 @@ private:
 	bool ItemIsValid(FSlotStructure Item);
 	UFUNCTION(Category = "Helper")
 	bool GetEmptyEquipmentSlotByType(EEquipmentSlot EquipmentSlot, uint8& OutIndex);
+
+	UFUNCTION()
+		void SetAttributes(const TArray<uint8>& InAttributesArray);
 
 	// Remove a specific amount from an existing item on Inventory
 	UFUNCTION()

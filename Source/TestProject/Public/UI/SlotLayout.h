@@ -31,6 +31,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	bool NativeFromContainer = false;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	bool NativeFromHotbar = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlotStructure SlotStructure;
 

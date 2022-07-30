@@ -24,6 +24,7 @@ AMyPlayerController::AMyPlayerController()
 
 	InventoryManagerComponent->NumberOfRowsInventory = PlayerInventoryComponent->NumberOfRowsInventory;
 	InventoryManagerComponent->SlotsPerRowInventory = PlayerInventoryComponent->SlotsPerRowInventory;
+	InventoryManagerComponent->NumberOfSlotsOnHotbar = PlayerInventoryComponent->NumberOfSlotsOnHotbar;
 
 	CharacterReference = nullptr;
 	
@@ -99,6 +100,8 @@ void AMyPlayerController::SetupHUDReferences()
 	
 		InventoryManagerComponent->Client_LoadInventoryUI();
 		InventoryManagerComponent->Client_LoadProfileUI();
+
+		InventoryManagerComponent->Client_LoadHotbarUI();
 	}
 }
 
