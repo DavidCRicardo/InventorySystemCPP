@@ -33,6 +33,10 @@ F : Collect Items, and, Use Pot <br>
 Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode" <br>
 Escape : Quit Game
 
+## About Wiki
+* You can find information about items <br>
+* A brief explanation about how to create your own items using, whether BP or C++. <br>
+
 ## Author 
 Developer: David Ricardo
 <br>

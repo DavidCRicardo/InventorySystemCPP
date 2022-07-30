@@ -13,7 +13,7 @@
 #include "UI/InteractiveText_Panel.h"
 #include "UI/MainLayout.h"
 #include "UI/TertiaryHUD.h"
-#include "UsableDoor.h"
+#include "Actors/UsableDoor.h"
 
 AMyPlayerController::AMyPlayerController()
 {

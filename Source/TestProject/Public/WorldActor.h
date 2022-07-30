@@ -27,7 +27,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -53,10 +53,10 @@ public:
 
 	void OnRep_WorldMesh();
 
-private:
+protected:
 	UPROPERTY()
 	FSlotStructure InventoryItem;
 
-	UPROPERTY()
-	bool IsSinglePlayer;
+	//UPROPERTY()
+	//bool IsSinglePlayer;
 };

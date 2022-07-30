@@ -20,8 +20,6 @@ AContainerActor::AContainerActor()
 	C_Name = "NULL";
 	C_SlotsPerRow = 3;
 	C_CanStoreItems = true;
-	
-	// C_InventorySize = 9;
 }
 
 // Called when the game starts or when spawned

@@ -68,6 +68,10 @@ bool AWorldActor::LoadItemFromList()
 	InventoryItem.Amount = Amount;
 	InventoryItem.ItemStructure = *NewItemData;
 
+	Name = NewItemData->Name;
+	
+	//StaticMesh->SetStaticMesh(NewItemData->WorldMesh);
+
 	return true;
 }
 

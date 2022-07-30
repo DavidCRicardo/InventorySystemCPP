@@ -14,6 +14,11 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 
 	FItemStructure();
 	
+	FItemStructure(FName ID, UTexture2D* Icon, FText Name, FName Description, EItemType ItemType, EItemQuality Quality, uint8 PriceValue, bool IsStackable, 
+		uint8 MaxStackSize, bool IsDroppable, USkeletalMesh* SkeletalMesh,UStaticMesh* WorldMesh,float Duration,EEquipmentSlot EquipmentSlot,
+		uint8 CurrentLevel,uint8 MaxLevel,uint8 AmountToAddPerLevel,uint8 Strength,uint8 Endurance,uint8 Dexterity,uint8 Intelligence,uint8 Attack,uint8 Defense,
+		uint8 Health);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ID;
 
