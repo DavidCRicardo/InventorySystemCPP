@@ -24,6 +24,11 @@ AMyPlayerController::AMyPlayerController()
 
 	InventoryManagerComponent->NumberOfRowsInventory = PlayerInventoryComponent->NumberOfRowsInventory;
 	InventoryManagerComponent->SlotsPerRowInventory = PlayerInventoryComponent->SlotsPerRowInventory;
+	
+	if (PlayerInventoryComponent->NumberOfSlotsOnHotbar > GetMaximumHotbarSlots())
+	{
+		PlayerInventoryComponent->NumberOfSlotsOnHotbar = GetMaximumHotbarSlots();
+	}
 	InventoryManagerComponent->NumberOfSlotsOnHotbar = PlayerInventoryComponent->NumberOfSlotsOnHotbar;
 
 	CharacterReference = nullptr;
@@ -377,3 +382,7 @@ UDataTable* AMyPlayerController::GetItemDB()
 	return InventoryManagerComponent->GetItemDB();
 }
 
+void AMyPlayerController::UI_MoveHotbarItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
+{
+	InventoryManagerComponent->Client_MoveHotbarSlotItem(FromSlot, ToSlot, IsDraggedFromInventory, IsDraggedFromHotbar);
+}

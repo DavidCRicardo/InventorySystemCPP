@@ -53,7 +53,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_UnEquipToContainer(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 
-	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Default")
+	void UI_MoveHotbarItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar);
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Default")
 	void UI_MoveContainerItem(const uint8& FromInventorySlot, const uint8& ToInventorySlot);
 	

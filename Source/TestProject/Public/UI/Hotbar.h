@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Hotbar.generated.h"
 
-class USlotLayout;
+class UHotbar_Slot;
 class UUniformGridPanel;
 /**
  * 
@@ -21,5 +21,5 @@ public:
 	UUniformGridPanel* HotbarGridPanel;
 
 	UPROPERTY()
-	TArray<USlotLayout*>HotbarSlotsArray;
+	TArray<UHotbar_Slot*>HotbarSlotsArray;
 };

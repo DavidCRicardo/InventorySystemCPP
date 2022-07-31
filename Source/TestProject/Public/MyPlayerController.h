@@ -35,6 +35,7 @@ public:
 	virtual void UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_EquipFromContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UnEquipToContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+	virtual void UI_MoveHotbarItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar) override;
 	/* Ends Interface */
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="InventoryComponent"))
@@ -94,6 +95,8 @@ public:
 	UFUNCTION()
 	UDataTable* GetItemDB();
 	
+	uint8 GetMaximumHotbarSlots() { return MaximumHotbarSlots; };
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -107,4 +110,7 @@ protected:
 	
 	UFUNCTION()
 	void QuitGame();
+
+private:
+	uint8 MaximumHotbarSlots = 10;
 };

@@ -104,6 +104,13 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_CloseContainer();
 	
+	UFUNCTION(Client, Reliable)
+		void Client_MoveHotbarSlotItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar);
+	UFUNCTION(Client, Reliable)
+		void Client_UseHotbarSlot(const uint8& HotbarSlot);
+	UFUNCTION(Client, Reliable)
+		void Client_ClearHotbarSlot(const uint8& HotbarSlot);
+
 	UFUNCTION(Server, Reliable)
 		void Server_UpdateTooltips();
 
@@ -164,6 +171,18 @@ protected:
 		void Client_UpdateContainerTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
 
 private:
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void MoveHotbarSlotItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar);
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void UseHotbarSlot(const uint8& HotbarSlot);
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void ClearHotbarSlotItem(const uint8& HotbarSlot);
+
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void SetHotbarSlotItem(const uint8& ToSlot, FSlotStructure SlotStructure);
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		FSlotStructure GetHotbarSlotItem(const uint8& HotbarSlot);
+
 	UPROPERTY()
 	UDataTable* ItemDB;
 	
@@ -224,6 +243,10 @@ private:
 	UFUNCTION(Category="UserInterface|Private|Inventory")
 	void ClearInventorySlotItem(uint8 InventorySlot);
 	
+	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	FSlotStructure GetInventorySlotItem(uint8 InventorySlot);
+
+
 	UFUNCTION(Category="UserInterface|Private|Container") 
 	void ClearContainerSlots();
 	UFUNCTION(Category="UserInterface|Private|Container")

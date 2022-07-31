@@ -18,6 +18,7 @@
 #include "UI/Hotbar.h"
 #include "UI/W_ItemTooltip.h"
 #include "UI/SlotLayout.h"
+#include "UI/Hotbar_Slot.h"
 #include "GameFramework/PlayerState.h"
 #include "Inventory/FContainerInfo.h"
 #include "Net/UnrealNetwork.h"
@@ -149,31 +150,40 @@ void UInventoryManagerComponent::Client_LoadHotbarUI_Implementation() {
 void UInventoryManagerComponent::LoadHotbarUI() {
 	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
 
-	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("HotbarSlot_WBP");
 	if (WidgetLayout)
 	{
-		USlotLayout* W_Slot = nullptr;
+		UHotbar_Slot* W_Slot = nullptr;
 		uint8 Row = 0;
 		uint8 Column = 0;
 
+		uint8 KeyNumber = 0;
 		for (uint8 i = 0; i < NumberOfSlotsOnHotbar; i++)
 		{
 			Column = i;
 
-			W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+			W_Slot = CreateWidget<UHotbar_Slot>(GetWorld(), WidgetLayout->Widget);
+			
+			KeyNumber = i + 1;
+			if (KeyNumber == PC->GetMaximumHotbarSlots())
+			{
+				KeyNumber = 0;
+			}
+			
+			W_Slot->SetKeyNumber(KeyNumber);		
+			
 			MainLayoutUI->Hotbar->HotbarGridPanel->AddChildToUniformGrid(W_Slot, Row, Column);
-
 			MainLayoutUI->Hotbar->HotbarSlotsArray.Add(W_Slot);	
 		}
 
 		FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
 
-		USlotLayout* LocalSlot{};
+		UHotbar_Slot* LocalSlot{};
 		for (int i = 0; i < MainLayoutUI->Hotbar->HotbarSlotsArray.Num(); i++)
 		{
 			LocalSlot = MainLayoutUI->Hotbar->HotbarSlotsArray[i];
 
-			LocalSlot->SetSlotIndex(i + (uint8)EEquipmentSlot::Count);
+			LocalSlot->SetSlotIndex(i);
 			LocalSlot->NativeFromHotbar = true;
 
 			LocalSlot->UpdateSlot(SlotStructure);
@@ -992,6 +1002,18 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 	}
 }
 
+FSlotStructure UInventoryManagerComponent::GetInventorySlotItem(uint8 InventorySlot)
+{
+	uint8 Index = InventorySlot;
+	if (InventorySlot >= (uint8)EEquipmentSlot::Count)
+	{
+		Index = InventorySlot - (uint8)EEquipmentSlot::Count;
+	}
+
+	FSlotStructure Slot = MainLayoutUI->Inventory->InventorySlotsArray[Index]->SlotStructure;
+	return Slot;
+}
+
 void UInventoryManagerComponent::ClearContainerSlots()
 {
 	MainLayoutUI->Container->ContainerSlotsArray.Empty();
@@ -1366,4 +1388,72 @@ void UInventoryManagerComponent::UseEquipmentItem(uint8 InventorySlot, FSlotStru
 			Server_EquipFromInventory(InventorySlot, OutInventorySlot);
 		}
 	}
+}
+
+void UInventoryManagerComponent::Client_MoveHotbarSlotItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
+{
+	MoveHotbarSlotItem(FromSlot, ToSlot, IsDraggedFromInventory, IsDraggedFromHotbar);
+}
+
+void UInventoryManagerComponent::Client_UseHotbarSlot_Implementation(const uint8& HotbarSlot)
+{
+	UseHotbarSlot(HotbarSlot);
+}
+
+void UInventoryManagerComponent::Client_ClearHotbarSlot_Implementation(const uint8& HotbarSlot)
+{
+	ClearHotbarSlotItem(HotbarSlot);
+}
+
+void UInventoryManagerComponent::MoveHotbarSlotItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
+{
+	if (IsDraggedFromInventory)
+	{
+		FSlotStructure SlotStructure = GetInventorySlotItem(FromSlot);
+
+		SetHotbarSlotItem(ToSlot, SlotStructure);
+	}
+
+	if (IsDraggedFromHotbar)
+	{
+		FSlotStructure FromSlotItem = GetHotbarSlotItem(FromSlot);
+		FSlotStructure ToSlotItem = GetHotbarSlotItem(ToSlot);
+
+		if (ItemIsValid(ToSlotItem))
+		{
+			SetHotbarSlotItem(ToSlot, FromSlotItem);
+			SetHotbarSlotItem(FromSlot, ToSlotItem);
+		}
+		else {
+			SetHotbarSlotItem(ToSlot, FromSlotItem);
+			ClearHotbarSlotItem(FromSlot);
+		}
+	}
+}
+
+void UInventoryManagerComponent::UseHotbarSlot(const uint8& HotbarSlot)
+{
+}
+
+void UInventoryManagerComponent::ClearHotbarSlotItem(const uint8& HotbarSlot)
+{
+	UHotbar_Slot* Slot = MainLayoutUI->Hotbar->HotbarSlotsArray[HotbarSlot];
+
+	FSlotStructure LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
+
+	Slot->UpdateSlot(LocalSlot);
+	
+}
+
+void UInventoryManagerComponent::SetHotbarSlotItem(const uint8& ToSlot, FSlotStructure SlotStructure)
+{
+	UHotbar_Slot* HotbarSlot = MainLayoutUI->Hotbar->HotbarSlotsArray[ToSlot];
+
+	HotbarSlot->UpdateSlot(SlotStructure);
+}
+
+FSlotStructure UInventoryManagerComponent::GetHotbarSlotItem(const uint8& HotbarSlot)
+{
+	FSlotStructure Slot = MainLayoutUI->Hotbar->HotbarSlotsArray[HotbarSlot]->SlotStructure;
+	return Slot;
 }
