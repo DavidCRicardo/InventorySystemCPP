@@ -111,6 +111,13 @@ protected:
 	UFUNCTION()
 	void QuitGame();
 
+	void UseHotbarSlot(const uint8 HotbarSlot);
+	void UseHotbarSlot1();
+	void UseHotbarSlot2();
+	void UseHotbarSlot3();
+	void UseHotbarSlot4();
+	void UseHotbarSlot5();
+
 private:
 	uint8 MaximumHotbarSlots = 10;
 };

@@ -50,6 +50,42 @@ void AMyPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("QuitGame", IE_Pressed, this, &AMyPlayerController::QuitGame);
 
+	InputComponent->BindAction("UseHotbar1", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot1);
+	InputComponent->BindAction("UseHotbar2", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot2);
+	InputComponent->BindAction("UseHotbar3", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot3);
+	InputComponent->BindAction("UseHotbar4", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot4);
+	InputComponent->BindAction("UseHotbar5", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot5);
+}
+
+void AMyPlayerController::UseHotbarSlot(const uint8 Hotbar) {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Key 1 Pressed")));
+
+	InventoryManagerComponent->Client_UseHotbarSlot(Hotbar);
+}
+void AMyPlayerController::UseHotbarSlot1() {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 1 Pressed")));
+
+	InventoryManagerComponent->Client_UseHotbarSlot(1);
+}
+void AMyPlayerController::UseHotbarSlot2() {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 2 Pressed")));
+
+	InventoryManagerComponent->Client_UseHotbarSlot(2);
+}
+void AMyPlayerController::UseHotbarSlot3() {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 3 Pressed")));
+
+	InventoryManagerComponent->Client_UseHotbarSlot(3);
+}
+void AMyPlayerController::UseHotbarSlot4() {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 4 Pressed")));
+
+	InventoryManagerComponent->Client_UseHotbarSlot(4);
+}
+void AMyPlayerController::UseHotbarSlot5() {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 5 Pressed")));
+
+	InventoryManagerComponent->Client_UseHotbarSlot(5);
 }
 
 void AMyPlayerController::QuitGame()

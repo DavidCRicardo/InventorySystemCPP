@@ -366,6 +366,13 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleUIMode", EKeys::LeftAlt));
 		
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("QuitGame", EKeys::Escape));
+	
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar1", EKeys::One));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar2", EKeys::Two));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar3", EKeys::Three));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar4", EKeys::Four));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar5", EKeys::Five));
+
 	}
 }
 

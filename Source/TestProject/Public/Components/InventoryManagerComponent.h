@@ -194,6 +194,18 @@ private:
 	bool ItemIsValid(FSlotStructure Item);
 	UFUNCTION(Category = "Helper")
 	bool GetEmptyEquipmentSlotByType(EEquipmentSlot EquipmentSlot, uint8& OutIndex);
+	UFUNCTION(Category = "Helper")
+	bool ItemIsSame(const FSlotStructure Item1, const FSlotStructure Item2);
+	UFUNCTION(Category = "Helper")
+	bool IsItemStackable(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	uint8 ItemFreeStackSpace(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	uint8 GetItemAmount(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	uint8 GetItemMaxStackSize(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	void AddAmountToItem(FSlotStructure & Item, uint8 AmountToAdd);
 
 	UFUNCTION()
 		void SetAttributes(const TArray<uint8>& InAttributesArray);
