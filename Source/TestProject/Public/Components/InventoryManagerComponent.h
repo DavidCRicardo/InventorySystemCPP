@@ -32,7 +32,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 	UFUNCTION()
 	void InitializeInventoryManager(UInventoryComponent* EquipmentComponent);
 	
@@ -120,6 +120,9 @@ public:
 		void Client_LoadProfileUI();
 	UFUNCTION(Client, Reliable)
 		void Client_LoadHotbarUI();
+
+	UFUNCTION(Client, Reliable)
+		void Client_CheckHotbarSlots(const FSlotStructure& Slot);
 
 	UFUNCTION()
 		void LoadHotbarUI();

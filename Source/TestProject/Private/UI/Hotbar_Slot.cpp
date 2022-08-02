@@ -22,6 +22,13 @@ FReply UHotbar_Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const 
 
 void UHotbar_Slot::SetKeyNumber(uint8 InNumber)
 {
+	InNumber++;
+
+	/*if (InNumber >= PlayerController->GetMaximumHotbarSlots())
+	{
+		InNumber = 0;
+	}*/
+
 	Number->SetText(FText::AsNumber(InNumber));
 }
 

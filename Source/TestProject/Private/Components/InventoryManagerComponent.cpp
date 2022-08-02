@@ -190,10 +190,10 @@ void UInventoryManagerComponent::LoadHotbarUI() {
 
 			W_Slot = CreateWidget<UHotbar_Slot>(GetWorld(), WidgetLayout->Widget);
 
-			KeyNumber = i + 1;
+			KeyNumber = i;
 			if (KeyNumber == PC->GetMaximumHotbarSlots())
 			{
-				KeyNumber = 0;
+				KeyNumber = PC->GetMaximumHotbarSlots();
 			}
 
 			W_Slot->SetKeyNumber(KeyNumber);
@@ -1049,6 +1049,8 @@ void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
 	}
 
 	Server_UpdateTooltips();
+
+	Client_CheckHotbarSlots(LocalInventorySlot);
 }
 
 void UInventoryManagerComponent::UseConsumableItem(uint8 InventorySlot, FSlotStructure InventoryItem)
@@ -1496,8 +1498,7 @@ void UInventoryManagerComponent::ClearHotbarSlotItem(const uint8& HotbarSlot)
 
 	FSlotStructure LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
 
-	Slot->UpdateSlot(LocalSlot);
-	
+	Slot->UpdateSlot(LocalSlot);	
 }
 
 void UInventoryManagerComponent::SetHotbarSlotItem(const uint8& ToSlot, FSlotStructure SlotStructure)
@@ -1510,14 +1511,38 @@ void UInventoryManagerComponent::SetHotbarSlotItem(const uint8& ToSlot, FSlotStr
 FSlotStructure UInventoryManagerComponent::GetHotbarSlotItem(const uint8& HotbarSlot)
 {
 	TArray<UHotbar_Slot*> HotbarSlotsArray =  MainLayoutUI->Hotbar->HotbarSlotsArray;
-	FSlotStructure Slot{};
+	FSlotStructure Slot = HotbarSlotsArray[HotbarSlot]->SlotStructure;
 
-	for (uint8 i = 0; i < HotbarSlotsArray.Num(); i++)
+	return Slot;
+}
+
+void UInventoryManagerComponent::Client_CheckHotbarSlots_Implementation(const FSlotStructure& Slot) {
+	bool Success = false;
+	TArray<USlotLayout*> LocalInventoryUI2 = MainLayoutUI->Inventory->InventorySlotsArray;
+
+	// Has any Item with same ID
+	for (uint8 i = 0; i < LocalInventoryUI2.Num(); i++)
 	{
-		if (HotbarSlotsArray[i]->HotbarSlotIndex == HotbarSlot) {
-			Slot = HotbarSlotsArray[i]->SlotStructure;
+		if (Slot.ItemStructure.ID == LocalInventoryUI2[i]->SlotStructure.ItemStructure.ID)
+		{
+			Success = true;
+			break;
 		}
 	}
 
-	return Slot;
+	// If not, clean all the hotbar slots with that item
+	if (!Success)
+	{
+		TArray<UHotbar_Slot*> Hotbar = MainLayoutUI->Hotbar->HotbarSlotsArray;
+
+		for (uint8 i = 0; i < Hotbar.Num(); i++) {
+			{
+				if (Slot.ItemStructure.ID == GetHotbarSlotItem(i).ItemStructure.ID)
+				{
+					ClearHotbarSlotItem(i);
+					break;
+				}
+			}
+		}
+	}
 }
