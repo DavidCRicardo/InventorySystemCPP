@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryInterface.h"
+#include "InventoryHUDInterface.h"
 #include "MyPlayerController.generated.h"
 
 class UDataTable;
@@ -16,7 +16,7 @@ static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
  * 
  */
 UCLASS()
-class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, public IInventoryInterface
+class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, public IInventoryHUDInterface
 {
 	GENERATED_BODY()
 	

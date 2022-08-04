@@ -33,13 +33,13 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 {
 	if (NativeFromContainer)
 	{
-		IInventoryInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
+		IInventoryHUDInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
 	}
 	else
 	{
 		if (HasItem())
 		{
-			IInventoryInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
 		}
 	}
 	
@@ -124,25 +124,25 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			// Check If Unequipping
 			if (IsUnequipping(LocalDraggedSlot))
 			{
-				IInventoryInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				IInventoryHUDInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 				return true;
 			}
 			
-			IInventoryInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
 		// Check If Unequipping
 		if (IsUnequipping(LocalDraggedSlot))
 		{
-			IInventoryInterface::Execute_UI_UnEquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_UnEquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
 		// Check If Equipping
 		if (IsEquipping(InventorySlotIndex))
 		{
-			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
@@ -153,7 +153,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		}
 
 		// To Inventory
-		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+		IInventoryHUDInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
 		
 		return true;
@@ -168,7 +168,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			// Are we Equipping
 			if (IsEquipping(InventorySlotIndex))
 			{
-				IInventoryInterface::Execute_UI_EquipFromContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				IInventoryHUDInterface::Execute_UI_EquipFromContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 				return true;
 			}
 
@@ -179,7 +179,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				return true;
 			}
 			
-			IInventoryInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
@@ -193,7 +193,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				return true;
 			}
 			
-			IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}

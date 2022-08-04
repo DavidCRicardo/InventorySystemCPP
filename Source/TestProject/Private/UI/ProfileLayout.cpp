@@ -14,11 +14,6 @@
 
 UProfileLayout::UProfileLayout() {}
 
-void UProfileLayout::ToggleWindow()
-{
-	Super::ToggleWindow();
-}
-
 void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();

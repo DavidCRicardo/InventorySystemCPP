@@ -88,7 +88,7 @@ bool UHotbar_Slot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEven
 	bool bIsDraggedFromInventory = DragDropOperation->IsDraggedFromInventory;
 	bool bIsDraggedFromHotbar = DragDropOperation->IsDraggedFromHotbar;
 
-	IInventoryInterface::Execute_UI_MoveHotbarItem(PlayerController, DraggedSlotIndex, HotbarSlotIndex,
+	IInventoryHUDInterface::Execute_UI_MoveHotbarItem(PlayerController, DraggedSlotIndex, HotbarSlotIndex,
 		bIsDraggedFromInventory, bIsDraggedFromHotbar);
 	//HideTooltip();
 

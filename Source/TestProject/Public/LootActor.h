@@ -17,6 +17,8 @@ class INVENTORYSYSTEMCPP_API ALootActor : public AContainerActor
 public:
 	ALootActor();
 
+	virtual bool InitializeInventory() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		uint8 MinLootItems;
 

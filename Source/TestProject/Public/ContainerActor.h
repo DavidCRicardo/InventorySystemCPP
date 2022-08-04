@@ -17,12 +17,15 @@ public:
 	// Sets default values for this actor's properties
 	AContainerActor();
 	
+	/* */
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
-
+	
+	/* Interface */
 	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
 	virtual void GetContainerInventory_Implementation(UInventoryComponent*& OutInventoryComponent) override;
 	virtual TArray<APlayerState*> GetPlayersViewing_Implementation() override;
-	
+	/* Ends Interface*/
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

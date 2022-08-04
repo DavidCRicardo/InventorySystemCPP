@@ -125,7 +125,6 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			{
 				W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
-				//MainLayoutUI->Profile->EquipmentGridPanel->AddChildToUniformGrid(W_Slot, i, j);
 				UUniformGridSlot* GridSlot = MainLayoutUI->Profile->EquipmentGridPanel->AddChildToUniformGrid(W_Slot, i, j);
 				GridSlot->SetHorizontalAlignment(HAlign_Center);
 				GridSlot->SetVerticalAlignment(VAlign_Center);

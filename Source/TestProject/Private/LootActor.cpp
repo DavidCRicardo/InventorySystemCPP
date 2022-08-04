@@ -12,5 +12,10 @@ ALootActor::ALootActor()
 	C_SlotsPerRow = 1;
 	C_CanStoreItems = false;
 
-	Action = FText::FromString("Loot");
+	Action = LOCTABLE(COMMON_WORDS2, "Loot");
+}
+
+bool ALootActor::InitializeInventory()
+{
+	return false;
 }
