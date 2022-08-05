@@ -19,6 +19,18 @@ public:
 
 	virtual bool InitializeInventory() override;
 
+	UFUNCTION()
+		void GetLootItems();
+	UFUNCTION()
+		void GetRandomLootItems();
+	UFUNCTION()
+		void SetItemAmount(FSlotStructure Item, uint8 NewAmount);
+
+	UFUNCTION()
+		bool IsItemCurrency(const FSlotStructure Item);
+	UFUNCTION()
+		uint8 GetItemMaxStackSize(const FSlotStructure Item);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		uint8 MinLootItems;
 

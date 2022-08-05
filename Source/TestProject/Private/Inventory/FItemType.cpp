@@ -1,4 +1,4 @@
-﻿#include "Item/FItemType.h"
+﻿#include "Inventory/FItemType.h"
 
 FName FItemType::Undefined = "Undefined";
 FName FItemType::Miscellanious = "Miscellanious";

@@ -1,4 +1,4 @@
-﻿#include "Item/FItemStructure.h"
+﻿#include "Inventory/FItemStructure.h"
 
 FItemStructure::FItemStructure()
 {

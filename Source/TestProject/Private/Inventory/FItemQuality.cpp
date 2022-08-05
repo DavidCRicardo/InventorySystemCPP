@@ -1,4 +1,4 @@
-﻿#include "Item/FItemQuality.h"
+﻿#include "Inventory/FItemQuality.h"
 
 FLinearColor FItemQuality::Undefined = FLinearColor(0.2,0.2,0.2,0.5);
 FLinearColor FItemQuality::Common = FLinearColor(0.3,0.3,0.3,1);

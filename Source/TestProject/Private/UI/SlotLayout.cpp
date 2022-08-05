@@ -10,7 +10,7 @@
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "Item/FItemQuality.h"
+#include "Inventory/FItemQuality.h"
 #include "UI/W_ItemTooltip.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

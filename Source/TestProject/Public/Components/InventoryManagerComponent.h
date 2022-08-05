@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Item/EEquipmentSlot.h"
-#include "Item/EItemType.h"
+#include "Inventory/EEquipmentSlot.h"
+#include "Inventory/EItemType.h"
 #include "Inventory/FContainerInfo.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryManagerComponent.generated.h"

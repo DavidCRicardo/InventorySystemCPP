@@ -19,3 +19,26 @@ bool ALootActor::InitializeInventory()
 {
 	return false;
 }
+
+void ALootActor::GetLootItems()
+{
+}
+
+void ALootActor::GetRandomLootItems()
+{
+}
+
+void ALootActor::SetItemAmount(FSlotStructure Item, uint8 NewAmount)
+{
+	Item.Amount = NewAmount;
+}
+
+bool ALootActor::IsItemCurrency(const FSlotStructure Item)
+{
+	return false;
+}
+
+uint8 ALootActor::GetItemMaxStackSize(const FSlotStructure Item)
+{
+	return Item.ItemStructure.MaxStackSize;
+}

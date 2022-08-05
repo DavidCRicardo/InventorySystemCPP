@@ -6,7 +6,7 @@
 #include "Components/InventoryComponent.h"
 #include "Components/InventoryManagerComponent.h"
 #include "Internationalization/StringTableRegistry.h"
-#include "Item/FItemType.h"
+#include "Inventory/FItemType.h"
 
 void UW_ItemTooltip::NativeConstruct()
 {

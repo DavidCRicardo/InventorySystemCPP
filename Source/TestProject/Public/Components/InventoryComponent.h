@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
-#include "Item/EEquipmentSlot.h"
+#include "Inventory/EEquipmentSlot.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryComponent.generated.h"
 

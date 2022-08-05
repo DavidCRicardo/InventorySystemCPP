@@ -6,7 +6,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Internationalization/StringTableRegistry.h"
-#include "Item/FItemStructure.h"
+#include "Inventory/FItemStructure.h"
 
 void UInteractiveText_Entry::NativeConstruct()
 {

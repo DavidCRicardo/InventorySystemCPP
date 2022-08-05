@@ -10,7 +10,7 @@
 #include "Components/UniformGridPanel.h"
 #include "Components/VerticalBox.h"
 #include "Inventory/FSlotStructure.h"
-#include "Item/FItemStructure.h"
+#include "Inventory/FItemStructure.h"
 #include "W_ItemTooltip.generated.h"
 
 /**
