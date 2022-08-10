@@ -22,10 +22,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="NumberOfRows", Category="Inventory UI"))
 	uint8 NumberOfRowsInventory = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="RowsPerSlot", Category="Inventory UI"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="SlotsPerRow", Category="Inventory UI"))
 	uint8 SlotsPerRowInventory = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Slots On Hotbar", Category = "Inventory UI"))
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Slots On Hotbar", Category = "Inventory UI"))
 	uint8 NumberOfSlotsOnHotbar = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(DisplayName="Inventory", Category="Inventory UI"))
@@ -35,7 +35,6 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UDataTable* GetItemDB();
 	UPROPERTY()
 	UDataTable* ItemDB;
 public:

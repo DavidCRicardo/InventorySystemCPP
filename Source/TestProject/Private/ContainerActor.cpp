@@ -18,7 +18,6 @@ AContainerActor::AContainerActor()
 	InventoryComponent->SlotsPerRowInventory = 3;
 	
 	C_Name = "NULL";
-	C_SlotsPerRow = 3;
 	C_CanStoreItems = true;
 }
 

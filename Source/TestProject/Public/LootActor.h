@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ContainerActor.h"
+#include "Inventory/FLootList.h"
 #include "LootActor.generated.h"
 
 /**
@@ -20,9 +21,9 @@ public:
 	virtual bool InitializeInventory() override;
 
 	UFUNCTION()
-		void GetLootItems();
+		TArray<FLootList> GetLootList();
 	UFUNCTION()
-		void GetRandomLootItems();
+		TArray<FSlotStructure> GetRandomLootItems();
 	UFUNCTION()
 		void SetItemAmount(FSlotStructure Item, uint8 NewAmount);
 
@@ -32,8 +33,18 @@ public:
 		uint8 GetItemMaxStackSize(const FSlotStructure Item);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		uint8 MinLootItems;
+		uint8 MinLootItems = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		uint8 MaxLootItems;
+		uint8 MaxLootItems = 4;
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	TArray<FSlotStructure> InventoryItems;
+
+	UDataTable* DB_ItemList;
+
+	UDataTable* BP_LootDB;
 };

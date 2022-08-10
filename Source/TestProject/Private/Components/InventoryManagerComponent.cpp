@@ -782,7 +782,7 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 	FSlotStructure Slot = {};
 
 	const UDataTable* ItemTable = ItemDB;
-	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(Name), "", true);
+	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
 
 	Slot.InitSlot(*NewItemData, 0);
 

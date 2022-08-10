@@ -44,12 +44,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Name", Category="Properties"))
 	FName C_Name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
 	uint8 C_NumberOfRows;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
 	uint8 C_SlotsPerRow;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Can Store Items", Category="Properties"))
 	bool C_CanStoreItems;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory Size", Category="Properties"))
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory Size", Category="Properties"))
 	uint8 C_InventorySize;
 };

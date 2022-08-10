@@ -94,4 +94,3 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     uint8 Health;
 };
-

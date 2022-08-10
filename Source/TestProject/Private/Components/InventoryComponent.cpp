@@ -9,15 +9,6 @@ UInventoryComponent::UInventoryComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// Get ItemDB 
-	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
-	if (BP_ItemDB.Succeeded())
-	{
-		ItemDB = BP_ItemDB.Object;
-	}else{
-		UE_LOG(LogTemp, Warning, TEXT ("ItemDB DataTable not found!!"));
-	}
 }
 
 
@@ -26,8 +17,15 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	UDataTable* BP_ItemDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+	if (IsValid(BP_ItemDB))
+	{
+		ItemDB = BP_ItemDB;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UDataTable not Loaded"))
+	}
 }
 
 // Called every frame
@@ -140,11 +138,6 @@ FSlotStructure UInventoryComponent::GetItemFromItemDB(const FName Name)
 	Slot.InitSlot(*NewItemData, 0);
 
 	return Slot;
-}
-
-UDataTable* UInventoryComponent::GetItemDB()
-{
-	return nullptr;
 }
 
 void UInventoryComponent::SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item)
