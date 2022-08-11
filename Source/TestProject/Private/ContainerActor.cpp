@@ -88,8 +88,6 @@ bool AContainerActor::InitializeInventory()
 	if (HasAuthority())
 	{
 		InventoryComponent->Server_InitInventory(C_InventorySize);
-
-		//LoadInventoryItems(C_InventorySize, InventoryComponent->Inventory);
 		
 		return true;
 	}

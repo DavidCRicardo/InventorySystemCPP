@@ -25,7 +25,7 @@ public:
 	UFUNCTION()
 		TArray<FSlotStructure> GetRandomLootItems();
 	UFUNCTION()
-		void SetItemAmount(FSlotStructure Item, uint8 NewAmount);
+		void SetItemAmount(FSlotStructure& Item, uint8 NewAmount);
 
 	UFUNCTION()
 		bool IsItemCurrency(const FSlotStructure Item);

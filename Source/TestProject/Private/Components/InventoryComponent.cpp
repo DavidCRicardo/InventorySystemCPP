@@ -90,7 +90,7 @@ bool UInventoryComponent::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> 
 	
 	FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
 	
-	for (uint8 i = 0; i < Size - 1; i++)
+	for (uint8 i = 0; i <= Size - 1; i++)
 	{
 		Inventory.Add(TempSlot);
 	}
@@ -133,7 +133,7 @@ FSlotStructure UInventoryComponent::GetItemFromItemDB(const FName Name)
 	FSlotStructure Slot = {};
 
 	const UDataTable* ItemTable = ItemDB;
-	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(Name), "", true);
+	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
 
 	Slot.InitSlot(*NewItemData, 0);
 

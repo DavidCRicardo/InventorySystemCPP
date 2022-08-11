@@ -8,8 +8,8 @@ ALootActor::ALootActor()
 {
 	C_CanStoreItems = false;
 
-	Action = LOCTABLE(COMMON_WORDS2, "Use");
-	Name = LOCTABLE(COMMON_WORDS2, "Loot");
+	Action = LOCTABLE(COMMON_WORDS2, "Loot");
+	Name = LOCTABLE(COMMON_WORDS2, "Skeleton");
 }
 
 bool ALootActor::InitializeInventory()
@@ -17,7 +17,7 @@ bool ALootActor::InitializeInventory()
 	if (HasAuthority())
 	{
 		InventoryItems = GetRandomLootItems();
-	
+
 		LoadInventoryItems(InventoryItems.Num(), InventoryItems);
 
 		return true;
@@ -40,13 +40,17 @@ TArray<FSlotStructure> ALootActor::GetRandomLootItems()
 		uint8 LocalItemIndex = 0;
 		TArray<uint8> LocalItemIndexes;
 
+		if (!IsValid(DB_ItemList))
+		{
+			DB_ItemList = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+		}
+
 		do
 		{
 			LocalItemIndex = FMath::RandRange(0, LootLootItems.Num() - 1);
 
 			if (LocalItemIndexes.Find(LocalItemIndex) == -1)
 			{
-
 				FLootList Loot = LootLootItems[LocalItemIndex];
 
 				if (Loot.DropChance >= FMath::RandRange(0.01, 1))
@@ -71,7 +75,7 @@ TArray<FSlotStructure> ALootActor::GetRandomLootItems()
 
 					LootedItems.Add(LocalInventorySlot);
 
-					LocalLootCount++;				
+					LocalLootCount++;
 				}
 			}
 		} while (LocalLootCount < LocalLootAmount);
@@ -84,19 +88,24 @@ TArray<FLootList> ALootActor::GetLootList()
 {
 	TArray<FLootList> LootItems{};
 
+	if (!IsValid(BP_LootDB))
+	{
+		BP_LootDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/DT_LootList.DT_LootList"));
+	}
+
 	TArray<FName> LootData = BP_LootDB->GetRowNames();
 
-	for(FName NameData : LootData)
+	for (FName NameData : LootData)
 	{
 		FLootList* LootItem = BP_LootDB->FindRow<FLootList>(NameData, "", true);
-		
+
 		LootItems.Add(*LootItem);
 	}
 
 	return LootItems;
 }
 
-void ALootActor::SetItemAmount(FSlotStructure Item, uint8 NewAmount)
+void ALootActor::SetItemAmount(FSlotStructure& Item, uint8 NewAmount)
 {
 	Item.Amount = NewAmount;
 }
@@ -113,31 +122,26 @@ uint8 ALootActor::GetItemMaxStackSize(const FSlotStructure Item)
 
 void ALootActor::BeginPlay()
 {
-	 DB_ItemList = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+	DB_ItemList = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 
-	 BP_LootDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/DT_LootList.DT_LootList"));
+	uint8 LocalNumberOfRows = InventoryComponent->NumberOfRowsInventory;
+	uint8 LocalNumberOfSlotsPerRow = InventoryComponent->SlotsPerRowInventory;
 
+	if (LocalNumberOfRows * LocalNumberOfSlotsPerRow < MaxLootItems)
+	{
+		for (uint8 i = 1; i < MaxLootItems; i++)
+		{
+			LocalNumberOfRows = i;
+			LocalNumberOfSlotsPerRow = i;
 
-	 uint8 LocalNumberOfRows = InventoryComponent->NumberOfRowsInventory;
-	 uint8 LocalNumberOfSlotsPerRow = InventoryComponent->SlotsPerRowInventory;
+			if (LocalNumberOfRows * LocalNumberOfSlotsPerRow >= MaxLootItems) {
+				break;
+			}
+		}
 
-	 if (LocalNumberOfRows * LocalNumberOfSlotsPerRow < MaxLootItems)
-	 {
-		 for (uint8 i = 1; i < MaxLootItems; i++)
-		 {
-			 LocalNumberOfRows = i;
-			 LocalNumberOfSlotsPerRow = i;
+		InventoryComponent->NumberOfRowsInventory = LocalNumberOfRows;
+		InventoryComponent->SlotsPerRowInventory = LocalNumberOfSlotsPerRow;
+	}
 
-			 if (LocalNumberOfRows * LocalNumberOfSlotsPerRow >= MaxLootItems) {
-				 break;
-			 }
-		 }
-
-		 InventoryComponent->NumberOfRowsInventory = LocalNumberOfRows;
-		 InventoryComponent->SlotsPerRowInventory = LocalNumberOfSlotsPerRow;
-	 }
-
-	 C_NumberOfRows = LocalNumberOfRows;
-	 C_SlotsPerRow = LocalNumberOfSlotsPerRow;
-	 C_InventorySize = C_NumberOfRows * C_SlotsPerRow;
+	Super::BeginPlay();
 }
