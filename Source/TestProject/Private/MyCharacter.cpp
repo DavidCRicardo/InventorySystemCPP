@@ -64,25 +64,25 @@ AMyCharacter::AMyCharacter()
 	MainWeapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	MainWeapon->SetupAttachment(GetMesh());
 	
-	Chest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest"));
-	Chest->SetupAttachment(GetMesh());
+Chest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest"));
+Chest->SetupAttachment(GetMesh());
 
-	Hands = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hands"));
-	Hands->SetupAttachment(GetMesh());
+Hands = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hands"));
+Hands->SetupAttachment(GetMesh());
 
-	Feet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
-	Feet->SetupAttachment(GetMesh());
-	
-	MainWeaponMesh = nullptr;
-	ChestMesh = nullptr;
-	FeetMesh = nullptr;
-	HandsMesh = nullptr;
-	
-	//Initialize the player's Health
-	MaxHealth = 100.0f;
-	CurrentHealth = MaxHealth;
-	
-	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
+Feet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
+Feet->SetupAttachment(GetMesh());
+
+MainWeaponMesh = nullptr;
+ChestMesh = nullptr;
+FeetMesh = nullptr;
+HandsMesh = nullptr;
+
+//Initialize the player's Health
+MaxHealth = 100.0f;
+CurrentHealth = MaxHealth;
+
+//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
 }
 
 void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -93,7 +93,7 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AMyCharacter, CurrentHealth);
 
 	DOREPLIFETIME(AMyCharacter, UsableActorsInsideRange);
-	
+
 	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
 	DOREPLIFETIME(AMyCharacter, FeetMesh);
@@ -123,8 +123,8 @@ void AMyCharacter::OnHealthUpdate()
 	}
 
 	//Functions that occur on all machines. 
-	/*  
-		Any special functionality that should occur as a result of damage or death should be placed here. 
+	/*
+		Any special functionality that should occur as a result of damage or death should be placed here.
 	*/
 }
 
@@ -156,30 +156,34 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 						SetActorTickEnabled(true);
 						WorldActorsInsideRange.Add(WorldActor);
 						UsableActorsInsideRange.Add(WorldActor);
-						
+
 						return;
 					}
 
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
-						IUsableActorInterface::Execute_BeginOutlineFocus(UsableActor);
-						
+
 						if (!UsableActor->InteractUserWidget)
 						{
 							UsableActor->InteractUserWidget = MyPlayerController->GetInteractWidget();
 							UsableActor->InteractUserWidget->AddToViewport();
 						}
-						
-						// Set Interact Text
-						FText MessageText = IUsableActorInterface::Execute_GetUseActionText(UsableActor);
-						UsableActor->SetInteractText(MessageText);
 
-						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
-						//UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
-
-						SetActorTickEnabled(true);
 						UsableActorsInsideRange.Add(UsableActor);
-						
+
+						if (IUsableActorInterface::Execute_GetIsActorUsable(UsableActor))
+						{
+							IUsableActorInterface::Execute_BeginOutlineFocus(UsableActor);
+
+							// Set Interact Text
+							FText MessageText = IUsableActorInterface::Execute_GetUseActionText(UsableActor);
+							UsableActor->SetInteractText(MessageText);
+
+							UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+
+							SetActorTickEnabled(true);
+						}
+											
 						return;
 					}
 				}
@@ -273,20 +277,28 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
 		{
-			FVector2D ScreenPosition = {};
-			MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
-			TempUsableActor->SetScreenPosition(ScreenPosition);
-			if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
+			if (IUsableActorInterface::Execute_GetIsActorUsable(TempUsableActor))
 			{
-				if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)
+				FVector2D ScreenPosition = {};
+				MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
+				TempUsableActor->SetScreenPosition(ScreenPosition);
+				if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
 				{
-					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+					if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)
+					{
+						TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+						TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+					}
+
+					TempUsableActor->SetScreenPosition(ScreenPosition);
+				}
+				else
+				{
 					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 				}
-				
-				TempUsableActor->SetScreenPosition(ScreenPosition);
-			}else
-			{
+			}
+			else {
+				IUsableActorInterface::Execute_EndOutlineFocus(TempUsableActor);
 				TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}

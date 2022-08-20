@@ -24,6 +24,7 @@ public:
 	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
 	virtual void GetContainerInventory_Implementation(UInventoryComponent*& OutInventoryComponent) override;
 	virtual TArray<APlayerState*> GetPlayersViewing_Implementation() override;
+	virtual bool ContainerLooted_Implementation() override;
 	/* Ends Interface*/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

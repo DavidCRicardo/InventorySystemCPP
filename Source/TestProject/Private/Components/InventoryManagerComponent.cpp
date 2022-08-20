@@ -8,6 +8,7 @@
 #include "FWidgetsLayoutBP.h"
 #include "MyHUD.h"
 #include "WorldActor.h"
+#include "LootActor.h"
 #include "Components/EquipmentComponent.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
@@ -457,7 +458,12 @@ void UInventoryManagerComponent::EquipItem(UInventoryComponent* FromInventory, u
 			// Swap Items
 			if (ItemIsValid(LocalSwapInventoryItem))
 			{
-				// ...
+				if (!CanContainerStoreItems(FromInventory))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
+						return;
+				}
+
 				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
 				AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
 			}
@@ -501,6 +507,12 @@ void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory,
 	// Swap Items
 	if (ItemIsValid(LocalSwapInventoryItem))
 	{
+		if (!CanContainerStoreItems(ToInventory))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
+			return;
+		}
+
 		if (GetItemTypeBySlot(FromInventorySlot) != EItemType::Equipment)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("ITEM IS NOT EQUIPPABLE"))
@@ -625,6 +637,17 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 	// Are We Looting Currency?
 	// Are We Swapping Items?
 
+	if (!CanContainerStoreItems(ToInventory))
+	{
+		if (IInventoryInterface::Execute_ContainerLooted(CurrentContainer)) {
+			UE_LOG(LogTemp, Warning, TEXT("EMPTY"))
+				GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Red, "EMPTY");
+			//		return;
+		}
+		
+		return;
+	}
+
 	// Swap Items?
 	if (ItemIsValid(LocalSwapInventoryItem))
 	{
@@ -658,6 +681,13 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 			}
 		}
 		else {
+
+			if (!CanContainerStoreItems(FromInventory))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
+					return;
+			}
+
 			// Swap Items
 			AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
 			AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
@@ -1221,6 +1251,29 @@ void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
 	}
 
 	Server_UpdateTooltips();
+
+
+	//
+	FSlotStructure LocalSlot{};
+	bool IsThereMoreItems = false;
+	for (uint8 i = 0; i < ContainerInventory->Inventory.Num(); i++)
+	{
+		LocalSlot = ContainerInventory->Inventory[i];
+
+		if (LocalSlot.Amount > 0)
+		{
+			IsThereMoreItems = true;
+			break;
+		}
+	}
+	
+	if (!IsThereMoreItems)
+	{
+		if (Cast<ALootActor>(CurrentContainer))
+		{
+			IInventoryInterface::Execute_ContainerLooted(CurrentContainer);
+		}	
+	}
 }
 
 void UInventoryManagerComponent::Server_TakeContainerItem_Implementation(const uint8& FromContainerSlot,
@@ -1544,4 +1597,30 @@ void UInventoryManagerComponent::Client_CheckHotbarSlots_Implementation(const FS
 			}
 		}
 	}
+}
+
+bool UInventoryManagerComponent::CanContainerStoreItems(UInventoryComponent* Inventory) 
+{
+	if (IsValid(CurrentContainer))
+	{
+		UInventoryComponent* LocalInventory{};
+
+		IInventoryInterface::Execute_GetContainerInventory(CurrentContainer, LocalInventory);
+
+		if (Inventory == LocalInventory)
+		{
+			bool LocalCanStoreItems = IInventoryInterface::Execute_GetCanStoreItems(CurrentContainer);
+
+			if (LocalCanStoreItems)
+			{
+				return true;
+			}
+			else 
+			{ 
+				return false; 
+			}
+		}
+	}
+
+	return true;
 }

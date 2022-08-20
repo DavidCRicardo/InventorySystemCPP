@@ -285,6 +285,9 @@ private:
 	UFUNCTION(Category="Manager|Private|Container")
 	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory);
 	
+	UFUNCTION(Category = "Manager|Private")
+	bool CanContainerStoreItems(UInventoryComponent* Inventory);
+
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining);
 	
