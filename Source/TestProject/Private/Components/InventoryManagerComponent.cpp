@@ -638,13 +638,14 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 	// Are We Swapping Items?
 
 	if (!CanContainerStoreItems(ToInventory))
+	{	
+		return;
+	}
+
+	if (LocalInventoryItem.ItemStructure.ItemType == EItemType::Currency)
 	{
-		if (IInventoryInterface::Execute_ContainerLooted(CurrentContainer)) {
-			UE_LOG(LogTemp, Warning, TEXT("EMPTY"))
-				GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Red, "EMPTY");
-			//		return;
-		}
-		
+		//AddGold(LocalInventory.Amount);
+		RemoveItem(FromInventory, FromInventorySlot);
 		return;
 	}
 
@@ -681,16 +682,16 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 			}
 		}
 		else {
-
 			if (!CanContainerStoreItems(FromInventory))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
 					return;
 			}
-
-			// Swap Items
-			AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
-			AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
+			else {
+				// Swap Items
+				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
+				AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
+			}		
 		}
 	}
 	else
@@ -701,6 +702,28 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 	}
 
 	Server_UpdateTooltips();
+	
+	//
+	/*FSlotStructure LocalSlot{};
+	bool IsThereMoreItems = false;
+	for (uint8 i = 0; i < ContainerInventory->Inventory.Num(); i++)
+	{
+		LocalSlot = ContainerInventory->Inventory[i];
+
+		if (LocalSlot.Amount > 0)
+		{
+			IsThereMoreItems = true;
+			break;
+		}
+	}
+
+	if (!IsThereMoreItems)
+	{
+		if (Cast<ALootActor>(CurrentContainer))
+		{
+			IInventoryInterface::Execute_ContainerLooted(CurrentContainer);
+		}
+	}*/
 }
 
 void UInventoryManagerComponent::AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd,

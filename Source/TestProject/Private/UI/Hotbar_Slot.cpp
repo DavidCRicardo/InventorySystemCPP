@@ -24,11 +24,6 @@ void UHotbar_Slot::SetKeyNumber(uint8 InNumber)
 {
 	InNumber++;
 
-	/*if (InNumber >= PlayerController->GetMaximumHotbarSlots())
-	{
-		InNumber = 0;
-	}*/
-
 	Number->SetText(FText::AsNumber(InNumber));
 }
 
@@ -90,6 +85,7 @@ bool UHotbar_Slot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEven
 
 	IInventoryHUDInterface::Execute_UI_MoveHotbarItem(PlayerController, DraggedSlotIndex, HotbarSlotIndex,
 		bIsDraggedFromInventory, bIsDraggedFromHotbar);
+
 	//HideTooltip();
 
 	return true;

@@ -10,7 +10,7 @@ void UInventoryLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FText Text = LOCTABLE(COMMON_WORDS, "INVENTORYKey");
+	FText Text = LOCTABLE(COMMON_WORDS, "Inventory");
 	Super::SetTitleToWindow(Text);
 }
 

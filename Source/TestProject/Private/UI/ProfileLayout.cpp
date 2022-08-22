@@ -18,7 +18,7 @@ void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	FText Text = LOCTABLE(COMMON_WORDS, "PROFILEKey");
+	FText Text = LOCTABLE(COMMON_WORDS, "Profile");
 	Super::SetTitleToWindow(Text);
 
 	if(IsValid(PlayerController))

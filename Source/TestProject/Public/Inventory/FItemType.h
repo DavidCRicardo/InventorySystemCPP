@@ -12,4 +12,5 @@ struct FItemType
 	static FName Miscellanious;
 	static FName Equipment;
 	static FName Consumable;
+	static FName Currency;
 };
