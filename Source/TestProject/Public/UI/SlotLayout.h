@@ -55,6 +55,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AMyPlayerController* PlayerController;
+
+	void SetNameBoxVisibility();
 	
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -71,7 +73,13 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* AmountTextBlock;
-	
+
+	UPROPERTY(meta = (BindWidget))
+		class UCanvasPanel* NameBox;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* NameText;
+
 protected:
 
 	virtual void NativeConstruct() override;

@@ -16,8 +16,7 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 	
 	FItemStructure(FName ID, UTexture2D* Icon, FText Name, FName Description, EItemType ItemType, EItemQuality Quality, uint8 PriceValue, bool IsStackable, 
 		uint8 MaxStackSize, bool IsDroppable, USkeletalMesh* SkeletalMesh,UStaticMesh* WorldMesh,float Duration,EEquipmentSlot EquipmentSlot,
-		uint8 CurrentLevel,uint8 MaxLevel,uint8 AmountToAddPerLevel,uint8 Strength,uint8 Endurance,uint8 Dexterity,uint8 Intelligence,uint8 Attack,uint8 Defense,
-		uint8 Health);
+		uint8 Strength,uint8 Endurance,uint8 Dexterity,uint8 Intelligence,	uint8 Health);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ID;
@@ -63,15 +62,6 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EEquipmentSlot EquipmentSlot;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 CurrentLevel;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 MaxLevel;
-		
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    uint8 AmountToAddPerLevel;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     uint8 Strength;
@@ -84,12 +74,6 @@ struct INVENTORYSYSTEMCPP_API FItemStructure : public FTableRowBase
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint8 Intelligence;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 Attack;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint8 Defense;
 	
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     uint8 Health;

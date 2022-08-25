@@ -31,7 +31,7 @@ void AContainerActor::BeginPlay()
 		C_NumberOfRows = InventoryComponent->NumberOfRowsInventory;
 		C_SlotsPerRow = InventoryComponent->SlotsPerRowInventory;
 
-		C_InventorySize = C_NumberOfRows * C_SlotsPerRow;
+		C_InventorySize = C_SlotsPerRow * C_NumberOfRows;
 
 		InitializeInventory();
 	}

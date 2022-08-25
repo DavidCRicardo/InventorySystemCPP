@@ -12,6 +12,8 @@
 #include "Components/TextBlock.h"
 #include "Inventory/FItemQuality.h"
 #include "UI/W_ItemTooltip.h"
+#include "Components/CanvasPanel.h"
+#include "Internationalization/StringTableRegistry.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -22,6 +24,22 @@ void USlotLayout::NativeConstruct()
 	Super::NativeConstruct();
 
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+}
+
+void USlotLayout::SetNameBoxVisibility() {
+	if (IsStorageSlot || NativeFromInventory)
+	{
+		NameBox->SetVisibility(ESlateVisibility::Collapsed);
+		NameText->SetText(FText::GetEmpty());
+	}
+	else {
+		
+		FString LItemName = SlotStructure.ItemStructure.ID.ToString();
+		FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
+
+		NameBox->SetVisibility(ESlateVisibility::Visible);
+		NameText->SetText(ItemNameText);
+	}
 }
 
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -205,23 +223,6 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("DragCancelled")));
 	// DragCancelled called when OnDrop returns false
-	
-	/* The Slot will stay bugged until the next Refresh() */
-	/*UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
-	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
-	{
-		return;
-	}
-
-	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
-	if (DragDropOperation->IsDraggedFromInventory)
-	{
-		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-
-	}else if (DragDropOperation->IsDraggedFromContainer)
-	{
-		IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-	}*/
 }
 
 /* Update SlotStructure Info */
@@ -232,6 +233,8 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	UpdateSlotInfo();
 
 	ToggleTooltip();
+
+	SetNameBoxVisibility();
 }
 
 /* Update Slot Info */

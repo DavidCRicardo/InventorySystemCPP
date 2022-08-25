@@ -1437,7 +1437,20 @@ void UInventoryManagerComponent::OpenContainer(AActor* Container)
 void UInventoryManagerComponent::LoadContainerSlots(FContainerInfo ContainerProperties,
 	const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory)
 {
-	CreateContainerSlots(ContainerProperties.NumberOfRows, ContainerProperties.SlotsPerRow);
+	// loot container
+	if (!ContainerProperties.IsStorageContainer)
+	{
+		MainLayoutUI->Container->IsStorageContainer = false;
+
+		CreateContainerSlots2(InContainerInventory.Num(), ContainerProperties.SlotsPerRow);
+	}
+	else {
+		MainLayoutUI->Container->IsStorageContainer = true;
+
+		//else it's a normal container
+		//CreateContainerSlots2(ContainerProperties.StorageInventorySize, ContainerProperties.SlotsPerRow);
+		CreateContainerSlots(ContainerProperties.NumberOfRows, ContainerProperties.SlotsPerRow);
+	}
 
 	uint8 Index = 0;
 	for (FSlotStructure Slot : InContainerInventory)
@@ -1495,6 +1508,60 @@ void UInventoryManagerComponent::CreateContainerSlots(uint8 NumberOfRows, uint8 
 			MainLayoutUI->Container->ContainerSlotsArray[i]->IsStorageSlot = true;
 		}
 	}
+}
+
+void UInventoryManagerComponent::CreateContainerSlots2(uint8 InventorySize, uint8 SlotsPerRow)
+{
+	ClearContainerSlots();
+
+	if (InventorySize <= 0)
+	{
+		return;
+	}
+
+	bool bLocalIsStorageContainer = MainLayoutUI->Container->IsStorageContainer;
+	
+	uint8 LocalContainerSize = InventorySize;
+	//uint8 LocalMaxRowSize = SlotsPerRow;
+
+	//uint8 LocalResult = FMath::CeilToInt(LocalContainerSize / LocalMaxRowSize) - 1;
+	//uint8 MinimumNumberOfRows = 1;
+	//uint8 NumberOfRows = FMath::Max(LocalResult, MinimumNumberOfRows);
+
+	uint8 LocalLoopCount = 0;
+
+	for (uint8 i = 0; i < LocalContainerSize; i++)
+	{
+		//for (uint8 j = 0; j < 1; j++)
+		//{
+			AddContainerSlot(i, 0, LocalLoopCount, bLocalIsStorageContainer);
+			LocalLoopCount++;
+
+			if (LocalLoopCount == LocalContainerSize)
+			{
+				break;
+			}
+		//}
+	}
+}
+
+void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage)
+{
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
+	USlotLayout* Widget = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+
+	MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(Widget, Row, Column);
+	
+	MainLayoutUI->Container->ContainerSlotsArray.Add(Widget);
+
+	// Used to Change Loot Display
+	Widget->IsStorageSlot = IsStorage;
+	Widget->InventorySlotIndex = Slot;
+	Widget->NativeFromContainer = true;
+
+	Widget->SetNameBoxVisibility();
 }
 
 	/* Client Only - Hotbar Events */

@@ -269,6 +269,13 @@ private:
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem);
 
+	UFUNCTION(Category = "UserInterface|Private|Container")
+		void CreateContainerSlots2(uint8 InventorySize, uint8 SlotsPerRow);
+
+	UFUNCTION(Category = "UserInterface|Private|Container")
+		void AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage);
+
+
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void ClearContainerSlotItem(uint8 ContainerSlot);
 	UFUNCTION(Category="UserInterface|Private|Container")

@@ -371,10 +371,13 @@ void AMyPlayerController::SetMouseToCenterPosition()
 
 void AMyPlayerController::EnableUIMode()
 {
-	SetInputMode(FInputModeGameAndUI());
-	bShowMouseCursor = true;
+	if (!bShowMouseCursor)
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
 
-	SetMouseToCenterPosition();
+		SetMouseToCenterPosition();
+	}
 }
 
 void AMyPlayerController::DisableUIMode()
