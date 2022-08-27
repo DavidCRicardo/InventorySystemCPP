@@ -38,6 +38,8 @@ public:
 	virtual void UI_MoveHotbarItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar) override;
 	/* Ends Interface */
 
+	uint8 UIGetPlayerGold();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryManagerComponent;
 
@@ -111,7 +113,6 @@ protected:
 	UFUNCTION()
 	void QuitGame();
 
-	void UseHotbarSlot(const uint8 HotbarSlot);
 	void UseHotbarSlot1();
 	void UseHotbarSlot2();
 	void UseHotbarSlot3();

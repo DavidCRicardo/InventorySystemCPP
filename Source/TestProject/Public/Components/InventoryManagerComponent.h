@@ -25,6 +25,12 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION()
+	void OnRep_UpdateGoldAmount();
+
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_UpdateGoldAmount)
+	uint8 Gold;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -98,7 +104,7 @@ public:
 	void Client_ClearInventorySlotItem(uint8 InventorySlot);
 	UFUNCTION(Client, Reliable)
 	void Client_ClearContainerSlotItem(uint8 ContainerSlot);
-
+	
 	UFUNCTION(Client, Reliable)
 	void Client_OpenContainer(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory);
 	UFUNCTION(Client, Reliable)
@@ -261,6 +267,8 @@ private:
 	UFUNCTION(Category = "UserInterface|Private|Inventory")
 	FSlotStructure GetInventorySlotItem(uint8 InventorySlot);
 
+	UFUNCTION(Category = "Manager|Private|Inventory")
+		void AddGold(uint8 Amount);
 
 	UFUNCTION(Category="UserInterface|Private|Container") 
 	void ClearContainerSlots();

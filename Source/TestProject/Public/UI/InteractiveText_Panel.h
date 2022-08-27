@@ -32,7 +32,4 @@ protected:
 	
 	UFUNCTION()
 	void ManageListVisibility();
-	
-	//UPROPERTY(EditDefaultsOnly)
-	//TSubclassOf<UInteractiveText_Entry> EntryClass;
 };

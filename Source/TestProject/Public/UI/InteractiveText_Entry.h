@@ -14,12 +14,6 @@ class UInteractiveText_Entry : public UUserWidget, public IUserObjectListEntry
 
 public:
 	UFUNCTION()
-	virtual void ResetBorder();
-	
-	UFUNCTION()
-	void IsHoveredChanged(bool bIsHovered);
-
-	UFUNCTION()
 	void InitializeName(const FName& Name);
 
 	UFUNCTION()

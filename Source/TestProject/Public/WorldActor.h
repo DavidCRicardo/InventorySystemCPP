@@ -43,20 +43,13 @@ public:
 
 	UFUNCTION()
 	bool LoadItemFromList();
-	UFUNCTION()
-	void UpdateItemAmount();
 
 	UFUNCTION(Server, Reliable)
 	void Server_InitializeItemData();
 	
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
 
-	void OnRep_WorldMesh();
-
 protected:
 	UPROPERTY()
 	FSlotStructure InventoryItem;
-
-	//UPROPERTY()
-	//bool IsSinglePlayer;
 };

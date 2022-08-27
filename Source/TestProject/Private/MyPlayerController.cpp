@@ -57,34 +57,19 @@ void AMyPlayerController::SetupInputComponent()
 	InputComponent->BindAction("UseHotbar5", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot5);
 }
 
-void AMyPlayerController::UseHotbarSlot(const uint8 Hotbar) {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Key 1 Pressed")));
-
-	InventoryManagerComponent->Client_UseHotbarSlot(Hotbar);
-}
 void AMyPlayerController::UseHotbarSlot1() {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 1 Pressed")));
-
 	InventoryManagerComponent->Client_UseHotbarSlot(0);
 }
 void AMyPlayerController::UseHotbarSlot2() {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 2 Pressed")));
-
 	InventoryManagerComponent->Client_UseHotbarSlot(1);
 }
 void AMyPlayerController::UseHotbarSlot3() {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 3 Pressed")));
-
 	InventoryManagerComponent->Client_UseHotbarSlot(2);
 }
 void AMyPlayerController::UseHotbarSlot4() {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 4 Pressed")));
-
 	InventoryManagerComponent->Client_UseHotbarSlot(3);
 }
 void AMyPlayerController::UseHotbarSlot5() {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Key 5 Pressed")));
-
 	InventoryManagerComponent->Client_UseHotbarSlot(4);
 }
 
@@ -348,7 +333,7 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 			if (WorldActor->ID == Name)
 			{
 				Server_OnActorUsed(WorldActor);
-				
+
 				return;
 			}
 		}
@@ -424,4 +409,9 @@ UDataTable* AMyPlayerController::GetItemDB()
 void AMyPlayerController::UI_MoveHotbarItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
 {
 	InventoryManagerComponent->Client_MoveHotbarSlotItem(FromSlot, ToSlot, IsDraggedFromInventory, IsDraggedFromHotbar);
+}
+
+uint8 AMyPlayerController::UIGetPlayerGold()
+{
+	return InventoryManagerComponent->Gold;
 }

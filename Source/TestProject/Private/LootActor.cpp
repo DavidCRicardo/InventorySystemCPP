@@ -53,7 +53,7 @@ TArray<FSlotStructure> ALootActor::GetRandomLootItems()
 			{
 				FLootList Loot = LootLootItems[LocalItemIndex];
 
-				if (Loot.DropChance >= FMath::RandRange(0.01, 1))
+				if (Loot.DropChance >= FMath::RandRange(0.1, 1))
 				{
 					LocalItemIndexes.AddUnique(LocalItemIndex);
 
@@ -112,7 +112,7 @@ void ALootActor::SetItemAmount(FSlotStructure& Item, uint8 NewAmount)
 
 bool ALootActor::IsItemCurrency(const FSlotStructure Item)
 {
-	return false;
+	return Item.ItemStructure.ItemType == EItemType::Currency;
 }
 
 uint8 ALootActor::GetItemMaxStackSize(const FSlotStructure Item)

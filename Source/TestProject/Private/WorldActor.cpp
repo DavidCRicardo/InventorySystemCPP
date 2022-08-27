@@ -70,8 +70,6 @@ bool AWorldActor::LoadItemFromList()
 
 	Name = NewItemData->Name;
 	
-	//StaticMesh->SetStaticMesh(NewItemData->WorldMesh);
-
 	return true;
 }
 
@@ -90,7 +88,7 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 			if (OutSuccess)
 			{
 				InventoryManager->Server_UpdateTooltips();
-				
+
 				Destroy();
 			}
 			
@@ -99,16 +97,4 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 	}
 	
 	return false;
-}
-
-void AWorldActor::OnRep_WorldMesh()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnRep_WorldMesh being called"));
-
-	StaticMesh->SetStaticMesh(WorldMesh);
-}
-
-void AWorldActor::UpdateItemAmount()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("UpdateItemAmount being called"));
 }

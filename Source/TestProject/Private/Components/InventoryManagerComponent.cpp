@@ -37,6 +37,8 @@ void UInventoryManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Gold = 0;
+
 	UDataTable* BP_ItemDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 	if (IsValid(BP_ItemDB))
 	{
@@ -64,6 +66,7 @@ void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 
 	DOREPLIFETIME(UInventoryManagerComponent, TotalNumberOfSlots);
 	DOREPLIFETIME(UInventoryManagerComponent, AttributesArray);
+	DOREPLIFETIME(UInventoryManagerComponent, Gold);
 }
 
 void UInventoryManagerComponent::Server_InitInventory_Implementation()
@@ -381,6 +384,14 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 
 	uint8 AmountRemaining = LocalItemAmount;
 
+
+	if (LocalInventoryItem.ItemStructure.ItemType == EItemType::Currency)
+	{
+		AddGold(LocalInventoryItem.Amount);
+		bOutSuccess = true;
+		return;
+	}
+
 	if (LocalInventoryItem.ItemStructure.IsStackable)
 	{
 		FindAndAddAmountToStacks(LocalInventory, LocalItemID, LocalItemAmount, AmountRemaining);
@@ -418,7 +429,7 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Inventory Full")));
 		UE_LOG(LogTemp, Verbose, TEXT("Inventory Full"))
 
-			bOutSuccess = false;
+		bOutSuccess = false;
 		return;
 	}
 }
@@ -644,8 +655,10 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 
 	if (LocalInventoryItem.ItemStructure.ItemType == EItemType::Currency)
 	{
-		//AddGold(LocalInventory.Amount);
+		AddGold(LocalInventoryItem.Amount);
+
 		RemoveItem(FromInventory, FromInventorySlot);
+
 		return;
 	}
 
@@ -702,28 +715,6 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 	}
 
 	Server_UpdateTooltips();
-	
-	//
-	/*FSlotStructure LocalSlot{};
-	bool IsThereMoreItems = false;
-	for (uint8 i = 0; i < ContainerInventory->Inventory.Num(); i++)
-	{
-		LocalSlot = ContainerInventory->Inventory[i];
-
-		if (LocalSlot.Amount > 0)
-		{
-			IsThereMoreItems = true;
-			break;
-		}
-	}
-
-	if (!IsThereMoreItems)
-	{
-		if (Cast<ALootActor>(CurrentContainer))
-		{
-			IInventoryInterface::Execute_ContainerLooted(CurrentContainer);
-		}
-	}*/
 }
 
 void UInventoryManagerComponent::AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd,
@@ -973,6 +964,9 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 		}
 
 		SlotLayout->UpdateSlot(LocalSlot);
+
+
+		MainLayoutUI->Inventory->UpdateGoldAmount();
 	}
 }
 
@@ -1466,6 +1460,7 @@ void UInventoryManagerComponent::LoadContainerSlots(FContainerInfo ContainerProp
 	{
 		PC->ToggleContainer();
 	}
+
 }
 
 void UInventoryManagerComponent::ClearContainerSlots()
@@ -1701,16 +1696,20 @@ bool UInventoryManagerComponent::CanContainerStoreItems(UInventoryComponent* Inv
 		{
 			bool LocalCanStoreItems = IInventoryInterface::Execute_GetCanStoreItems(CurrentContainer);
 
-			if (LocalCanStoreItems)
+			if (!LocalCanStoreItems)
 			{
-				return true;
-			}
-			else 
-			{ 
-				return false; 
+				return false;
 			}
 		}
 	}
 
 	return true;
+}
+
+void UInventoryManagerComponent::AddGold(uint8 Amount) {
+	Gold += Amount;
+}
+
+void UInventoryManagerComponent::OnRep_UpdateGoldAmount() {
+	MainLayoutUI->Inventory->UpdateGoldAmount();
 }
