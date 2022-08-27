@@ -61,6 +61,10 @@ void UEquipmentComponent::UpdateEquippedMeshes(uint8 InventorySlot)
 				EquipmentCharacterReference->HandsMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainHandsMesh();
 				break;
+			case EEquipmentSlot::Legs:
+				EquipmentCharacterReference->LegsMesh = NewMesh;
+
+
 			default:
 				break;
 			}

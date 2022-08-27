@@ -73,11 +73,14 @@ AMyCharacter::AMyCharacter()
 	Feet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
 	Feet->SetupAttachment(GetMesh());
 
+	Legs = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Legs"));
+	Legs->SetupAttachment(GetMesh());
+
 	MainWeaponMesh = nullptr;
 	ChestMesh = nullptr;
 	FeetMesh = nullptr;
 	HandsMesh = nullptr;
-
+	LegsMesh = nullptr;
 	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
 }
 
@@ -91,6 +94,7 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
 	DOREPLIFETIME(AMyCharacter, FeetMesh);
 	DOREPLIFETIME(AMyCharacter, HandsMesh);
+	DOREPLIFETIME(AMyCharacter, LegsMesh);
 }
 
 void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -280,6 +284,13 @@ void AMyCharacter::OnRep_MainHandsMesh()
 	Hands->SetSkeletalMesh(HandsMesh);
 	Hands->SetMasterPoseComponent(GetMesh());
 }
+
+void AMyCharacter::OnRep_MainLegsMesh()
+{
+	Legs->SetSkeletalMesh(LegsMesh);
+	Legs->SetMasterPoseComponent(GetMesh());
+}
+
 /* End OnRep Functions */
 
 // Called to bind functionality to input

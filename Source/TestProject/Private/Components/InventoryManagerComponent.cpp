@@ -125,7 +125,7 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 
 		for (int i = 0; i < 2; i++)
 		{
-			for (int j = 0; j < 2; j++)
+			for (int j = 0; j < 3; j++)
 			{
 				W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
@@ -157,6 +157,10 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			else if (i == 3)
 			{
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Hands);
+			}
+			else if (i == 4) 
+			{
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Legs);
 			}
 			else {
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
@@ -813,6 +817,10 @@ FSlotStructure UInventoryManagerComponent::GetEmptySlot(const EEquipmentSlot Fro
 	{
 		Name = "No_Hands";
 	}
+	else if (FromEquipmentType == EEquipmentSlot::Legs)
+	{
+		Name = "No_Legs";
+	}
 	else
 	{
 		Name = "Empty";
@@ -1204,6 +1212,8 @@ EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& E
 		return EEquipmentSlot::Feet;
 	case 3:
 		return EEquipmentSlot::Hands;
+	case 4:
+		return EEquipmentSlot::Legs;
 	default:
 		return EEquipmentSlot::Undefined;
 	}

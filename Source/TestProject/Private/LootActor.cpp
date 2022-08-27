@@ -53,7 +53,7 @@ TArray<FSlotStructure> ALootActor::GetRandomLootItems()
 			{
 				FLootList Loot = LootLootItems[LocalItemIndex];
 
-				if (Loot.DropChance >= FMath::RandRange(0.1, 1))
+				if (Loot.DropChance >= FMath::RandRange(0.01, 1))
 				{
 					LocalItemIndexes.AddUnique(LocalItemIndex);
 
