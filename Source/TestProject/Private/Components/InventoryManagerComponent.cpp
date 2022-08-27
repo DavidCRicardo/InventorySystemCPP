@@ -123,9 +123,9 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 	{
 		USlotLayout* W_Slot = nullptr;
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
-			for (int j = 0; j < 3; j++)
+			for (int j = 0; j < 2; j++)
 			{
 				W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
@@ -161,6 +161,10 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			else if (i == 4) 
 			{
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Legs);
+			}
+			else if (i == 5)
+			{
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
 			}
 			else {
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
@@ -821,6 +825,10 @@ FSlotStructure UInventoryManagerComponent::GetEmptySlot(const EEquipmentSlot Fro
 	{
 		Name = "No_Legs";
 	}
+	else if (FromEquipmentType == EEquipmentSlot::Head)
+	{
+		Name = "No_Helmet";
+	}
 	else
 	{
 		Name = "Empty";
@@ -965,6 +973,10 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 			case 2: LocalSlot = GetEmptySlot(EEquipmentSlot::Feet);
 				break;
 			case 3: LocalSlot = GetEmptySlot(EEquipmentSlot::Hands);
+				break;
+			case 4: LocalSlot = GetEmptySlot(EEquipmentSlot::Legs);
+				break;
+			case 5: LocalSlot = GetEmptySlot(EEquipmentSlot::Head);
 				break;
 			default: LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
 				break;
@@ -1214,6 +1226,8 @@ EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& E
 		return EEquipmentSlot::Hands;
 	case 4:
 		return EEquipmentSlot::Legs;
+	case 5:
+		return EEquipmentSlot::Head;
 	default:
 		return EEquipmentSlot::Undefined;
 	}

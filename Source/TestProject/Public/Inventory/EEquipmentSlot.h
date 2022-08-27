@@ -11,6 +11,7 @@ enum class EEquipmentSlot : int8
 	Feet				UMETA(DisplayName="Feet"),
 	Hands				UMETA(DisplayName="Hands"),
 	Legs				UMETA(DisplayName="Legs"),
+	Head				UMETA(DisplayName="Head"),
 	Count				UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EEquipmentSlot, EEquipmentSlot::Count);

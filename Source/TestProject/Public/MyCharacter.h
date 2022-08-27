@@ -56,6 +56,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* Legs;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* Head;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -99,8 +102,11 @@ public:
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainHandsMesh", meta=(DisplayName="Main Hands Mesh", Category="Inventory|Equipment"))
 	USkeletalMesh* HandsMesh;
 	
-	UPROPERTY(BlueprintReadWrite, ReplicatedUsing = "OnRep_MainLegsMesh", meta = (DisplayName = "Main Legs Mesh", Category = "Inventory|Equipment"))
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainLegsMesh", meta = (DisplayName = "Main Legs Mesh", Category = "Inventory|Equipment"))
 	USkeletalMesh* LegsMesh;
+
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing="OnRep_MainHeadMesh", meta = (DisplayName = "Main Head Mesh", Category = "Inventory|Equipment"))
+	USkeletalMesh* HeadMesh;
 
 	UFUNCTION(meta=(OverrideNativeName="OnRep_MainWeaponMesh"))
 	void OnRep_MainWeaponMesh();
@@ -116,6 +122,9 @@ public:
 
 	UFUNCTION(meta = (OverrideNativeName = "OnRep_MainLegsMesh"))
 	void OnRep_MainLegsMesh();
+
+	UFUNCTION(meta = (OverrideNativeName = "OnRep_MainHeadMesh"))
+	void OnRep_MainHeadMesh();
 
 	UFUNCTION(BlueprintCallable)
 	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

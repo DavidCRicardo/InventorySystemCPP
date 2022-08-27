@@ -73,6 +73,10 @@ void UInventoryComponent::InitInventory(uint8 InventorySize)
 		{
 			SlotStructure = GetEmptySlot(EEquipmentSlot::Legs);
 		}
+		else if (Index == 5)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
+		}
 		else
 		{
 			// Default Icon
@@ -128,7 +132,12 @@ FSlotStructure UInventoryComponent::GetEmptySlot(const EEquipmentSlot FromEquipm
 	}else if (FromEquipmentType == EEquipmentSlot::Legs)
 	{
 		Name = "No_Legs";
-	}else
+	}
+	else if (FromEquipmentType == EEquipmentSlot::Head)
+	{
+		Name = "No_Helmet";
+	}
+	else
 	{
 		Name = "Empty";
 	}
