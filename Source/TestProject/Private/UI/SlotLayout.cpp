@@ -221,7 +221,7 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 {
 	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("DragCancelled")));
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("DragCancelled")));
 	// DragCancelled called when OnDrop returns false
 }
 

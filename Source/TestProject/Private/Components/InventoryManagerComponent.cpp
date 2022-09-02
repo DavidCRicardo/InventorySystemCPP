@@ -434,7 +434,7 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Inventory Full")));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Inventory Full")));
 		UE_LOG(LogTemp, Verbose, TEXT("Inventory Full"))
 
 		bOutSuccess = false;
@@ -1127,7 +1127,7 @@ void UInventoryManagerComponent::UseConsumableItem(uint8 InventorySlot, FSlotStr
 	// ...
 	//if (Cast<AMyPlayerController>(GetOwner()))
 	//{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Consuming this Item...")));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Consuming this Item...")));
 		UE_LOG(LogTemp, Warning, TEXT("Consuming this Item..."))
 	//}
 
