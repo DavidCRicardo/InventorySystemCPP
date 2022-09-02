@@ -148,7 +148,7 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			}
 			else if (i == 1)
 			{
-				SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);	
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);
 			}
 			else if (i == 2)
 			{
@@ -158,7 +158,7 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			{
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Hands);
 			}
-			else if (i == 4) 
+			else if (i == 4)
 			{
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Legs);
 			}
@@ -437,7 +437,7 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Inventory Full")));
 		UE_LOG(LogTemp, Verbose, TEXT("Inventory Full"))
 
-		bOutSuccess = false;
+			bOutSuccess = false;
 		return;
 	}
 }
@@ -529,7 +529,7 @@ void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory,
 		if (!CanContainerStoreItems(ToInventory))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
-			return;
+				return;
 		}
 
 		if (GetItemTypeBySlot(FromInventorySlot) != EItemType::Equipment)
@@ -612,7 +612,7 @@ void UInventoryManagerComponent::DropItem(UInventoryComponent* Inventory, uint8 
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DROPPED ITEM"))
 
-		UClass* LocalClass;
+			UClass* LocalClass;
 		FTransform OutTransform;
 		RandomizeDropLocation(LocalSlot, LocalClass, OutTransform);
 
@@ -634,9 +634,9 @@ void UInventoryManagerComponent::DropItem(UInventoryComponent* Inventory, uint8 
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You cannot drop this..."))
-		UE_LOG(LogTemp, Warning, TEXT("DESTROYED ITEM"))
+			UE_LOG(LogTemp, Warning, TEXT("DESTROYED ITEM"))
 
-		RemoveItem(Inventory, InventorySlot);
+			RemoveItem(Inventory, InventorySlot);
 	}
 }
 
@@ -657,7 +657,7 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 	// Are We Swapping Items?
 
 	if (!CanContainerStoreItems(ToInventory))
-	{	
+	{
 		return;
 	}
 
@@ -712,7 +712,7 @@ void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, ui
 				// Swap Items
 				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
 				AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
-			}		
+			}
 		}
 	}
 	else
@@ -737,9 +737,9 @@ void UInventoryManagerComponent::AddItemToStack(UInventoryComponent* Inventory, 
 	{
 		// Does The Full Amount To Add Fit In Stack?
 		if (AmountToAdd <= ItemFreeStackSpace(LocalInventoryItem))
-		{	
+		{
 			LocalRemainingAmount = 0;
-			
+
 			AddAmountToItem(LocalInventoryItem, AmountToAdd);
 			AddItem(Inventory, InventorySlot, LocalInventoryItem);
 		}
@@ -848,7 +848,7 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 
 		Slot.InitSlot(*NewItemData, 0);
 	}
-	
+
 	return Slot;
 }
 
@@ -966,7 +966,7 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 		else
 		{
 			SlotLayout = MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot];
-		
+
 			switch (InventorySlot)
 			{
 			case 0: LocalSlot = GetEmptySlot(EEquipmentSlot::Weapon);
@@ -1076,44 +1076,55 @@ void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
 
 	if (IsValid(CurrentContainer))
 	{
-		switch (LocalInventorySlot.ItemStructure.ItemType)
+		bool bCanStoreItems = IInventoryInterface::Execute_GetCanStoreItems(CurrentContainer);
+
+		// is a pot open?
+		if (bCanStoreItems)
 		{
-		case EItemType::Equipment:
-			// Are We Unequipping to a container?
-			if (InventorySlot < (uint8)EEquipmentSlot::Count)
+			//Move Item To Container From Inventory
+
+			switch (LocalInventorySlot.ItemStructure.ItemType)
 			{
-				UseEquipmentItem(InventorySlot, LocalInventorySlot, ContainerInventory);
+			case EItemType::Equipment:
+				// Are We Unequipping to a container?
+				if (InventorySlot < (uint8)EEquipmentSlot::Count)
+				{
+					UseEquipmentItem(InventorySlot, LocalInventorySlot, ContainerInventory);
+					break;
+				}
+			case EItemType::Miscellaneous:
+			case EItemType::Consumable:
+			case EItemType::Currency:
+			default:
+				bool bOutSuccess = false;
+				TryToAddItemToInventory(ContainerInventory, LocalInventorySlot, bOutSuccess);
+
+				if (bOutSuccess)
+				{
+					RemoveItem(PlayerInventory, InventorySlot);
+				}
+				else
+				{
+					AddItem(PlayerInventory, InventorySlot, LocalInventorySlot);
+				}
 				break;
 			}
-		case EItemType::Consumable:
-		default:
-			bool bOutSuccess = false;
-			TryToAddItemToInventory(ContainerInventory, LocalInventorySlot, bOutSuccess);
 
-			if (bOutSuccess)
-			{
-				RemoveItem(PlayerInventory, InventorySlot);
-			}
-			else
-			{
-				AddItem(PlayerInventory, InventorySlot, LocalInventorySlot);
-			}
-			break;
+			return;
 		}
 	}
-	else
+
+	// if Current Container is not valid or if is loot open
+	switch (LocalInventorySlot.ItemStructure.ItemType)
 	{
-		switch (LocalInventorySlot.ItemStructure.ItemType)
-		{
-		case EItemType::Consumable:
-			UseConsumableItem(InventorySlot, LocalInventorySlot);
-			break;
-		case EItemType::Equipment:
-			UseEquipmentItem(InventorySlot, LocalInventorySlot, PlayerInventory);
-			break;
-		default:
-			break;
-		}
+	case EItemType::Consumable:
+		UseConsumableItem(InventorySlot, LocalInventorySlot);
+		break;
+	case EItemType::Equipment:
+		UseEquipmentItem(InventorySlot, LocalInventorySlot, PlayerInventory);
+		break;
+	default:
+		break;
 	}
 
 	Server_UpdateTooltips();
@@ -1128,11 +1139,11 @@ void UInventoryManagerComponent::UseConsumableItem(uint8 InventorySlot, FSlotStr
 	//if (Cast<AMyPlayerController>(GetOwner()))
 	//{
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Consuming this Item...")));
-		UE_LOG(LogTemp, Warning, TEXT("Consuming this Item..."))
-	//}
+	UE_LOG(LogTemp, Warning, TEXT("Consuming this Item..."))
+		//}
 
-	// Remove from Item Amount
-	uint8 AmountToRemove = 1;
+		// Remove from Item Amount
+		uint8 AmountToRemove = 1;
 	bool WasFullAmountRemoved = false;
 	uint8 AmountRemoved = 0;
 
@@ -1255,7 +1266,7 @@ void UInventoryManagerComponent::Server_UnEquipToInventory_Implementation(uint8 
 	UnEquipItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
 }
 
-	/* Client Container Events */
+/* Client Container Events */
 
 void UInventoryManagerComponent::Server_MoveContainerItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
 {
@@ -1309,13 +1320,13 @@ void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
 			break;
 		}
 	}
-	
+
 	if (!IsThereMoreItems)
 	{
 		if (Cast<ALootActor>(CurrentContainer))
 		{
 			IInventoryInterface::Execute_ContainerLooted(CurrentContainer);
-		}	
+		}
 	}
 }
 
@@ -1331,7 +1342,7 @@ void UInventoryManagerComponent::Server_DepositContainerItem_Implementation(cons
 	MoveItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
 }
 
-	/* Client Container UI Events */
+/* Client Container UI Events */
 
 void UInventoryManagerComponent::SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem)
 {
@@ -1541,7 +1552,7 @@ void UInventoryManagerComponent::CreateContainerSlots2(uint8 InventorySize, uint
 	}
 
 	bool bLocalIsStorageContainer = MainLayoutUI->Container->IsStorageContainer;
-	
+
 	uint8 LocalContainerSize = InventorySize;
 	//uint8 LocalMaxRowSize = SlotsPerRow;
 
@@ -1555,13 +1566,13 @@ void UInventoryManagerComponent::CreateContainerSlots2(uint8 InventorySize, uint
 	{
 		//for (uint8 j = 0; j < 1; j++)
 		//{
-			AddContainerSlot(i, 0, LocalLoopCount, bLocalIsStorageContainer);
-			LocalLoopCount++;
+		AddContainerSlot(i, 0, LocalLoopCount, bLocalIsStorageContainer);
+		LocalLoopCount++;
 
-			if (LocalLoopCount == LocalContainerSize)
-			{
-				break;
-			}
+		if (LocalLoopCount == LocalContainerSize)
+		{
+			break;
+		}
 		//}
 	}
 }
@@ -1574,7 +1585,7 @@ void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8
 	USlotLayout* Widget = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
 	MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(Widget, Row, Column);
-	
+
 	MainLayoutUI->Container->ContainerSlotsArray.Add(Widget);
 
 	// Used to Change Loot Display
@@ -1585,7 +1596,7 @@ void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8
 	Widget->SetNameBoxVisibility();
 }
 
-	/* Client Only - Hotbar Events */
+/* Client Only - Hotbar Events */
 
 void UInventoryManagerComponent::Client_MoveHotbarSlotItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
 {
@@ -1602,7 +1613,7 @@ void UInventoryManagerComponent::Client_ClearHotbarSlot_Implementation(const uin
 	ClearHotbarSlotItem(HotbarSlot);
 }
 
-	/* Hotbar Events */
+/* Hotbar Events */
 
 void UInventoryManagerComponent::MoveHotbarSlotItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
 {
@@ -1638,14 +1649,14 @@ void UInventoryManagerComponent::UseHotbarSlot(const uint8& HotbarSlot)
 	if (ItemIsValid(Slot))
 	{
 		TArray<USlotLayout*> LocalInventoryUI = MainLayoutUI->Inventory->InventorySlotsArray;
-		for(uint8 i = 0; i < LocalInventoryUI.Num(); i++) {
+		for (uint8 i = 0; i < LocalInventoryUI.Num(); i++) {
 			if (Slot.ItemStructure.ID == LocalInventoryUI[i]->SlotStructure.ItemStructure.ID) {
 				Tuple.Success = true;
 				Tuple.Index = i;
 				break;
 			}
 		}
-		
+
 		if (Tuple.Success)
 		{
 			Tuple.Index = Tuple.Index + (uint8)EEquipmentSlot::Count;
@@ -1661,7 +1672,7 @@ void UInventoryManagerComponent::ClearHotbarSlotItem(const uint8& HotbarSlot)
 
 	FSlotStructure LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
 
-	Slot->UpdateSlot(LocalSlot);	
+	Slot->UpdateSlot(LocalSlot);
 }
 
 void UInventoryManagerComponent::SetHotbarSlotItem(const uint8& ToSlot, FSlotStructure SlotStructure)
@@ -1673,7 +1684,7 @@ void UInventoryManagerComponent::SetHotbarSlotItem(const uint8& ToSlot, FSlotStr
 
 FSlotStructure UInventoryManagerComponent::GetHotbarSlotItem(const uint8& HotbarSlot)
 {
-	TArray<UHotbar_Slot*> HotbarSlotsArray =  MainLayoutUI->Hotbar->HotbarSlotsArray;
+	TArray<UHotbar_Slot*> HotbarSlotsArray = MainLayoutUI->Hotbar->HotbarSlotsArray;
 	FSlotStructure Slot = HotbarSlotsArray[HotbarSlot]->SlotStructure;
 
 	return Slot;
@@ -1710,7 +1721,7 @@ void UInventoryManagerComponent::Client_CheckHotbarSlots_Implementation(const FS
 	}
 }
 
-bool UInventoryManagerComponent::CanContainerStoreItems(UInventoryComponent* Inventory) 
+bool UInventoryManagerComponent::CanContainerStoreItems(UInventoryComponent* Inventory)
 {
 	if (IsValid(CurrentContainer))
 	{
@@ -1734,8 +1745,12 @@ bool UInventoryManagerComponent::CanContainerStoreItems(UInventoryComponent* Inv
 
 void UInventoryManagerComponent::AddGold(uint8 Amount) {
 	Gold += Amount;
+	OnRep_UpdateGoldAmount();
 }
 
 void UInventoryManagerComponent::OnRep_UpdateGoldAmount() {
-	MainLayoutUI->Inventory->UpdateGoldAmount();
+	if (IsValid(MainLayoutUI))
+	{
+		MainLayoutUI->Inventory->UpdateGoldAmount();
+	}
 }
