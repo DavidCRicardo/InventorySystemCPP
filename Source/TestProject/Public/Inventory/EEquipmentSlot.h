@@ -15,4 +15,3 @@ enum class EEquipmentSlot : int8
 	Count				UMETA(Hidden)
 };
 ENUM_RANGE_BY_COUNT(EEquipmentSlot, EEquipmentSlot::Count);
-

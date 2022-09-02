@@ -62,6 +62,9 @@ void UW_ItemTooltip::SetItemType(const FItemStructure& Item)
 	case EItemType::Miscellaneous:
 		LItemType = FItemType::Miscellanious;
 		break;
+	case EItemType::Currency:
+		LItemType = FItemType::Currency;
+		break;
 	case EItemType::Undefined:
 	default:
 		LItemType = FItemType::Undefined;

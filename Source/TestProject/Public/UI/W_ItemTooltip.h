@@ -45,9 +45,6 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Type;
-
-	//UPROPERTY(meta = (BindWidget))
-	//UVerticalBox* VerticalBoxAttributes;
 	
 	UPROPERTY(meta = (BindWidget))
 	UUniformGridPanel* AttributesGrid;

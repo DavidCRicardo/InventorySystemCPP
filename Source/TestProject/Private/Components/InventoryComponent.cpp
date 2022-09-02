@@ -195,17 +195,6 @@ void UInventoryComponent::ClearInventoryItem(uint8 InventorySlot)
 	Inventory[InventorySlot] = GetEmptySlot(EquipmentSlot);
 }
 
-void UInventoryComponent::PrintInventory()
-{
-	for (int i = 0; i < Inventory.Num(); i++)
-	{
-		FText a = Inventory[i].ItemStructure.Name;
-		uint8 b = Inventory[i].Amount;
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i, Index: %i"),*a.ToString(), b, i));
-	}
-}
-
 FReturnTupleBoolInt UInventoryComponent::GetEmptyContainerSpace()
 {
 	int8 LocalInteger = -1;

@@ -148,11 +148,11 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			}
 			else if (i == 1)
 			{
-				SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
 			}
 			else if (i == 2)
 			{
-				SlotStructure = GetEmptySlot(EEquipmentSlot::Feet);
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);
 			}
 			else if (i == 3)
 			{
@@ -164,7 +164,7 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			}
 			else if (i == 5)
 			{
-				SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Feet);
 			}
 			else {
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);

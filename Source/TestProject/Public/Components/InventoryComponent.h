@@ -72,9 +72,6 @@ public:
 
 	UFUNCTION()
 	FSlotStructure GetInventoryItem(uint8 InventorySlot);
-	
-	UFUNCTION()
-	void PrintInventory();
 
 	UFUNCTION()
 	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);

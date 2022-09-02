@@ -127,3 +127,7 @@ bool AContainerActor::ContainerLooted_Implementation()
 
 	return false;
 }
+
+bool AContainerActor::GetCanStoreItems_Implementation() {
+	return C_CanStoreItems;
+}

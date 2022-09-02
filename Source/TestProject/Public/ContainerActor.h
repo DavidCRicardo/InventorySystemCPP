@@ -25,6 +25,7 @@ public:
 	virtual void GetContainerInventory_Implementation(UInventoryComponent*& OutInventoryComponent) override;
 	virtual TArray<APlayerState*> GetPlayersViewing_Implementation() override;
 	virtual bool ContainerLooted_Implementation() override;
+	virtual bool GetCanStoreItems_Implementation() override;
 	/* Ends Interface*/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
