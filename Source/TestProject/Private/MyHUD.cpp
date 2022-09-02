@@ -53,11 +53,6 @@ void AMyHUD::BeginPlay()
 		InteractTextWidget->AddToViewport();
 		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
-	
-	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
-	{
-		PlayerController->SetupHUDReferences();
-	}
 }
 
 UUserWidget* AMyHUD::GetInteractWidget()

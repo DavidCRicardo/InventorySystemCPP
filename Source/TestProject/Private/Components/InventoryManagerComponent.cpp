@@ -148,11 +148,11 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			}
 			else if (i == 1)
 			{
-				SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);	
 			}
 			else if (i == 2)
 			{
-				SlotStructure = GetEmptySlot(EEquipmentSlot::Chest);
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Feet);
 			}
 			else if (i == 3)
 			{
@@ -164,7 +164,7 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			}
 			else if (i == 5)
 			{
-				SlotStructure = GetEmptySlot(EEquipmentSlot::Feet);
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
 			}
 			else {
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
@@ -841,11 +841,14 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 {
 	FSlotStructure Slot = {};
 
-	const UDataTable* ItemTable = ItemDB;
-	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
+	if (IsValid(ItemDB))
+	{
+		const UDataTable* ItemTable = ItemDB;
+		const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
 
-	Slot.InitSlot(*NewItemData, 0);
-
+		Slot.InitSlot(*NewItemData, 0);
+	}
+	
 	return Slot;
 }
 
@@ -984,7 +987,6 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 		}
 
 		SlotLayout->UpdateSlot(LocalSlot);
-
 
 		MainLayoutUI->Inventory->UpdateGoldAmount();
 	}

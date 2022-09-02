@@ -84,13 +84,13 @@ void AMyPlayerController::BeginPlay()
 
 	DisableInput(this);
 
-	if (HasAuthority())
+	/*if (HasAuthority())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Server")));
 	}else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Client")));
-	}
+	}*/
 
 	// Delay: 1 second
 	FTimerHandle TimerHandle;
@@ -108,8 +108,11 @@ void AMyPlayerController::BeginPlay()
 
 		InventoryManagerComponent->InitializePlayerAttributes();
 
+		SetupHUDReferences();
+
 		EnableInput(this);
-	}, 1, false);
+	}, 0.5, false);
+
 }
 
 void AMyPlayerController::SetupHUDReferences()
