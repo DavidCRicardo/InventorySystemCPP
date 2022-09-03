@@ -6,7 +6,10 @@
 #include "UsableActorInterface.h"
 #include "GameFramework/Actor.h"
 #include "Sound/SoundCue.h"
+#include "Internationalization/StringTableRegistry.h"
 #include "UsableActor.generated.h"
+
+static const FName LCOMMON_WORDS2 = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
 
 UCLASS()
 class INVENTORYSYSTEMCPP_API AUsableActor : public AActor, public IUsableActorInterface
@@ -35,7 +38,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMesh;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated)
 	FText Name;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -44,11 +47,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundCue* UsedSound;
 	
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool IsUsable;
 
-	UPROPERTY(Replicated)
-	UStaticMesh* WorldMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = "OnRep_WasUsed")
+	bool WasUsed;
 
 public:
 	// Called every frame
@@ -56,14 +59,12 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION()
-	bool OnWasUsed();
+	UFUNCTION(BlueprintCallable, meta = (Category, OverrideNativeName = "OnWasUsed"))
+	virtual bool OnWasUsed();
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void OnRep_WasUsed();
-	bool OnRep_WasUsed_Validate();
-	void OnRep_WasUsed_Implementation();
-	
+	UFUNCTION(BlueprintCallable, meta = (Category, OverrideNativeName = "OnRep_WasUsed"))
+	virtual void OnRep_WasUsed();
+
 	UPROPERTY()
 	UUserWidget* InteractUserWidget;
 
@@ -71,8 +72,4 @@ public:
 	void SetInteractText(FText Text);
 	UFUNCTION()
 	void SetScreenPosition(FVector2D ScreenPosition);
-	
-private:
-	UPROPERTY(ReplicatedUsing = "OnRep_WasUsed")
-	bool WasUsed;
 };

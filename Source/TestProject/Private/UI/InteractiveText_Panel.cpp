@@ -21,8 +21,6 @@ void UInteractiveText_Panel::NativeConstruct()
 			const FName ItemName = Entry->GetIDName();
 
 			MyPlayerController->CollectFromPanel(ItemName);
-			
-			//InteractiveText_List->RemoveItem(Entry);
 		}
 	});
 	//InteractiveText_List->OnItemClicked().Remove(DelegateHandle);
@@ -31,8 +29,6 @@ void UInteractiveText_Panel::NativeConstruct()
 	{
 		if (UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(Object))
 		{
-			Entry->IsHoveredChanged(IsHovered);
-
 			InteractiveText_List->SetSelectedItem(Entry);
 		}
 	});
@@ -85,8 +81,8 @@ void UInteractiveText_Panel::RemoveEntryFromList(const FName& ID)
 
 void UInteractiveText_Panel::SetSelectedItemOnInteractiveList(){
 	
-	UObject* a = InteractiveText_List->GetItemAt(0);
-	InteractiveText_List->SetSelectedItem(a);
+	UObject* Object = InteractiveText_List->GetItemAt(0);
+	InteractiveText_List->SetSelectedItem(Object);
 }
 
 uint32 UInteractiveText_Panel::GetSelectedItemOnInteractiveList()

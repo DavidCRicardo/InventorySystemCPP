@@ -9,15 +9,6 @@ UInventoryComponent::UInventoryComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// Get ItemDB 
-	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
-	if (BP_ItemDB.Succeeded())
-	{
-		ItemDB = BP_ItemDB.Object;
-	}else{
-		UE_LOG(LogTemp, Warning, TEXT ("ItemDB DataTable not found!!"));
-	}
 }
 
 
@@ -26,8 +17,15 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	UDataTable* BP_ItemDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+	if (IsValid(BP_ItemDB))
+	{
+		ItemDB = BP_ItemDB;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UDataTable not Loaded"))
+	}
 }
 
 // Called every frame
@@ -70,6 +68,15 @@ void UInventoryComponent::InitInventory(uint8 InventorySize)
 		{
 			SlotStructure = GetEmptySlot(EEquipmentSlot::Hands);
 		}
+
+		else if (Index == 4)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Legs);
+		}
+		else if (Index == 5)
+		{
+			SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
+		}
 		else
 		{
 			// Default Icon
@@ -92,7 +99,7 @@ bool UInventoryComponent::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> 
 	
 	FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
 	
-	for (uint8 i = 0; i < Size - 1; i++)
+	for (uint8 i = 0; i <= Size - 1; i++)
 	{
 		Inventory.Add(TempSlot);
 	}
@@ -122,7 +129,15 @@ FSlotStructure UInventoryComponent::GetEmptySlot(const EEquipmentSlot FromEquipm
 	}else if(FromEquipmentType == EEquipmentSlot::Hands)
 	{
 		Name = "No_Hands";
-	}else
+	}else if (FromEquipmentType == EEquipmentSlot::Legs)
+	{
+		Name = "No_Legs";
+	}
+	else if (FromEquipmentType == EEquipmentSlot::Head)
+	{
+		Name = "No_Helmet";
+	}
+	else
 	{
 		Name = "Empty";
 	}
@@ -135,16 +150,11 @@ FSlotStructure UInventoryComponent::GetItemFromItemDB(const FName Name)
 	FSlotStructure Slot = {};
 
 	const UDataTable* ItemTable = ItemDB;
-	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(Name), "", true);
+	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
 
 	Slot.InitSlot(*NewItemData, 0);
 
 	return Slot;
-}
-
-UDataTable* UInventoryComponent::GetItemDB()
-{
-	return nullptr;
 }
 
 void UInventoryComponent::SetInventoryItem(uint8 InventorySlot, FSlotStructure& Item)
@@ -183,17 +193,6 @@ void UInventoryComponent::ClearInventoryItem(uint8 InventorySlot)
 		EquipmentSlot = Inventory[InventorySlot].ItemStructure.EquipmentSlot;
 	}
 	Inventory[InventorySlot] = GetEmptySlot(EquipmentSlot);
-}
-
-void UInventoryComponent::PrintInventory()
-{
-	for (int i = 0; i < Inventory.Num(); i++)
-	{
-		FText a = Inventory[i].ItemStructure.Name;
-		uint8 b = Inventory[i].Amount;
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Item: %s, Amount %i, Index: %i"),*a.ToString(), b, i));
-	}
 }
 
 FReturnTupleBoolInt UInventoryComponent::GetEmptyContainerSpace()

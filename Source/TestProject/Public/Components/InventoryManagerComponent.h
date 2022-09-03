@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Item/EEquipmentSlot.h"
-#include "Item/EItemType.h"
+#include "Inventory/EEquipmentSlot.h"
+#include "Inventory/EItemType.h"
 #include "Inventory/FContainerInfo.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryManagerComponent.generated.h"
@@ -25,6 +25,12 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION()
+	void OnRep_UpdateGoldAmount();
+
+	UPROPERTY(Replicated, ReplicatedUsing=OnRep_UpdateGoldAmount)
+	uint8 Gold;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -32,7 +38,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 	UFUNCTION()
 	void InitializeInventoryManager(UInventoryComponent* EquipmentComponent);
 	
@@ -98,12 +104,19 @@ public:
 	void Client_ClearInventorySlotItem(uint8 InventorySlot);
 	UFUNCTION(Client, Reliable)
 	void Client_ClearContainerSlotItem(uint8 ContainerSlot);
-
+	
 	UFUNCTION(Client, Reliable)
 	void Client_OpenContainer(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory);
 	UFUNCTION(Client, Reliable)
 	void Client_CloseContainer();
 	
+	UFUNCTION(Client, Reliable)
+		void Client_MoveHotbarSlotItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar);
+	UFUNCTION(Client, Reliable)
+		void Client_UseHotbarSlot(const uint8& HotbarSlot);
+	UFUNCTION(Client, Reliable)
+		void Client_ClearHotbarSlot(const uint8& HotbarSlot);
+
 	UFUNCTION(Server, Reliable)
 		void Server_UpdateTooltips();
 
@@ -111,6 +124,14 @@ public:
 		void Client_LoadInventoryUI();
 	UFUNCTION(Client, Reliable)
 		void Client_LoadProfileUI();
+	UFUNCTION(Client, Reliable)
+		void Client_LoadHotbarUI();
+
+	UFUNCTION(Client, Reliable)
+		void Client_CheckHotbarSlots(const FSlotStructure& Slot);
+
+	UFUNCTION()
+		void LoadHotbarUI();
 
 	UFUNCTION(Category="Manager|Public")
 	void InitializeInventoryManagerUI(UMainLayout* MainLayout);
@@ -131,8 +152,6 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void Client_SetAttributes(const TArray<uint8>& InAttributesArray);
-	UFUNCTION()
-	void SetAttributes(const TArray<uint8>& InAttributesArray);
 	
 	UFUNCTION()
 	void UpdateEquippedStats();
@@ -149,10 +168,10 @@ public:
 	UPROPERTY()
 	AActor* CurrentContainer;
 	
-	UPROPERTY()
-		uint8 NumberOfRowsInventory;
-	UPROPERTY()
-		uint8 SlotsPerRowInventory;
+	/*Defined on Player Controller*/
+	uint8 NumberOfRowsInventory = 0;
+	uint8 SlotsPerRowInventory = 0;
+	uint8 NumberOfSlotsOnHotbar = 0;
 
 protected:
 	UFUNCTION(Client, Reliable)
@@ -161,6 +180,18 @@ protected:
 		void Client_UpdateContainerTooltips(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory);
 
 private:
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void MoveHotbarSlotItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar);
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void UseHotbarSlot(const uint8& HotbarSlot);
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void ClearHotbarSlotItem(const uint8& HotbarSlot);
+
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		void SetHotbarSlotItem(const uint8& ToSlot, FSlotStructure SlotStructure);
+	UFUNCTION(Category = "UserInterface|Private|Hotbar")
+		FSlotStructure GetHotbarSlotItem(const uint8& HotbarSlot);
+
 	UPROPERTY()
 	UDataTable* ItemDB;
 	
@@ -172,6 +203,21 @@ private:
 	bool ItemIsValid(FSlotStructure Item);
 	UFUNCTION(Category = "Helper")
 	bool GetEmptyEquipmentSlotByType(EEquipmentSlot EquipmentSlot, uint8& OutIndex);
+	UFUNCTION(Category = "Helper")
+	bool ItemIsSame(const FSlotStructure Item1, const FSlotStructure Item2);
+	UFUNCTION(Category = "Helper")
+	bool IsItemStackable(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	uint8 ItemFreeStackSpace(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	uint8 GetItemAmount(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	uint8 GetItemMaxStackSize(const FSlotStructure Item);
+	UFUNCTION(Category = "Helper")
+	void AddAmountToItem(FSlotStructure & Item, uint8 AmountToAdd);
+
+	UFUNCTION()
+		void SetAttributes(const TArray<uint8>& InAttributesArray);
 
 	// Remove a specific amount from an existing item on Inventory
 	UFUNCTION()
@@ -218,12 +264,25 @@ private:
 	UFUNCTION(Category="UserInterface|Private|Inventory")
 	void ClearInventorySlotItem(uint8 InventorySlot);
 	
+	UFUNCTION(Category = "UserInterface|Private|Inventory")
+	FSlotStructure GetInventorySlotItem(uint8 InventorySlot);
+
+	UFUNCTION(Category = "Manager|Private|Inventory")
+		void AddGold(uint8 Amount);
+
 	UFUNCTION(Category="UserInterface|Private|Container") 
 	void ClearContainerSlots();
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow);
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem);
+
+	UFUNCTION(Category = "UserInterface|Private|Container")
+		void CreateContainerSlots2(uint8 InventorySize, uint8 SlotsPerRow);
+
+	UFUNCTION(Category = "UserInterface|Private|Container")
+		void AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage);
+
 
 	UFUNCTION(Category="UserInterface|Private|Container")
 	void ClearContainerSlotItem(uint8 ContainerSlot);
@@ -241,6 +300,9 @@ private:
 	UFUNCTION(Category="Manager|Private|Container")
 	void LoadContainerSlots(FContainerInfo ContainerProperties, const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory);
 	
+	UFUNCTION(Category = "Manager|Private")
+	bool CanContainerStoreItems(UInventoryComponent* Inventory);
+
 	UFUNCTION(Category="Manager|Private|Stacks")
 	void FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining);
 	

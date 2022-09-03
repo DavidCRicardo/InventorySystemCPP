@@ -2,7 +2,6 @@
 
 
 #include "MyPlayerController.h"
-
 #include "MyCharacter.h"
 #include "MyHUD.h"
 #include "WorldActor.h"
@@ -14,6 +13,7 @@
 #include "UI/InteractiveText_Panel.h"
 #include "UI/MainLayout.h"
 #include "UI/TertiaryHUD.h"
+#include "Actors/UsableDoor.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -24,6 +24,12 @@ AMyPlayerController::AMyPlayerController()
 
 	InventoryManagerComponent->NumberOfRowsInventory = PlayerInventoryComponent->NumberOfRowsInventory;
 	InventoryManagerComponent->SlotsPerRowInventory = PlayerInventoryComponent->SlotsPerRowInventory;
+	
+	if (PlayerInventoryComponent->NumberOfSlotsOnHotbar > GetMaximumHotbarSlots())
+	{
+		PlayerInventoryComponent->NumberOfSlotsOnHotbar = GetMaximumHotbarSlots();
+	}
+	InventoryManagerComponent->NumberOfSlotsOnHotbar = PlayerInventoryComponent->NumberOfSlotsOnHotbar;
 
 	CharacterReference = nullptr;
 	
@@ -44,6 +50,27 @@ void AMyPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("QuitGame", IE_Pressed, this, &AMyPlayerController::QuitGame);
 
+	InputComponent->BindAction("UseHotbar1", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot1);
+	InputComponent->BindAction("UseHotbar2", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot2);
+	InputComponent->BindAction("UseHotbar3", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot3);
+	InputComponent->BindAction("UseHotbar4", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot4);
+	InputComponent->BindAction("UseHotbar5", IE_Pressed, this, &AMyPlayerController::UseHotbarSlot5);
+}
+
+void AMyPlayerController::UseHotbarSlot1() {
+	InventoryManagerComponent->Client_UseHotbarSlot(0);
+}
+void AMyPlayerController::UseHotbarSlot2() {
+	InventoryManagerComponent->Client_UseHotbarSlot(1);
+}
+void AMyPlayerController::UseHotbarSlot3() {
+	InventoryManagerComponent->Client_UseHotbarSlot(2);
+}
+void AMyPlayerController::UseHotbarSlot4() {
+	InventoryManagerComponent->Client_UseHotbarSlot(3);
+}
+void AMyPlayerController::UseHotbarSlot5() {
+	InventoryManagerComponent->Client_UseHotbarSlot(4);
 }
 
 void AMyPlayerController::QuitGame()
@@ -57,13 +84,13 @@ void AMyPlayerController::BeginPlay()
 
 	DisableInput(this);
 
-	if (HasAuthority())
+	/*if (HasAuthority())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Server")));
 	}else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Client")));
-	}
+	}*/
 
 	// Delay: 1 second
 	FTimerHandle TimerHandle;
@@ -81,8 +108,11 @@ void AMyPlayerController::BeginPlay()
 
 		InventoryManagerComponent->InitializePlayerAttributes();
 
+		SetupHUDReferences();
+
 		EnableInput(this);
-	}, 1, false);
+	}, 0.5, false);
+
 }
 
 void AMyPlayerController::SetupHUDReferences()
@@ -99,6 +129,8 @@ void AMyPlayerController::SetupHUDReferences()
 	
 		InventoryManagerComponent->Client_LoadInventoryUI();
 		InventoryManagerComponent->Client_LoadProfileUI();
+
+		InventoryManagerComponent->Client_LoadHotbarUI();
 	}
 }
 
@@ -165,13 +197,25 @@ void AMyPlayerController::Server_OnActorUsed_Implementation(AActor* Actor)
 	OnActorUsed(Actor);
 }
 
-void AMyPlayerController::OnActorUsed(AActor* Actor)
+void AMyPlayerController::OnActorUsed(AActor* Actor1)
 {
 	if (HasAuthority())
 	{
-		if (IsValid(Actor))
+		/*AActor* Actor{};
+
+		// Get Usable Actor
+		if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 		{
-			IUsableActorInterface::Execute_OnActorUsed(Actor, this);
+			// Get Selected Item
+			uint32 Index = 0;
+			GetSelectedItemIndex(Index);
+
+			Actor = CharacterReference->UsableActorsInsideRange[Index];
+		}*/
+
+		if (IsValid(Actor1))
+		{
+			IUsableActorInterface::Execute_OnActorUsed(Actor1, this);
 		}
 	}
 }
@@ -241,6 +285,8 @@ void AMyPlayerController::GetSelectedItemIndex(uint32& Index)
 
 void AMyPlayerController::Interact()
 {
+	//Server_OnActorUsed();
+	//OnActorUsed();	
 	if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 	{
 		// Get Selected Item
@@ -262,6 +308,7 @@ void AMyPlayerController::Interact()
 		//if (CharacterReference->UsableActorsInsideRange.Num() > 0)
 		//{
 		//	Actor = CharacterReference->UsableActorsInsideRange[Index];
+ 						
 			if (AUsableActor* UsableActor = Cast<AUsableActor>(Actor))
 			{
 				Server_OnActorUsed(UsableActor);
@@ -269,6 +316,9 @@ void AMyPlayerController::Interact()
 				return;
 			}
 		//}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Character Reference is null"))
 	}
 }
 
@@ -286,7 +336,7 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 			if (WorldActor->ID == Name)
 			{
 				Server_OnActorUsed(WorldActor);
-				
+
 				return;
 			}
 		}
@@ -309,10 +359,13 @@ void AMyPlayerController::SetMouseToCenterPosition()
 
 void AMyPlayerController::EnableUIMode()
 {
-	SetInputMode(FInputModeGameAndUI());
-	bShowMouseCursor = true;
+	if (!bShowMouseCursor)
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
 
-	SetMouseToCenterPosition();
+		SetMouseToCenterPosition();
+	}
 }
 
 void AMyPlayerController::DisableUIMode()
@@ -356,3 +409,12 @@ UDataTable* AMyPlayerController::GetItemDB()
 	return InventoryManagerComponent->GetItemDB();
 }
 
+void AMyPlayerController::UI_MoveHotbarItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
+{
+	InventoryManagerComponent->Client_MoveHotbarSlotItem(FromSlot, ToSlot, IsDraggedFromInventory, IsDraggedFromHotbar);
+}
+
+uint8 AMyPlayerController::UIGetPlayerGold()
+{
+	return InventoryManagerComponent->Gold;
+}

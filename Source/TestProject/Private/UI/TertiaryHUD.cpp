@@ -28,9 +28,6 @@ void UTertiaryHUD::CreateInteractiveTextEntry(FName IDName)
 		
 		InteractiveMenu->AddEntryToList(Entry);
 	}
-
-	/*UInteractiveText_Entry* Entry2 = CreateWidget<UInteractiveText_Entry>(GetWorld(), InteractiveTextWidgetClass);
-	InteractiveMenu->AddEntryToList(Entry2);*/
 }
 
 void UTertiaryHUD::RemoveInteractiveTextEntry(const FName& ID)

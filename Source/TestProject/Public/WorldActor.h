@@ -25,11 +25,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 Amount;
+
+	UPROPERTY(Replicated)
+	UStaticMesh* WorldMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool StartWithPhysicsEnabled;
@@ -38,20 +43,13 @@ public:
 
 	UFUNCTION()
 	bool LoadItemFromList();
-	UFUNCTION()
-	void UpdateItemAmount();
 
 	UFUNCTION(Server, Reliable)
 	void Server_InitializeItemData();
 	
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
 
-	void OnRep_WorldMesh();
-
-private:
+protected:
 	UPROPERTY()
 	FSlotStructure InventoryItem;
-
-	UPROPERTY()
-	bool IsSinglePlayer;
 };

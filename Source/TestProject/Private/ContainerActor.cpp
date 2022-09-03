@@ -3,8 +3,8 @@
 
 
 #include "ContainerActor.h"
-
 #include "MyPlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "Components/InventoryManagerComponent.h"
 
 // Sets default values
@@ -16,25 +16,22 @@ AContainerActor::AContainerActor()
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	InventoryComponent->NumberOfRowsInventory = 3;
 	InventoryComponent->SlotsPerRowInventory = 3;
-	
+
 	C_Name = "NULL";
-	C_SlotsPerRow = 3;
 	C_CanStoreItems = true;
-	
-	// C_InventorySize = 9;
 }
 
 // Called when the game starts or when spawned
 void AContainerActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (HasAuthority())
 	{
 		C_NumberOfRows = InventoryComponent->NumberOfRowsInventory;
 		C_SlotsPerRow = InventoryComponent->SlotsPerRowInventory;
-		
-		C_InventorySize = C_NumberOfRows * C_SlotsPerRow;
+
+		C_InventorySize = C_SlotsPerRow * C_NumberOfRows;
 
 		InitializeInventory();
 	}
@@ -50,15 +47,15 @@ bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 			{
 				//Server: Use Container And Add Player To Viewers List
 				PlayersViewing.Add(PlayerController->PlayerState);
-				
+
 				PlayerController->InventoryManagerComponent->Server_UseContainer(this);
-				
+
 				return Super::OnActorUsed_Implementation(Controller);
 				return true;
 			}
 		}
 	}
-	
+
 	return false;
 }
 
@@ -83,7 +80,6 @@ void AContainerActor::GetContainerInventory_Implementation(UInventoryComponent*&
 TArray<APlayerState*> AContainerActor::GetPlayersViewing_Implementation()
 {
 	return PlayersViewing;
-	return IInventoryInterface::GetPlayersViewing_Implementation();
 }
 
 bool AContainerActor::InitializeInventory()
@@ -92,11 +88,9 @@ bool AContainerActor::InitializeInventory()
 	{
 		InventoryComponent->Server_InitInventory(C_InventorySize);
 
-		//LoadInventoryItems(C_InventorySize, InventoryComponent->Inventory);
-		
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -110,6 +104,30 @@ bool AContainerActor::LoadInventoryItems(uint8 Size, TArray<FSlotStructure> Inve
 
 		return true;
 	}
-	
+
 	return false;
+}
+
+bool AContainerActor::ContainerLooted_Implementation()
+{
+	if (HasAuthority())
+	{
+		TArray<APlayerState*> LocalViewers = PlayersViewing;
+		IsUsable = false;
+
+		for (APlayerState* State : LocalViewers)
+		{
+			AMyPlayerController* Controller = Cast<AMyPlayerController>(State->GetOwner());
+			Controller->InventoryManagerComponent->Server_CloseContainer();
+		}
+
+		return true;
+
+	}
+
+	return false;
+}
+
+bool AContainerActor::GetCanStoreItems_Implementation() {
+	return C_CanStoreItems;
 }
