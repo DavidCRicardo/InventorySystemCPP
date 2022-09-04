@@ -92,11 +92,11 @@ void AMyPlayerController::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Client")));
 	}*/
 
-	// Delay: 1 second
+	// Delay
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 	{
-		UE_LOG(LogTemp, Warning, TEXT("This text will appear in the console 3 seconds after execution"))
+		UE_LOG(LogTemp, Warning, TEXT("This text will appear in the console 0.5 second(s) after execution"))
 
 		CharacterReference = Cast<AMyCharacter>(GetPawn());
 
@@ -108,7 +108,8 @@ void AMyPlayerController::BeginPlay()
 
 		InventoryManagerComponent->InitializePlayerAttributes();
 
-		SetupHUDReferences();
+		// Use this code to Play on *Package Mode* instead of HUD line 58-61
+		//SetupHUDReferences();
 
 		EnableInput(this);
 	}, 0.5, false);
