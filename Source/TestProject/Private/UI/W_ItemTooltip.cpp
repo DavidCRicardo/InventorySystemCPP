@@ -6,7 +6,7 @@
 #include "Components/InventoryComponent.h"
 #include "Components/InventoryManagerComponent.h"
 #include "Internationalization/StringTableRegistry.h"
-#include "Item/FItemType.h"
+#include "Inventory/FItemType.h"
 
 void UW_ItemTooltip::NativeConstruct()
 {
@@ -61,6 +61,9 @@ void UW_ItemTooltip::SetItemType(const FItemStructure& Item)
 		break;
 	case EItemType::Miscellaneous:
 		LItemType = FItemType::Miscellanious;
+		break;
+	case EItemType::Currency:
+		LItemType = FItemType::Currency;
 		break;
 	case EItemType::Undefined:
 	default:

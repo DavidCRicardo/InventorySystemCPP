@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Components/EquipmentComponent.h"
-
 #include "MyCharacter.h"
 #include "Inventory/FSlotStructure.h"
 
@@ -16,6 +15,8 @@ UEquipmentComponent::UEquipmentComponent()
 
 	NumberOfRowsInventory = 7;
 	SlotsPerRowInventory = 4;
+
+	NumberOfSlotsOnHotbar = 5;
 }
 
 // Called when the game starts
@@ -59,14 +60,18 @@ void UEquipmentComponent::UpdateEquippedMeshes(uint8 InventorySlot)
 				EquipmentCharacterReference->HandsMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainHandsMesh();
 				break;
+			case EEquipmentSlot::Legs:
+				EquipmentCharacterReference->LegsMesh = NewMesh;
+				EquipmentCharacterReference->OnRep_MainLegsMesh();
+				break;
+			case EEquipmentSlot::Head:
+				EquipmentCharacterReference->HeadMesh = NewMesh;
+				EquipmentCharacterReference->OnRep_MainHeadMesh();
+				break;
 			default:
 				break;
 			}
 		}
-	}else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Character Reference Not Valid")));
-		UE_LOG(LogTemp, Warning, TEXT("CHARACTER REFERENCE NOT VALID"))
 	}
 }
 

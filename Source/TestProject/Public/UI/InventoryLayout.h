@@ -7,6 +7,7 @@
 #include "InventoryLayout.generated.h"
 
 class USlotLayout;
+class UUniformGridPanel;
 /**
  * 
  */
@@ -21,11 +22,16 @@ public:
 	virtual void ToggleWindow() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UUniformGridPanel* InventoryGridPanel;
+	UUniformGridPanel* InventoryGridPanel;
 	
 	UPROPERTY()
 	TArray<USlotLayout*>InventorySlotsArray;
 	
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* Gold_Amount;
+
+	void UpdateGoldAmount();
+
 private:
 	virtual void NativeConstruct() override;
 };

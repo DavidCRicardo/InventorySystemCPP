@@ -53,7 +53,8 @@ void AMyHUD::BeginPlay()
 		InteractTextWidget->AddToViewport();
 		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
-	
+
+	// Use this code to *Play on Editor Mode* instead of PlayerController line 112
 	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
 	{
 		PlayerController->SetupHUDReferences();

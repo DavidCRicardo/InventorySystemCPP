@@ -2,17 +2,34 @@
 
 
 #include "UI/ContainerLayout.h"
+#include "LootActor.h"
 #include "Components/InventoryManagerComponent.h"
 #include "Internationalization/StringTableRegistry.h"
 
 UContainerLayout::UContainerLayout() {}
 
+void UContainerLayout::Function1(ESlateVisibility InVisibility)
+{
+	if (InVisibility == ESlateVisibility::Visible)
+	{
+		FText Text{};
+		if (IsStorageContainer)
+		{
+			Text = LOCTABLE(COMMON_WORDS, "Container");
+			Super::SetTitleToWindow(Text);
+		}
+		else {
+			Text = LOCTABLE(COMMON_WORDS, "Loot");
+			Super::SetTitleToWindow(Text);
+		}
+	}
+}
+
 void UContainerLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FText Text = LOCTABLE(COMMON_WORDS, "CONTAINERKey");
-	Super::SetTitleToWindow(Text);
+	OnNativeVisibilityChanged.AddUObject(this, &UContainerLayout::Function1);
 }
 
 void UContainerLayout::ToggleWindow()

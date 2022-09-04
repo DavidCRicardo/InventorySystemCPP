@@ -35,7 +35,7 @@ bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		{
 			if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwningPlayer()))
 			{
-				IInventoryInterface::Execute_UI_DropInventoryItem(PlayerController, DragItemResult->DraggedSlotIndex);
+				IInventoryHUDInterface::Execute_UI_DropInventoryItem(PlayerController, DragItemResult->DraggedSlotIndex);
 				return true;
 			}
 		}

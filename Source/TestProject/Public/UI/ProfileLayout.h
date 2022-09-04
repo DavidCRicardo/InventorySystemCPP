@@ -5,6 +5,7 @@
 #include "Components/ListView.h"
 #include "ProfileLayout.generated.h"
 
+class UUniformGridPanel;
 class USlotLayout;
 
 UCLASS()
@@ -15,10 +16,8 @@ class INVENTORYSYSTEMCPP_API UProfileLayout : public UWindowLayout
 public:
 	UProfileLayout();
 	
-	virtual void ToggleWindow() override;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UUniformGridPanel* EquipmentGridPanel;
+	UUniformGridPanel* EquipmentGridPanel;
 	
 	UPROPERTY()
 	TArray<USlotLayout*>EquipmentSlotsArray;

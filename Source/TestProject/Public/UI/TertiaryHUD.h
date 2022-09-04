@@ -31,9 +31,6 @@ public:
 	void CreateInteractiveTextEntry(FName IDName);
 	UFUNCTION()
 	void RemoveInteractiveTextEntry(const FName& ID);
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	//TSubclassOf<UInteractiveText_Entry> InteractiveTextWidgetClass = nullptr;
 	
 protected:
 	UFUNCTION()

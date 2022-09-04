@@ -8,6 +8,7 @@
 #include "FWidgetsLayoutBP.h"
 #include "MyHUD.h"
 #include "WorldActor.h"
+#include "LootActor.h"
 #include "Components/EquipmentComponent.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
@@ -15,8 +16,10 @@
 #include "UI/ContainerLayout.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
+#include "UI/Hotbar.h"
 #include "UI/W_ItemTooltip.h"
 #include "UI/SlotLayout.h"
+#include "UI/Hotbar_Slot.h"
 #include "GameFramework/PlayerState.h"
 #include "Inventory/FContainerInfo.h"
 #include "Net/UnrealNetwork.h"
@@ -27,21 +30,6 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// Get ItemDB 
-	static ConstructorHelpers::FObjectFinder<UDataTable> BP_ItemDB(TEXT("/Game/Blueprints/Item_DB.Item_DB"));
-	if (BP_ItemDB.Succeeded())
-	{
-		ItemDB = BP_ItemDB.Object;
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("ItemDB DataTable not found!!"));
-	}
-
-	NumberOfRowsInventory = 0;
-	SlotsPerRowInventory = 0;
-
-	TotalNumberOfSlots = 0;
 }
 
 // Called when the game starts
@@ -49,10 +37,49 @@ void UInventoryManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Gold = 0;
+
+	UDataTable* BP_ItemDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
+	if (IsValid(BP_ItemDB))
+	{
+		ItemDB = BP_ItemDB;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UDataTable not Loaded"))
+	}
+
 	TotalNumberOfSlots = (NumberOfRowsInventory * SlotsPerRowInventory) + (uint8)EEquipmentSlot::Count;
 }
 
-void UInventoryManagerComponent::Client_LoadInventoryUI_Implementation() 
+// Called every frame
+void UInventoryManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}
+
+void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UInventoryManagerComponent, TotalNumberOfSlots);
+	DOREPLIFETIME(UInventoryManagerComponent, AttributesArray);
+	DOREPLIFETIME(UInventoryManagerComponent, Gold);
+}
+
+void UInventoryManagerComponent::Server_InitInventory_Implementation()
+{
+	PlayerInventory->Server_InitInventory(TotalNumberOfSlots);
+}
+
+void UInventoryManagerComponent::InitializeInventoryManager(UInventoryComponent* EquipmentComponent)
+{
+	PlayerInventory = EquipmentComponent;
+}
+
+void UInventoryManagerComponent::Client_LoadInventoryUI_Implementation()
 {
 	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
 
@@ -87,7 +114,7 @@ void UInventoryManagerComponent::Client_LoadInventoryUI_Implementation()
 	}
 }
 
-void UInventoryManagerComponent::Client_LoadProfileUI_Implementation() 
+void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 {
 	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
 
@@ -96,13 +123,12 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 	{
 		USlotLayout* W_Slot = nullptr;
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			for (int j = 0; j < 2; j++)
 			{
 				W_Slot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
-				//MainLayoutUI->Profile->EquipmentGridPanel->AddChildToUniformGrid(W_Slot, i, j);
 				UUniformGridSlot* GridSlot = MainLayoutUI->Profile->EquipmentGridPanel->AddChildToUniformGrid(W_Slot, i, j);
 				GridSlot->SetHorizontalAlignment(HAlign_Center);
 				GridSlot->SetVerticalAlignment(VAlign_Center);
@@ -132,6 +158,14 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 			{
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Hands);
 			}
+			else if (i == 4)
+			{
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Legs);
+			}
+			else if (i == 5)
+			{
+				SlotStructure = GetEmptySlot(EEquipmentSlot::Head);
+			}
 			else {
 				SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
 			}
@@ -146,446 +180,62 @@ void UInventoryManagerComponent::Client_LoadProfileUI_Implementation()
 	}
 }
 
-// Called every frame
-void UInventoryManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+void UInventoryManagerComponent::Client_LoadHotbarUI_Implementation() {
+	LoadHotbarUI();
 }
 
-void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+void UInventoryManagerComponent::LoadHotbarUI() {
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
 
-	DOREPLIFETIME(UInventoryManagerComponent, TotalNumberOfSlots);
-	DOREPLIFETIME(UInventoryManagerComponent, AttributesArray);
-}
-
-void UInventoryManagerComponent::Server_InitInventory_Implementation()
-{
-	PlayerInventory->Server_InitInventory(TotalNumberOfSlots);
-}
-
-void UInventoryManagerComponent::InitializeInventoryManager(UInventoryComponent* EquipmentComponent)
-{
-	PlayerInventory = EquipmentComponent;
-}
-
-void UInventoryManagerComponent::FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining)
-{
-	uint8 LocalAmount = Amount;
-	FName LocalItemID = ItemID;
-	UInventoryComponent* LocalInventory = Inventory;
-
-	uint8 LocalInventorySlot = 0;
-	uint8 InitialIndex = 0;
-	if (LocalInventory == PlayerInventory)
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("HotbarSlot_WBP");
+	if (WidgetLayout)
 	{
-		InitialIndex = (uint8)EEquipmentSlot::Count;
-		LocalInventorySlot = (uint8)EEquipmentSlot::Count;
-	}
+		UHotbar_Slot* W_Slot = nullptr;
+		uint8 Row = 0;
+		uint8 Column = 0;
 
-	for (uint8 i = InitialIndex; i < LocalInventory->Inventory.Num(); i++)
-	{
-		if (LocalItemID == LocalInventory->Inventory[LocalInventorySlot].ItemStructure.ID)
+		uint8 KeyNumber = 0;
+		for (uint8 i = 0; i < NumberOfSlotsOnHotbar; i++)
 		{
-			AddItemToStack(LocalInventory, LocalInventorySlot, LocalAmount, AmountRemaining);
-			LocalAmount = AmountRemaining;
+			Column = i;
 
-			if (LocalAmount == 0)
+			W_Slot = CreateWidget<UHotbar_Slot>(GetWorld(), WidgetLayout->Widget);
+
+			KeyNumber = i;
+			if (KeyNumber == PC->GetMaximumHotbarSlots())
 			{
-				break;
-			}
-		}
-		LocalInventorySlot++;
-	}
-
-	AmountRemaining = LocalAmount;
-}
-
-void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure& InventoryItem,
-	bool& bOutSuccess)
-{
-	FName LocalItemID = InventoryItem.ItemStructure.ID;
-	uint8 LocalItemAmount = InventoryItem.Amount;
-	FSlotStructure LocalInventoryItem = InventoryItem;
-	UInventoryComponent* LocalInventory = Inventory;
-
-	uint8 AmountRemaining = LocalItemAmount;
-
-	if (LocalInventoryItem.ItemStructure.IsStackable)
-	{
-		FindAndAddAmountToStacks(LocalInventory, LocalItemID, LocalItemAmount, AmountRemaining);
-		LocalItemAmount = AmountRemaining;
-		if (LocalItemAmount == 0)
-		{
-			bOutSuccess = true;
-			return;
-		}
-		else
-		{
-			LocalInventoryItem.Amount = LocalItemAmount;
-		}
-	}
-
-	FReturnTupleBoolInt LocalTuple;
-	if (LocalInventory == PlayerInventory)
-	{
-		LocalTuple = LocalInventory->GetEmptyInventorySpace();
-	}
-	else if (LocalInventory == ContainerInventory)
-	{
-		LocalTuple = LocalInventory->GetEmptyContainerSpace();
-	}
-
-	if (LocalTuple.Success)
-	{
-		AddItem(LocalInventory, LocalTuple.Index, LocalInventoryItem);
-		bOutSuccess = true;
-
-		return;
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Inventory Full")));
-		UE_LOG(LogTemp, Verbose, TEXT("Inventory Full"))
-
-			bOutSuccess = false;
-		return;
-	}
-}
-
-void UInventoryManagerComponent::Server_MoveInventoryItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
-	MoveItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
-}
-
-void UInventoryManagerComponent::Server_MoveContainerItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
-	MoveItem(ContainerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
-}
-
-UDataTable* UInventoryManagerComponent::GetItemDB()
-{
-	return ItemDB;
-}
-
-EEquipmentSlot UInventoryManagerComponent::GetItemEquipmentSlot(FSlotStructure LocalInventoryItem)
-{
-	return LocalInventoryItem.ItemStructure.EquipmentSlot;
-}
-
-void UInventoryManagerComponent::EquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
-	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
-{
-	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
-	{
-		return;
-	}
-
-	if (GetItemTypeBySlot(FromInventorySlot) == EItemType::Equipment)
-	{
-		FSlotStructure LocalInventoryItem = FromInventory->GetInventorySlot(FromInventorySlot);
-		EEquipmentSlot LocalEquipmentSlotType = GetItemEquipmentSlot(LocalInventoryItem);
-
-		if (GetEquipmentTypeBySlot(ToInventorySlot) == LocalEquipmentSlotType)
-		{
-			FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventorySlot(ToInventorySlot);
-
-			// Swap Items
-			if (ItemIsValid(LocalSwapInventoryItem))
-			{
-				// ...
-				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
-				AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
-			}
-			else
-			{
-				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
-				RemoveItem(FromInventory, FromInventorySlot);
+				KeyNumber = PC->GetMaximumHotbarSlots();
 			}
 
-			UpdateEquippedStats();
+			W_Slot->SetKeyNumber(KeyNumber);
 
-			Server_UpdateTooltips();
-
-			return;
-
+			MainLayoutUI->Hotbar->HotbarGridPanel->AddChildToUniformGrid(W_Slot, Row, Column);
+			MainLayoutUI->Hotbar->HotbarSlotsArray.Add(W_Slot);
 		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ITEM IS NOT EQUIPPABLE"))
-	}
-}
 
-void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
-	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
-{
-	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
-	{
-		return;
-	}
+		FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
 
-	//Is The Item Equippable?
-	//Does The Item Have The Same Equip Slot?
-	FSlotStructure LocalInventoryItem = FromInventory->GetInventorySlot(FromInventorySlot);
-	FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventorySlot(ToInventorySlot);
-	EEquipmentSlot LocalEquipmentSlot = GetEquipmentTypeBySlot(FromInventorySlot);
-
-	// Swap Items
-	if (ItemIsValid(LocalSwapInventoryItem))
-	{
-		if (GetItemTypeBySlot(FromInventorySlot) != EItemType::Equipment)
+		UHotbar_Slot* LocalSlot{};
+		for (int i = 0; i < MainLayoutUI->Hotbar->HotbarSlotsArray.Num(); i++)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("ITEM IS NOT EQUIPPABLE"))
-				return;
-		}
+			LocalSlot = MainLayoutUI->Hotbar->HotbarSlotsArray[i];
 
-		if (GetEquipmentTypeBySlot(ToInventorySlot) != LocalEquipmentSlot)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
-				return;
-		}
+			LocalSlot->SetSlotIndex(i);
+			LocalSlot->NativeFromHotbar = true;
 
-		AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
-		AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
-	}
-	else
-	{
-		if (Cast<UEquipmentComponent>(ToInventory))
-		{
-			if (ToInventorySlot < (uint8)EEquipmentSlot::Count)
-			{
-				if (GetEquipmentTypeBySlot(ToInventorySlot) != LocalEquipmentSlot)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
-						return;
-				}
-			}
-		}
-
-		AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
-		RemoveItem(FromInventory, FromInventorySlot);
-	}
-
-	UpdateEquippedStats();
-
-	Server_UpdateTooltips();
-}
-
-void UInventoryManagerComponent::RandomizeDropLocation(FSlotStructure LocalSlot, UClass*& LocalClass, FTransform& OutTransform)
-{
-	LocalClass = LocalSlot.ItemStructure.Class;
-
-	// Drop at character feet
-	FVector LocalLocation{ 0.0f, 0.0f, -98.0f };
-
-	FVector PawnLocation = Cast<AController>(GetOwner())->GetPawn()->GetActorLocation();
-
-	//Drop Distance Range From Character
-	//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
-	const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
-	FVector DistanceFromPawn{ (float)DropDistanceRangeX,1.0f,1.0f };
-
-	// Drop Items 360 Degrees Around Player
-	const float DropItemsRotation = FMath::FRandRange(-180, 180);
-	FRotator Rotation{ 1.0f, DropItemsRotation, DropItemsRotation }; // Drop Around Player
-	//FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
-
-	FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
-
-	FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated;
-
-	// Give The Dropped Object A Random Rotation
-	// const int8 RandomRotation = FMath::RandRange(-10, 10);
-	// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
-	FRotator FinalRotator{ 1.0f, 1.0f, 1.0f };
-
-	FVector FinalScale{ 1.0f,1.0f,1.0f };
-
-	OutTransform = {};
-	OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
-}
-
-void UInventoryManagerComponent::DropItem(UInventoryComponent* Inventory, uint8 InventorySlot)
-{
-	FSlotStructure LocalSlot = Inventory->GetInventoryItem(InventorySlot);
-
-	if (LocalSlot.ItemStructure.IsDroppable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("DROPPED ITEM"))
-
-		UClass* LocalClass;
-		FTransform OutTransform;
-		RandomizeDropLocation(LocalSlot, LocalClass, OutTransform);
-
-		// Spawn World Actor
-		AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(LocalClass, OutTransform);
-		if (WActor)
-		{
-			WActor->Amount = LocalSlot.Amount;
-		}
-		/**/
-		RemoveItem(Inventory, InventorySlot);
-
-		// Are we dropping an equipped item?
-		if (InventorySlot < (uint8)EEquipmentSlot::Count)
-		{
-			UpdateEquippedStats();
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("You cannot drop this..."))
-		UE_LOG(LogTemp, Warning, TEXT("DESTROYED ITEM"))
-
-		RemoveItem(Inventory, InventorySlot);
-	}
-}
-
-void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
-	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
-{
-	// Trying to Move to the Same Spot
-	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
-	{
-		return;
-	}
-
-	FSlotStructure LocalInventoryItem = FromInventory->GetInventoryItem(FromInventorySlot);
-	FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventoryItem(ToInventorySlot);
-
-	// Can Container Store Items?
-	// Are We Looting Currency?
-	// Are We Swapping Items?
-
-	// Swap Items?
-	if (LocalSwapInventoryItem.Amount > 0)
-	{
-		// ... Still need to rework on this part ...
-
-		// Check if Stackable
-		// If Stacks Of Same Item And If Not Null
-		// Item Is Same &&  Item Is Stackable 
-		// Item Has Free Stack Space
-		if (/*LocalToInventoryItem.ItemStructure.EquipmentSlot == LocalSwapInventoryItem.ItemStructure.EquipmentSlot
-			&&*/ LocalSwapInventoryItem.ItemStructure.IsStackable
-			&& LocalSwapInventoryItem.ItemStructure.MaxStackSize - LocalSwapInventoryItem.Amount > 0)
-		{
-			// Add To Stack
-			uint8 AmountRemaining = 0;
-			AddItemToStack(ToInventory, ToInventorySlot, LocalInventoryItem.Amount, AmountRemaining);
-
-			if (AmountRemaining > 0)
-			{
-				// Update the From Stack Amount
-				//SetItemAmount();
-				LocalInventoryItem.Amount = AmountRemaining;
-
-				AddItem(FromInventory, FromInventorySlot, LocalInventoryItem);
-
-				Server_UpdateTooltips();
-				return;
-			}
-			else
-			{
-				// Full Amount Was Moved Clear Old Stack
-				RemoveItem(FromInventory, FromInventorySlot);
-
-				Server_UpdateTooltips();
-				return;
-			}
-		}
-	}
-	else
-	{
-		AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
-		RemoveItem(FromInventory, FromInventorySlot);
-	}
-
-	Server_UpdateTooltips();
-}
-
-void UInventoryManagerComponent::AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd,
-	uint8& AmountRemaining)
-{
-	UInventoryComponent* LocalInventory = Inventory;
-	uint8 LocalInventorySlot = InventorySlot;
-	uint8 LocalAmountToAdd = AmountToAdd;
-	uint8 LocalRemainingAmount = AmountToAdd;
-
-	FSlotStructure LocalInventoryItem = LocalInventory->GetInventoryItem(LocalInventorySlot);
-
-	// Does Stack Has Free Space?
-	if (LocalInventoryItem.Amount < LocalInventoryItem.ItemStructure.MaxStackSize)
-	{
-		// Does The Full Amount To Add Fit In Stack?
-		// AmountToAdd <= FreeStackSpace
-		if (LocalAmountToAdd <= LocalInventoryItem.ItemStructure.MaxStackSize - LocalInventoryItem.Amount)
-		{
-			LocalRemainingAmount = 0;
-			//AddToItemAmount(LocalInventoryItem, AmountToAdd);
-			LocalInventoryItem.Amount = LocalInventoryItem.Amount + AmountToAdd;
-			AddItem(Inventory, InventorySlot, LocalInventoryItem);
-		}
-		else
-		{
-			LocalRemainingAmount = LocalAmountToAdd - (LocalInventoryItem.ItemStructure.MaxStackSize - LocalInventoryItem.Amount);
-			LocalInventoryItem.Amount = LocalInventoryItem.Amount + AmountToAdd;
-			AddItem(Inventory, InventorySlot, LocalInventoryItem);
-		}
-	}
-
-	AmountRemaining = LocalRemainingAmount;
-
-}
-
-void UInventoryManagerComponent::SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem)
-{
-	TArray<APlayerState*> TempPlayersViewing = IInventoryInterface::Execute_GetPlayersViewing(CurrentContainer);
-
-	for (APlayerState* PlayerState : TempPlayersViewing)
-	{
-		if (AMyPlayerController* PC = Cast<AMyPlayerController>(PlayerState->GetOwner()))
-		{
-			PC->InventoryManagerComponent->Client_SetContainerSlotItem(InventoryItem, ContainerSlot);
+			LocalSlot->UpdateSlot(SlotStructure);
 		}
 	}
 }
 
-void UInventoryManagerComponent::Client_ClearContainerSlotItem_Implementation(uint8 ContainerSlot)
+void UInventoryManagerComponent::Server_UpdateTooltips_Implementation()
 {
-	ClearContainerSlotItem(ContainerSlot);
-}
-
-void UInventoryManagerComponent::ClearContainerSlotItem(uint8 ContainerSlot)
-{
-	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[ContainerSlot];
-	SlotLayout->UpdateSlot(GetEmptySlot(EEquipmentSlot::Undefined));
-}
-
-void UInventoryManagerComponent::ClearViewersContainerSlot(uint8 ContainerSlot)
-{
-	TArray<APlayerState*> LocalPlayersViewing = IInventoryInterface::Execute_GetPlayersViewing(CurrentContainer);
-
-	for (APlayerState* PlayerState : LocalPlayersViewing)
+	if (IsValid(ContainerInventory))
 	{
-		if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(PlayerState->GetOwner()))
-		{
-			PlayerController->InventoryManagerComponent->Client_ClearContainerSlotItem(ContainerSlot);
-		}
+		Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
 	}
-}
 
-void UInventoryManagerComponent::SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index)
-{
-	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];
-	SlotLayout->UpdateSlot(Slot); 
+	Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
 }
 
 void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(const TArray<FSlotStructure>& InPlayerInventory, const TArray<FSlotStructure>& InOtherInventory)
@@ -605,12 +255,12 @@ void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(c
 	uint8 LocalIndex = 0;
 
 	for (FSlotStructure Slot : InOtherInventory)
-	{	
+	{
 		TempSlot = GetEmptySlot(EEquipmentSlot::Undefined);
 
 		// Get SlotLayout Reference
 		SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];
-		
+
 		// Validate Tooltip
 		Tooltip = Cast<UW_ItemTooltip>(SlotLayout->ToolTipWidget);
 		if (!IsValid(Tooltip))
@@ -691,23 +341,418 @@ void UInventoryManagerComponent::Client_UpdateInventoryTooltips_Implementation(c
 				}
 			}
 		}
-		
+
 		Tooltip->UpdateTooltipAttributes(Slot.ItemStructure, TempSlot);
 		SlotLayout->ToggleTooltip();
 		SlotLayout->SetToolTip(Tooltip);
-		
+
 		Index++;
 	}
 }
 
-void UInventoryManagerComponent::Server_UpdateTooltips_Implementation()
+void UInventoryManagerComponent::FindAndAddAmountToStacks(UInventoryComponent* Inventory, FName ItemID, uint8 Amount, uint8& AmountRemaining)
 {
-	if (IsValid(ContainerInventory))
+	uint8 LocalAmount = Amount;
+	FName LocalItemID = ItemID;
+	UInventoryComponent* LocalInventory = Inventory;
+
+	uint8 LocalInventorySlot = 0;
+	uint8 InitialIndex = 0;
+	if (LocalInventory == PlayerInventory)
 	{
-		Client_UpdateContainerTooltips(PlayerInventory->Inventory, ContainerInventory->Inventory);
+		InitialIndex = (uint8)EEquipmentSlot::Count;
+		LocalInventorySlot = (uint8)EEquipmentSlot::Count;
 	}
 
-	Client_UpdateInventoryTooltips(PlayerInventory->Inventory, PlayerInventory->Inventory);
+	for (uint8 i = InitialIndex; i < LocalInventory->Inventory.Num(); i++)
+	{
+		if (LocalItemID == LocalInventory->Inventory[LocalInventorySlot].ItemStructure.ID)
+		{
+			AddItemToStack(LocalInventory, LocalInventorySlot, LocalAmount, AmountRemaining);
+			LocalAmount = AmountRemaining;
+
+			if (LocalAmount == 0)
+			{
+				break;
+			}
+		}
+		LocalInventorySlot++;
+	}
+
+	AmountRemaining = LocalAmount;
+}
+
+void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* Inventory, FSlotStructure& InventoryItem,
+	bool& bOutSuccess)
+{
+	FName LocalItemID = InventoryItem.ItemStructure.ID;
+	uint8 LocalItemAmount = InventoryItem.Amount;
+	FSlotStructure LocalInventoryItem = InventoryItem;
+	UInventoryComponent* LocalInventory = Inventory;
+
+	uint8 AmountRemaining = LocalItemAmount;
+
+
+	if (LocalInventoryItem.ItemStructure.ItemType == EItemType::Currency)
+	{
+		AddGold(LocalInventoryItem.Amount);
+		bOutSuccess = true;
+		return;
+	}
+
+	if (LocalInventoryItem.ItemStructure.IsStackable)
+	{
+		FindAndAddAmountToStacks(LocalInventory, LocalItemID, LocalItemAmount, AmountRemaining);
+		LocalItemAmount = AmountRemaining;
+		if (LocalItemAmount == 0)
+		{
+			bOutSuccess = true;
+			return;
+		}
+		else
+		{
+			LocalInventoryItem.Amount = LocalItemAmount;
+		}
+	}
+
+	FReturnTupleBoolInt LocalTuple;
+	if (LocalInventory == PlayerInventory)
+	{
+		LocalTuple = LocalInventory->GetEmptyInventorySpace();
+	}
+	else if (LocalInventory == ContainerInventory)
+	{
+		LocalTuple = LocalInventory->GetEmptyContainerSpace();
+	}
+
+	if (LocalTuple.Success)
+	{
+		AddItem(LocalInventory, LocalTuple.Index, LocalInventoryItem);
+		bOutSuccess = true;
+
+		return;
+	}
+	else
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Inventory Full")));
+		UE_LOG(LogTemp, Verbose, TEXT("Inventory Full"))
+
+			bOutSuccess = false;
+		return;
+	}
+}
+
+void UInventoryManagerComponent::Server_MoveInventoryItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	MoveItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
+}
+
+UDataTable* UInventoryManagerComponent::GetItemDB()
+{
+	return ItemDB;
+}
+
+EEquipmentSlot UInventoryManagerComponent::GetItemEquipmentSlot(FSlotStructure LocalInventoryItem)
+{
+	return LocalInventoryItem.ItemStructure.EquipmentSlot;
+}
+
+void UInventoryManagerComponent::EquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
+	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
+{
+	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
+	{
+		return;
+	}
+
+	if (GetItemTypeBySlot(FromInventorySlot) == EItemType::Equipment)
+	{
+		FSlotStructure LocalInventoryItem = FromInventory->GetInventorySlot(FromInventorySlot);
+		EEquipmentSlot LocalEquipmentSlotType = GetItemEquipmentSlot(LocalInventoryItem);
+
+		if (GetEquipmentTypeBySlot(ToInventorySlot) == LocalEquipmentSlotType)
+		{
+			FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventorySlot(ToInventorySlot);
+
+			// Swap Items
+			if (ItemIsValid(LocalSwapInventoryItem))
+			{
+				if (!CanContainerStoreItems(FromInventory))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
+						return;
+				}
+
+				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
+				AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
+			}
+			else
+			{
+				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
+				RemoveItem(FromInventory, FromInventorySlot);
+			}
+
+			UpdateEquippedStats();
+
+			Server_UpdateTooltips();
+
+			return;
+
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ITEM IS NOT EQUIPPABLE"))
+	}
+}
+
+void UInventoryManagerComponent::UnEquipItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
+	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
+{
+	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
+	{
+		return;
+	}
+
+	//Is The Item Equippable?
+	//Does The Item Have The Same Equip Slot?
+	FSlotStructure LocalInventoryItem = FromInventory->GetInventorySlot(FromInventorySlot);
+	FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventorySlot(ToInventorySlot);
+	EEquipmentSlot LocalEquipmentSlot = GetEquipmentTypeBySlot(FromInventorySlot);
+
+	// Swap Items
+	if (ItemIsValid(LocalSwapInventoryItem))
+	{
+		if (!CanContainerStoreItems(ToInventory))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
+				return;
+		}
+
+		if (GetItemTypeBySlot(FromInventorySlot) != EItemType::Equipment)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ITEM IS NOT EQUIPPABLE"))
+				return;
+		}
+
+		if (GetEquipmentTypeBySlot(ToInventorySlot) != LocalEquipmentSlot)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
+				return;
+		}
+
+		AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
+		AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
+	}
+	else
+	{
+		if (Cast<UEquipmentComponent>(ToInventory))
+		{
+			if (ToInventorySlot < (uint8)EEquipmentSlot::Count)
+			{
+				if (GetEquipmentTypeBySlot(ToInventorySlot) != LocalEquipmentSlot)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("ITEM CAN NOT BE EQUIPPED IN THAT SLOT"))
+						return;
+				}
+			}
+		}
+
+		AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
+		RemoveItem(FromInventory, FromInventorySlot);
+	}
+
+	UpdateEquippedStats();
+
+	Server_UpdateTooltips();
+}
+
+void UInventoryManagerComponent::RandomizeDropLocation(FSlotStructure LocalSlot, UClass*& LocalClass, FTransform& OutTransform)
+{
+	LocalClass = LocalSlot.ItemStructure.Class;
+
+	// Drop at character feet
+	FVector LocalLocation{ 0.0f, 0.0f, -98.0f };
+
+	FVector PawnLocation = Cast<AController>(GetOwner())->GetPawn()->GetActorLocation();
+
+	//Drop Distance Range From Character
+	//const uint8 DropDistanceRangeX = FMath::RandRange(64, 96);
+	const uint8 DropDistanceRangeX = FMath::RandRange(75, 100);
+	FVector DistanceFromPawn{ (float)DropDistanceRangeX,1.0f,1.0f };
+
+	// Drop Items 360 Degrees Around Player
+	const float DropItemsRotation = FMath::FRandRange(-180, 180);
+	FRotator Rotation{ 1.0f, DropItemsRotation, DropItemsRotation }; // Drop Around Player
+	//FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
+
+	FVector VectorRotated = Rotation.RotateVector(DistanceFromPawn);
+
+	FVector FinalLocation = PawnLocation + LocalLocation + VectorRotated;
+
+	// Give The Dropped Object A Random Rotation
+	// const int8 RandomRotation = FMath::RandRange(-10, 10);
+	// FRotator FinalRotator {0.0f, 0.0f, (float)RandomRotation * 10};
+	FRotator FinalRotator{ 1.0f, 1.0f, 1.0f };
+
+	FVector FinalScale{ 1.0f,1.0f,1.0f };
+
+	OutTransform = {};
+	OutTransform = FTransform(FinalRotator, FinalLocation, FinalScale);
+}
+
+void UInventoryManagerComponent::DropItem(UInventoryComponent* Inventory, uint8 InventorySlot)
+{
+	FSlotStructure LocalSlot = Inventory->GetInventoryItem(InventorySlot);
+
+	if (LocalSlot.ItemStructure.IsDroppable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DROPPED ITEM"))
+
+			UClass* LocalClass;
+		FTransform OutTransform;
+		RandomizeDropLocation(LocalSlot, LocalClass, OutTransform);
+
+		// Spawn World Actor
+		AWorldActor* WActor = GetWorld()->SpawnActor<AWorldActor>(LocalClass, OutTransform);
+		if (WActor)
+		{
+			WActor->Amount = LocalSlot.Amount;
+		}
+		/**/
+		RemoveItem(Inventory, InventorySlot);
+
+		// Are we dropping an equipped item?
+		if (InventorySlot < (uint8)EEquipmentSlot::Count)
+		{
+			UpdateEquippedStats();
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("You cannot drop this..."))
+			UE_LOG(LogTemp, Warning, TEXT("DESTROYED ITEM"))
+
+			RemoveItem(Inventory, InventorySlot);
+	}
+}
+
+void UInventoryManagerComponent::MoveItem(UInventoryComponent* FromInventory, uint8 FromInventorySlot,
+	UInventoryComponent* ToInventory, uint8 ToInventorySlot)
+{
+	// Trying to Move to the Same Spot
+	if (FromInventory == ToInventory && FromInventorySlot == ToInventorySlot)
+	{
+		return;
+	}
+
+	FSlotStructure LocalInventoryItem = FromInventory->GetInventoryItem(FromInventorySlot);
+	FSlotStructure LocalSwapInventoryItem = ToInventory->GetInventoryItem(ToInventorySlot);
+
+	// Can Container Store Items?
+	// Are We Looting Currency?
+	// Are We Swapping Items?
+
+	if (!CanContainerStoreItems(ToInventory))
+	{
+		return;
+	}
+
+	if (LocalInventoryItem.ItemStructure.ItemType == EItemType::Currency)
+	{
+		AddGold(LocalInventoryItem.Amount);
+
+		RemoveItem(FromInventory, FromInventorySlot);
+
+		return;
+	}
+
+	// Swap Items?
+	if (ItemIsValid(LocalSwapInventoryItem))
+	{
+		// Check if Stackable
+		if (ItemIsSame(LocalInventoryItem, LocalSwapInventoryItem) &&
+			IsItemStackable(LocalSwapInventoryItem) &&
+			ItemFreeStackSpace(LocalSwapInventoryItem) > 0)
+		{
+			// Add To Stack
+			uint8 AmountRemaining = 0;
+			AddItemToStack(ToInventory, ToInventorySlot, LocalInventoryItem.Amount, AmountRemaining);
+
+			if (AmountRemaining > 0)
+			{
+				// Update the From Stack Amount
+				//SetItemAmount();
+				LocalInventoryItem.Amount = AmountRemaining;
+
+				AddItem(FromInventory, FromInventorySlot, LocalInventoryItem);
+
+				Server_UpdateTooltips();
+				return;
+			}
+			else
+			{
+				// Full Amount Was Moved Clear Old Stack
+				RemoveItem(FromInventory, FromInventorySlot);
+
+				Server_UpdateTooltips();
+				return;
+			}
+		}
+		else {
+			if (!CanContainerStoreItems(FromInventory))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("CONTAINER CANNOT STORE ITEMS"))
+					return;
+			}
+			else {
+				// Swap Items
+				AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
+				AddItem(FromInventory, FromInventorySlot, LocalSwapInventoryItem);
+			}
+		}
+	}
+	else
+	{
+		// Move Item
+		AddItem(ToInventory, ToInventorySlot, LocalInventoryItem);
+		RemoveItem(FromInventory, FromInventorySlot);
+	}
+
+	Server_UpdateTooltips();
+}
+
+void UInventoryManagerComponent::AddItemToStack(UInventoryComponent* Inventory, uint8 InventorySlot, uint8 AmountToAdd,
+	uint8& AmountRemaining)
+{
+	uint8 LocalRemainingAmount = AmountToAdd;
+
+	FSlotStructure LocalInventoryItem = Inventory->GetInventoryItem(InventorySlot);
+
+	// Does Stack Has Free Space?
+	if (GetItemAmount(LocalInventoryItem) < GetItemMaxStackSize(LocalInventoryItem))
+	{
+		// Does The Full Amount To Add Fit In Stack?
+		if (AmountToAdd <= ItemFreeStackSpace(LocalInventoryItem))
+		{
+			LocalRemainingAmount = 0;
+
+			AddAmountToItem(LocalInventoryItem, AmountToAdd);
+			AddItem(Inventory, InventorySlot, LocalInventoryItem);
+		}
+		else
+		{
+			LocalRemainingAmount = AmountToAdd - ItemFreeStackSpace(LocalInventoryItem);
+			LocalInventoryItem.Amount = GetItemMaxStackSize(LocalInventoryItem);
+			AddItem(Inventory, InventorySlot, LocalInventoryItem);
+		}
+	}
+
+	AmountRemaining = LocalRemainingAmount;
+
 }
 
 void UInventoryManagerComponent::AddItem(UInventoryComponent* Inventory,
@@ -757,62 +802,6 @@ void UInventoryManagerComponent::UseContainer(AActor* Container)
 	}
 }
 
-void UInventoryManagerComponent::OpenContainer(AActor* Container)
-{
-	CurrentContainer = Container;
-
-	UInventoryComponent* GetContainerInventoryTemp{};
-	IInventoryInterface::Execute_GetContainerInventory(CurrentContainer, GetContainerInventoryTemp);
-	ContainerInventory = GetContainerInventoryTemp;
-
-	TArray<FSlotStructure> LocalInventory{};
-	FSlotStructure LocalEmptySlot = GetEmptySlot(EEquipmentSlot::Undefined);
-	for (FSlotStructure Slot : ContainerInventory->Inventory)
-	{
-		if (Slot.Amount == 0)
-		{
-			LocalInventory.Add(LocalEmptySlot);
-		}
-		else
-		{
-			LocalInventory.Add(Slot);
-		}
-	}
-
-	FName LocalName;
-	uint8 LocalNumberOfRows;
-	uint8 LocalSlotsPerRow;
-	bool LocalIsStorageContainer;
-	uint8 LocalInventorySize;
-
-	IInventoryInterface::Execute_GetContainerProperties(Container, LocalName, LocalNumberOfRows, LocalSlotsPerRow,
-		LocalIsStorageContainer, LocalInventorySize);
-	FContainerInfo C_Info;
-	C_Info.ContainerName = LocalName;
-	C_Info.NumberOfRows = LocalNumberOfRows;
-	C_Info.SlotsPerRow = LocalSlotsPerRow;
-	C_Info.IsStorageContainer = LocalIsStorageContainer;
-	C_Info.StorageInventorySize = LocalInventorySize;
-
-	Client_OpenContainer(C_Info, LocalInventory, PlayerInventory->Inventory);
-}
-
-void UInventoryManagerComponent::CloseContainer()
-{
-	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
-	{
-		if (AContainerActor* CurrentContainerActor = Cast<AContainerActor>(CurrentContainer))
-		{
-			CurrentContainerActor->PlayersViewing.Remove(PlayerController->PlayerState);
-		}
-	}
-
-	CurrentContainer = nullptr;
-	ContainerInventory = nullptr;
-
-	Client_CloseContainer();
-}
-
 FSlotStructure UInventoryManagerComponent::GetEmptySlot(const EEquipmentSlot FromEquipmentType)
 {
 	FName Name;
@@ -832,6 +821,14 @@ FSlotStructure UInventoryManagerComponent::GetEmptySlot(const EEquipmentSlot Fro
 	{
 		Name = "No_Hands";
 	}
+	else if (FromEquipmentType == EEquipmentSlot::Legs)
+	{
+		Name = "No_Legs";
+	}
+	else if (FromEquipmentType == EEquipmentSlot::Head)
+	{
+		Name = "No_Helmet";
+	}
 	else
 	{
 		Name = "Empty";
@@ -844,10 +841,13 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 {
 	FSlotStructure Slot = {};
 
-	const UDataTable* ItemTable = ItemDB;
-	const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(FName(Name), "", true);
+	if (IsValid(ItemDB))
+	{
+		const UDataTable* ItemTable = ItemDB;
+		const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
 
-	Slot.InitSlot(*NewItemData, 0);
+		Slot.InitSlot(*NewItemData, 0);
+	}
 
 	return Slot;
 }
@@ -877,6 +877,35 @@ bool UInventoryManagerComponent::GetEmptyEquipmentSlotByType(EEquipmentSlot Equi
 	}
 
 	return false;
+}
+
+bool UInventoryManagerComponent::ItemIsSame(const FSlotStructure Item1, const FSlotStructure Item2)
+{
+	if (Item1.ItemStructure.ID == Item2.ItemStructure.ID)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool UInventoryManagerComponent::IsItemStackable(const FSlotStructure Item) {
+	return Item.ItemStructure.IsStackable;
+}
+
+uint8 UInventoryManagerComponent::ItemFreeStackSpace(const FSlotStructure Item) {
+	return GetItemMaxStackSize(Item) - GetItemAmount(Item);
+}
+
+uint8 UInventoryManagerComponent::GetItemAmount(const FSlotStructure Item) {
+	return Item.Amount;
+}
+
+uint8 UInventoryManagerComponent::GetItemMaxStackSize(const FSlotStructure Item) {
+	return Item.ItemStructure.MaxStackSize;
+}
+
+void UInventoryManagerComponent::AddAmountToItem(FSlotStructure& Item, uint8 AmountToAdd) {
+	Item.Amount += AmountToAdd;
 }
 
 void UInventoryManagerComponent::RemoveFromItemAmount(FSlotStructure& InventoryItem, const uint8& AmountToRemove,
@@ -937,7 +966,7 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 		else
 		{
 			SlotLayout = MainLayoutUI->Profile->EquipmentSlotsArray[InventorySlot];
-		
+
 			switch (InventorySlot)
 			{
 			case 0: LocalSlot = GetEmptySlot(EEquipmentSlot::Weapon);
@@ -948,55 +977,31 @@ void UInventoryManagerComponent::ClearInventorySlotItem(uint8 InventorySlot)
 				break;
 			case 3: LocalSlot = GetEmptySlot(EEquipmentSlot::Hands);
 				break;
+			case 4: LocalSlot = GetEmptySlot(EEquipmentSlot::Legs);
+				break;
+			case 5: LocalSlot = GetEmptySlot(EEquipmentSlot::Head);
+				break;
 			default: LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
 				break;
 			}
 		}
 
 		SlotLayout->UpdateSlot(LocalSlot);
+
+		MainLayoutUI->Inventory->UpdateGoldAmount();
 	}
 }
 
-void UInventoryManagerComponent::ClearContainerSlots()
+FSlotStructure UInventoryManagerComponent::GetInventorySlotItem(uint8 InventorySlot)
 {
-	MainLayoutUI->Container->ContainerSlotsArray.Empty();
-	MainLayoutUI->Container->ContainerGridPanel->ClearChildren();
-}
-
-void UInventoryManagerComponent::CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow)
-{
-	ClearContainerSlots();
-
-	//UFUNCTION(Category = "UserInterface|Private|Container") AddContainerSlot(Row,Column,Slot,IsStorage);
-	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
-
-	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
-	if (WidgetLayout)
+	uint8 Index = InventorySlot;
+	if (InventorySlot >= (uint8)EEquipmentSlot::Count)
 	{
-		USlotLayout* W_ContainerSlot = nullptr;
-
-		for (int i = 0; i < NumberOfRows; i++)
-		{
-			for (int j = 0; j < SlotsPerRow; j++)
-			{
-				W_ContainerSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
-				MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(W_ContainerSlot, i, j);
-
-				MainLayoutUI->Container->ContainerSlotsArray.Add(W_ContainerSlot);
-			}
-		}
-
-		FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
-
-		for (int i = 0; i < MainLayoutUI->Container->ContainerSlotsArray.Num(); i++)
-		{
-			MainLayoutUI->Container->ContainerSlotsArray[i]->UpdateSlot(SlotStructure);
-			MainLayoutUI->Container->ContainerSlotsArray[i]->InventorySlotIndex = i;
-			MainLayoutUI->Container->ContainerSlotsArray[i]->NativeFromContainer = true;
-
-			MainLayoutUI->Container->ContainerSlotsArray[i]->IsStorageSlot = true;
-		}
+		Index = InventorySlot - (uint8)EEquipmentSlot::Count;
 	}
+
+	FSlotStructure Slot = MainLayoutUI->Inventory->InventorySlotsArray[Index]->SlotStructure;
+	return Slot;
 }
 
 void UInventoryManagerComponent::ClearInventoryItem(const uint8& InventorySlot)
@@ -1060,135 +1065,9 @@ uint8 UInventoryManagerComponent::GetEquipmentSlotByType(EEquipmentSlot Equipmen
 	return 0;
 }
 
-void UInventoryManagerComponent::Client_OpenContainer_Implementation(FContainerInfo ContainerProperties,
-	const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory)
-{
-	LoadContainerSlots(ContainerProperties, InContainerInventory, InPlayerInventory);
-}
-
-void UInventoryManagerComponent::LoadContainerSlots(FContainerInfo ContainerProperties,
-	const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory)
-{
-	CreateContainerSlots(ContainerProperties.NumberOfRows, ContainerProperties.SlotsPerRow);
-
-	uint8 Index = 0;
-	for (FSlotStructure Slot : InContainerInventory)
-	{
-		SetContainerSlotItem(Slot, Index);
-
-		Index++;
-	}
-
-	Client_UpdateContainerTooltips(InPlayerInventory, InContainerInventory);
-
-	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner()))
-	{
-		PC->ToggleContainer();
-	}
-}
-
-void UInventoryManagerComponent::Client_CloseContainer_Implementation()
-{
-	MainLayoutUI->Container->SetVisibility(ESlateVisibility::Hidden);
-}
-
-void UInventoryManagerComponent::Server_TakeContainerItem_Implementation(const uint8& FromContainerSlot,
-	const uint8& ToInventorySlot)
-{
-	MoveItem(ContainerInventory, FromContainerSlot, PlayerInventory, ToInventorySlot);
-}
-
-void UInventoryManagerComponent::Server_DepositContainerItem_Implementation(const uint8& FromInventorySlot,
-	const uint8& ToInventorySlot)
-{
-	MoveItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
-}
-
-void UInventoryManagerComponent::Server_EquipFromContainer_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
-	EquipItem(ContainerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
-
-	Server_UpdateTooltips();
-}
-
-void UInventoryManagerComponent::Server_UnEquipToContainer_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
-	UnEquipItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
-
-	Server_UpdateTooltips();
-}
-
-void UInventoryManagerComponent::Client_SetContainerSlotItem_Implementation(const FSlotStructure& ContentToAdd,
-	const uint8& InventorySlot)
-{
-	SetContainerSlotItem(ContentToAdd, InventorySlot);
-}
-
-void UInventoryManagerComponent::Client_ClearInventorySlotItem_Implementation(uint8 InventorySlot)
-{
-	ClearInventorySlotItem(InventorySlot);
-}
-
-void UInventoryManagerComponent::InitializeInventoryManagerUI(UMainLayout* MainLayout)
-{
-	MainLayoutUI = MainLayout;
-}
-
-EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
-{
-	switch (EquipmentSlot)
-	{
-	case 0:
-		return EEquipmentSlot::Weapon;
-	case 1:
-		return EEquipmentSlot::Chest;
-	case 2:
-		return EEquipmentSlot::Feet;
-	case 3:
-		return EEquipmentSlot::Hands;
-	default:
-		return EEquipmentSlot::Undefined;
-	}
-}
-
-EItemType UInventoryManagerComponent::GetItemTypeBySlot(uint8 ItemSlot)
-{
-	return PlayerInventory->Inventory[ItemSlot].ItemStructure.ItemType;
-}
-
-void UInventoryManagerComponent::Server_DropItemFromInventory_Implementation(const uint8& InventorySlot)
-{
-	DropItem(PlayerInventory, InventorySlot);
-}
-
-void UInventoryManagerComponent::Server_EquipFromInventory_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
-	EquipItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
-}
-
-void UInventoryManagerComponent::Server_UnEquipToInventory_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
-{
-	UnEquipItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
-}
-
-void UInventoryManagerComponent::Server_UseContainer_Implementation(AActor* Container)
-{
-	UseContainer(Container);
-}
-
-void UInventoryManagerComponent::Server_CloseContainer_Implementation()
-{
-	CloseContainer();
-}
-
 void UInventoryManagerComponent::Server_UseInventoryItem_Implementation(const uint8& InventorySlot)
 {
 	UseInventoryItem(InventorySlot);
-}
-
-void UInventoryManagerComponent::Server_UseContainerItem_Implementation(const uint8& InventorySlot)
-{
-	UseContainerItem(InventorySlot);
 }
 
 void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
@@ -1197,80 +1076,74 @@ void UInventoryManagerComponent::UseInventoryItem(const uint8& InventorySlot)
 
 	if (IsValid(CurrentContainer))
 	{
-		switch (LocalInventorySlot.ItemStructure.ItemType)
+		bool bCanStoreItems = IInventoryInterface::Execute_GetCanStoreItems(CurrentContainer);
+
+		// is a pot open?
+		if (bCanStoreItems)
 		{
-		case EItemType::Equipment:
-			// Are We Unequipping to a container?
-			if (InventorySlot < (uint8)EEquipmentSlot::Count)
+			//Move Item To Container From Inventory
+
+			switch (LocalInventorySlot.ItemStructure.ItemType)
 			{
-				UseEquipmentItem(InventorySlot, LocalInventorySlot, ContainerInventory);
+			case EItemType::Equipment:
+				// Are We Unequipping to a container?
+				if (InventorySlot < (uint8)EEquipmentSlot::Count)
+				{
+					UseEquipmentItem(InventorySlot, LocalInventorySlot, ContainerInventory);
+					break;
+				}
+			case EItemType::Miscellaneous:
+			case EItemType::Consumable:
+			case EItemType::Currency:
+			default:
+				bool bOutSuccess = false;
+				TryToAddItemToInventory(ContainerInventory, LocalInventorySlot, bOutSuccess);
+
+				if (bOutSuccess)
+				{
+					RemoveItem(PlayerInventory, InventorySlot);
+				}
+				else
+				{
+					AddItem(PlayerInventory, InventorySlot, LocalInventorySlot);
+				}
 				break;
 			}
-		case EItemType::Consumable:
-		default:
-			bool bOutSuccess = false;
-			TryToAddItemToInventory(ContainerInventory, LocalInventorySlot, bOutSuccess);
 
-			if (bOutSuccess)
-			{
-				RemoveItem(PlayerInventory, InventorySlot);
-			}
-			else
-			{
-				AddItem(PlayerInventory, InventorySlot, LocalInventorySlot);
-			}
-			break;
-		}
-	}
-	else
-	{
-		switch (LocalInventorySlot.ItemStructure.ItemType)
-		{
-		case EItemType::Consumable:
-			UseConsumableItem(InventorySlot, LocalInventorySlot);
-			break;
-		case EItemType::Equipment:
-			UseEquipmentItem(InventorySlot, LocalInventorySlot, PlayerInventory);
-			break;
-		default:
-			break;
+			return;
 		}
 	}
 
-	Server_UpdateTooltips();
-}
-
-void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
-{
-	FSlotStructure LocalInventoryItem = ContainerInventory->GetInventoryItem(InventorySlot);
-
-	bool bOutSuccess = false;
-	TryToAddItemToInventory(PlayerInventory, LocalInventoryItem, bOutSuccess);
-
-	if (bOutSuccess)
+	// if Current Container is not valid or if is loot open
+	switch (LocalInventorySlot.ItemStructure.ItemType)
 	{
-		RemoveItem(ContainerInventory, InventorySlot);
-	}
-	else
-	{
-		AddItem(ContainerInventory, InventorySlot, LocalInventoryItem);
+	case EItemType::Consumable:
+		UseConsumableItem(InventorySlot, LocalInventorySlot);
+		break;
+	case EItemType::Equipment:
+		UseEquipmentItem(InventorySlot, LocalInventorySlot, PlayerInventory);
+		break;
+	default:
+		break;
 	}
 
 	Server_UpdateTooltips();
+
+	Client_CheckHotbarSlots(LocalInventorySlot);
 }
 
 void UInventoryManagerComponent::UseConsumableItem(uint8 InventorySlot, FSlotStructure InventoryItem)
 {
 	// Do something depending on the item properties if needed
 	// ...
-	if (Cast<AMyPlayerController>(GetOwner()))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Consuming this Item...")));
-		UE_LOG(LogTemp, Warning, TEXT("Consuming this Item..."))
-	}
+	//if (Cast<AMyPlayerController>(GetOwner()))
+	//{
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Consuming this Item...")));
+	UE_LOG(LogTemp, Warning, TEXT("Consuming this Item..."))
+		//}
 
-	// Remove from Item Amount
-	uint8 AmountToRemove = 1;
+		// Remove from Item Amount
+		uint8 AmountToRemove = 1;
 	bool WasFullAmountRemoved = false;
 	uint8 AmountRemoved = 0;
 
@@ -1330,5 +1203,554 @@ void UInventoryManagerComponent::UseEquipmentItem(uint8 InventorySlot, FSlotStru
 			OutInventorySlot = GetEquipmentSlotByType(LocalEquipmentSlot);
 			Server_EquipFromInventory(InventorySlot, OutInventorySlot);
 		}
+	}
+}
+
+void UInventoryManagerComponent::Server_EquipFromContainer_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	EquipItem(ContainerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
+
+	Server_UpdateTooltips();
+}
+
+void UInventoryManagerComponent::Server_UnEquipToContainer_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	UnEquipItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
+
+	Server_UpdateTooltips();
+}
+
+void UInventoryManagerComponent::InitializeInventoryManagerUI(UMainLayout* MainLayout)
+{
+	MainLayoutUI = MainLayout;
+}
+
+EEquipmentSlot UInventoryManagerComponent::GetEquipmentTypeBySlot(const uint8& EquipmentSlot)
+{
+	switch (EquipmentSlot)
+	{
+	case 0:
+		return EEquipmentSlot::Weapon;
+	case 1:
+		return EEquipmentSlot::Chest;
+	case 2:
+		return EEquipmentSlot::Feet;
+	case 3:
+		return EEquipmentSlot::Hands;
+	case 4:
+		return EEquipmentSlot::Legs;
+	case 5:
+		return EEquipmentSlot::Head;
+	default:
+		return EEquipmentSlot::Undefined;
+	}
+}
+
+EItemType UInventoryManagerComponent::GetItemTypeBySlot(uint8 ItemSlot)
+{
+	return PlayerInventory->Inventory[ItemSlot].ItemStructure.ItemType;
+}
+
+void UInventoryManagerComponent::Server_DropItemFromInventory_Implementation(const uint8& InventorySlot)
+{
+	DropItem(PlayerInventory, InventorySlot);
+}
+
+void UInventoryManagerComponent::Server_EquipFromInventory_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	EquipItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
+}
+
+void UInventoryManagerComponent::Server_UnEquipToInventory_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	UnEquipItem(PlayerInventory, FromInventorySlot, PlayerInventory, ToInventorySlot);
+}
+
+/* Client Container Events */
+
+void UInventoryManagerComponent::Server_MoveContainerItem_Implementation(uint8 FromInventorySlot, uint8 ToInventorySlot)
+{
+	MoveItem(ContainerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
+}
+
+void UInventoryManagerComponent::Server_UseContainer_Implementation(AActor* Container)
+{
+	UseContainer(Container);
+}
+
+void UInventoryManagerComponent::Server_CloseContainer_Implementation()
+{
+	CloseContainer();
+}
+
+void UInventoryManagerComponent::Server_UseContainerItem_Implementation(const uint8& InventorySlot)
+{
+	UseContainerItem(InventorySlot);
+}
+
+void UInventoryManagerComponent::UseContainerItem(const uint8& InventorySlot)
+{
+	FSlotStructure LocalInventoryItem = ContainerInventory->GetInventoryItem(InventorySlot);
+
+	bool bOutSuccess = false;
+	TryToAddItemToInventory(PlayerInventory, LocalInventoryItem, bOutSuccess);
+
+	if (bOutSuccess)
+	{
+		RemoveItem(ContainerInventory, InventorySlot);
+	}
+	else
+	{
+		AddItem(ContainerInventory, InventorySlot, LocalInventoryItem);
+	}
+
+	Server_UpdateTooltips();
+
+
+	//
+	FSlotStructure LocalSlot{};
+	bool IsThereMoreItems = false;
+	for (uint8 i = 0; i < ContainerInventory->Inventory.Num(); i++)
+	{
+		LocalSlot = ContainerInventory->Inventory[i];
+
+		if (LocalSlot.Amount > 0)
+		{
+			IsThereMoreItems = true;
+			break;
+		}
+	}
+
+	if (!IsThereMoreItems)
+	{
+		if (Cast<ALootActor>(CurrentContainer))
+		{
+			IInventoryInterface::Execute_ContainerLooted(CurrentContainer);
+		}
+	}
+}
+
+void UInventoryManagerComponent::Server_TakeContainerItem_Implementation(const uint8& FromContainerSlot,
+	const uint8& ToInventorySlot)
+{
+	MoveItem(ContainerInventory, FromContainerSlot, PlayerInventory, ToInventorySlot);
+}
+
+void UInventoryManagerComponent::Server_DepositContainerItem_Implementation(const uint8& FromInventorySlot,
+	const uint8& ToInventorySlot)
+{
+	MoveItem(PlayerInventory, FromInventorySlot, ContainerInventory, ToInventorySlot);
+}
+
+/* Client Container UI Events */
+
+void UInventoryManagerComponent::SetViewersContainerSlot(uint8 ContainerSlot, FSlotStructure& InventoryItem)
+{
+	TArray<APlayerState*> TempPlayersViewing = IInventoryInterface::Execute_GetPlayersViewing(CurrentContainer);
+
+	for (APlayerState* PlayerState : TempPlayersViewing)
+	{
+		if (AMyPlayerController* PC = Cast<AMyPlayerController>(PlayerState->GetOwner()))
+		{
+			PC->InventoryManagerComponent->Client_SetContainerSlotItem(InventoryItem, ContainerSlot);
+		}
+	}
+}
+
+void UInventoryManagerComponent::ClearViewersContainerSlot(uint8 ContainerSlot)
+{
+	TArray<APlayerState*> LocalPlayersViewing = IInventoryInterface::Execute_GetPlayersViewing(CurrentContainer);
+
+	for (APlayerState* PlayerState : LocalPlayersViewing)
+	{
+		if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(PlayerState->GetOwner()))
+		{
+			PlayerController->InventoryManagerComponent->Client_ClearContainerSlotItem(ContainerSlot);
+		}
+	}
+}
+
+void UInventoryManagerComponent::Client_ClearContainerSlotItem_Implementation(uint8 ContainerSlot)
+{
+	ClearContainerSlotItem(ContainerSlot);
+}
+
+void UInventoryManagerComponent::ClearContainerSlotItem(uint8 ContainerSlot)
+{
+	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[ContainerSlot];
+	SlotLayout->UpdateSlot(GetEmptySlot(EEquipmentSlot::Undefined));
+}
+
+void UInventoryManagerComponent::SetContainerSlotItem(const FSlotStructure& Slot, uint8 Index)
+{
+	USlotLayout* SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];
+	SlotLayout->UpdateSlot(Slot);
+}
+
+void UInventoryManagerComponent::Client_CloseContainer_Implementation()
+{
+	MainLayoutUI->Container->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UInventoryManagerComponent::CloseContainer()
+{
+	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
+	{
+		if (AContainerActor* CurrentContainerActor = Cast<AContainerActor>(CurrentContainer))
+		{
+			CurrentContainerActor->PlayersViewing.Remove(PlayerController->PlayerState);
+		}
+	}
+
+	CurrentContainer = nullptr;
+	ContainerInventory = nullptr;
+
+	Client_CloseContainer();
+}
+
+void UInventoryManagerComponent::Client_SetContainerSlotItem_Implementation(const FSlotStructure& ContentToAdd,
+	const uint8& InventorySlot)
+{
+	SetContainerSlotItem(ContentToAdd, InventorySlot);
+}
+
+void UInventoryManagerComponent::Client_ClearInventorySlotItem_Implementation(uint8 InventorySlot)
+{
+	ClearInventorySlotItem(InventorySlot);
+}
+
+void UInventoryManagerComponent::Client_OpenContainer_Implementation(FContainerInfo ContainerProperties,
+	const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory)
+{
+	LoadContainerSlots(ContainerProperties, InContainerInventory, InPlayerInventory);
+}
+
+void UInventoryManagerComponent::OpenContainer(AActor* Container)
+{
+	CurrentContainer = Container;
+
+	UInventoryComponent* GetContainerInventoryTemp{};
+	IInventoryInterface::Execute_GetContainerInventory(CurrentContainer, GetContainerInventoryTemp);
+	ContainerInventory = GetContainerInventoryTemp;
+
+	TArray<FSlotStructure> LocalInventory{};
+	FSlotStructure LocalEmptySlot = GetEmptySlot(EEquipmentSlot::Undefined);
+	for (FSlotStructure Slot : ContainerInventory->Inventory)
+	{
+		if (Slot.Amount == 0)
+		{
+			LocalInventory.Add(LocalEmptySlot);
+		}
+		else
+		{
+			LocalInventory.Add(Slot);
+		}
+	}
+
+	FName LocalName;
+	uint8 LocalNumberOfRows;
+	uint8 LocalSlotsPerRow;
+	bool LocalIsStorageContainer;
+	uint8 LocalInventorySize;
+
+	IInventoryInterface::Execute_GetContainerProperties(Container, LocalName, LocalNumberOfRows, LocalSlotsPerRow,
+		LocalIsStorageContainer, LocalInventorySize);
+	FContainerInfo C_Info;
+	C_Info.ContainerName = LocalName;
+	C_Info.NumberOfRows = LocalNumberOfRows;
+	C_Info.SlotsPerRow = LocalSlotsPerRow;
+	C_Info.IsStorageContainer = LocalIsStorageContainer;
+	C_Info.StorageInventorySize = LocalInventorySize;
+
+	Client_OpenContainer(C_Info, LocalInventory, PlayerInventory->Inventory);
+}
+
+void UInventoryManagerComponent::LoadContainerSlots(FContainerInfo ContainerProperties,
+	const TArray<FSlotStructure>& InContainerInventory, const TArray<FSlotStructure>& InPlayerInventory)
+{
+	// loot container
+	if (!ContainerProperties.IsStorageContainer)
+	{
+		MainLayoutUI->Container->IsStorageContainer = false;
+
+		CreateContainerSlots2(InContainerInventory.Num(), ContainerProperties.SlotsPerRow);
+	}
+	else {
+		MainLayoutUI->Container->IsStorageContainer = true;
+
+		//else it's a normal container
+		//CreateContainerSlots2(ContainerProperties.StorageInventorySize, ContainerProperties.SlotsPerRow);
+		CreateContainerSlots(ContainerProperties.NumberOfRows, ContainerProperties.SlotsPerRow);
+	}
+
+	uint8 Index = 0;
+	for (FSlotStructure Slot : InContainerInventory)
+	{
+		SetContainerSlotItem(Slot, Index);
+
+		Index++;
+	}
+
+	Client_UpdateContainerTooltips(InPlayerInventory, InContainerInventory);
+
+	if (AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner()))
+	{
+		PC->ToggleContainer();
+	}
+
+}
+
+void UInventoryManagerComponent::ClearContainerSlots()
+{
+	MainLayoutUI->Container->ContainerSlotsArray.Empty();
+	MainLayoutUI->Container->ContainerGridPanel->ClearChildren();
+}
+
+void UInventoryManagerComponent::CreateContainerSlots(uint8 NumberOfRows, uint8 SlotsPerRow)
+{
+	ClearContainerSlots();
+
+	//UFUNCTION(Category = "UserInterface|Private|Container") AddContainerSlot(Row,Column,Slot,IsStorage);
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
+	if (WidgetLayout)
+	{
+		USlotLayout* W_ContainerSlot = nullptr;
+
+		for (int i = 0; i < NumberOfRows; i++)
+		{
+			for (int j = 0; j < SlotsPerRow; j++)
+			{
+				W_ContainerSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+				MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(W_ContainerSlot, i, j);
+
+				MainLayoutUI->Container->ContainerSlotsArray.Add(W_ContainerSlot);
+			}
+		}
+
+		FSlotStructure SlotStructure = GetEmptySlot(EEquipmentSlot::Undefined);
+
+		for (int i = 0; i < MainLayoutUI->Container->ContainerSlotsArray.Num(); i++)
+		{
+			MainLayoutUI->Container->ContainerSlotsArray[i]->UpdateSlot(SlotStructure);
+			MainLayoutUI->Container->ContainerSlotsArray[i]->InventorySlotIndex = i;
+			MainLayoutUI->Container->ContainerSlotsArray[i]->NativeFromContainer = true;
+
+			MainLayoutUI->Container->ContainerSlotsArray[i]->IsStorageSlot = true;
+		}
+	}
+}
+
+void UInventoryManagerComponent::CreateContainerSlots2(uint8 InventorySize, uint8 SlotsPerRow)
+{
+	ClearContainerSlots();
+
+	if (InventorySize <= 0)
+	{
+		return;
+	}
+
+	bool bLocalIsStorageContainer = MainLayoutUI->Container->IsStorageContainer;
+
+	uint8 LocalContainerSize = InventorySize;
+	//uint8 LocalMaxRowSize = SlotsPerRow;
+
+	//uint8 LocalResult = FMath::CeilToInt(LocalContainerSize / LocalMaxRowSize) - 1;
+	//uint8 MinimumNumberOfRows = 1;
+	//uint8 NumberOfRows = FMath::Max(LocalResult, MinimumNumberOfRows);
+
+	uint8 LocalLoopCount = 0;
+
+	for (uint8 i = 0; i < LocalContainerSize; i++)
+	{
+		//for (uint8 j = 0; j < 1; j++)
+		//{
+		AddContainerSlot(i, 0, LocalLoopCount, bLocalIsStorageContainer);
+		LocalLoopCount++;
+
+		if (LocalLoopCount == LocalContainerSize)
+		{
+			break;
+		}
+		//}
+	}
+}
+
+void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8 Slot, bool IsStorage)
+{
+	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
+
+	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
+	USlotLayout* Widget = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+
+	MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(Widget, Row, Column);
+
+	MainLayoutUI->Container->ContainerSlotsArray.Add(Widget);
+
+	// Used to Change Loot Display
+	Widget->IsStorageSlot = IsStorage;
+	Widget->InventorySlotIndex = Slot;
+	Widget->NativeFromContainer = true;
+
+	Widget->SetNameBoxVisibility();
+}
+
+/* Client Only - Hotbar Events */
+
+void UInventoryManagerComponent::Client_MoveHotbarSlotItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
+{
+	MoveHotbarSlotItem(FromSlot, ToSlot, IsDraggedFromInventory, IsDraggedFromHotbar);
+}
+
+void UInventoryManagerComponent::Client_UseHotbarSlot_Implementation(const uint8& HotbarSlot)
+{
+	UseHotbarSlot(HotbarSlot);
+}
+
+void UInventoryManagerComponent::Client_ClearHotbarSlot_Implementation(const uint8& HotbarSlot)
+{
+	ClearHotbarSlotItem(HotbarSlot);
+}
+
+/* Hotbar Events */
+
+void UInventoryManagerComponent::MoveHotbarSlotItem(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar)
+{
+	if (IsDraggedFromInventory)
+	{
+		FSlotStructure SlotStructure = GetInventorySlotItem(FromSlot);
+
+		SetHotbarSlotItem(ToSlot, SlotStructure);
+	}
+
+	if (IsDraggedFromHotbar)
+	{
+		FSlotStructure FromSlotItem = GetHotbarSlotItem(FromSlot);
+		FSlotStructure ToSlotItem = GetHotbarSlotItem(ToSlot);
+
+		if (ItemIsValid(ToSlotItem))
+		{
+			SetHotbarSlotItem(ToSlot, FromSlotItem);
+			SetHotbarSlotItem(FromSlot, ToSlotItem);
+		}
+		else {
+			SetHotbarSlotItem(ToSlot, FromSlotItem);
+			ClearHotbarSlotItem(FromSlot);
+		}
+	}
+}
+
+void UInventoryManagerComponent::UseHotbarSlot(const uint8& HotbarSlot)
+{
+	FReturnTupleBoolInt Tuple{};
+	FSlotStructure Slot = GetHotbarSlotItem(HotbarSlot);
+
+	if (ItemIsValid(Slot))
+	{
+		TArray<USlotLayout*> LocalInventoryUI = MainLayoutUI->Inventory->InventorySlotsArray;
+		for (uint8 i = 0; i < LocalInventoryUI.Num(); i++) {
+			if (Slot.ItemStructure.ID == LocalInventoryUI[i]->SlotStructure.ItemStructure.ID) {
+				Tuple.Success = true;
+				Tuple.Index = i;
+				break;
+			}
+		}
+
+		if (Tuple.Success)
+		{
+			Tuple.Index = Tuple.Index + (uint8)EEquipmentSlot::Count;
+			// Get And Use The Real Item On The Server
+			Server_UseInventoryItem(Tuple.Index);
+		}
+	}
+}
+
+void UInventoryManagerComponent::ClearHotbarSlotItem(const uint8& HotbarSlot)
+{
+	UHotbar_Slot* Slot = MainLayoutUI->Hotbar->HotbarSlotsArray[HotbarSlot];
+
+	FSlotStructure LocalSlot = GetEmptySlot(EEquipmentSlot::Undefined);
+
+	Slot->UpdateSlot(LocalSlot);
+}
+
+void UInventoryManagerComponent::SetHotbarSlotItem(const uint8& ToSlot, FSlotStructure SlotStructure)
+{
+	UHotbar_Slot* HotbarSlot = MainLayoutUI->Hotbar->HotbarSlotsArray[ToSlot];
+
+	HotbarSlot->UpdateSlot(SlotStructure);
+}
+
+FSlotStructure UInventoryManagerComponent::GetHotbarSlotItem(const uint8& HotbarSlot)
+{
+	TArray<UHotbar_Slot*> HotbarSlotsArray = MainLayoutUI->Hotbar->HotbarSlotsArray;
+	FSlotStructure Slot = HotbarSlotsArray[HotbarSlot]->SlotStructure;
+
+	return Slot;
+}
+
+void UInventoryManagerComponent::Client_CheckHotbarSlots_Implementation(const FSlotStructure& Slot) {
+	bool Success = false;
+	TArray<USlotLayout*> LocalInventoryUI2 = MainLayoutUI->Inventory->InventorySlotsArray;
+
+	// Has any Item with same ID
+	for (uint8 i = 0; i < LocalInventoryUI2.Num(); i++)
+	{
+		if (Slot.ItemStructure.ID == LocalInventoryUI2[i]->SlotStructure.ItemStructure.ID)
+		{
+			Success = true;
+			break;
+		}
+	}
+
+	// If not, clean all the hotbar slots with that item
+	if (!Success)
+	{
+		TArray<UHotbar_Slot*> Hotbar = MainLayoutUI->Hotbar->HotbarSlotsArray;
+
+		for (uint8 i = 0; i < Hotbar.Num(); i++) {
+			{
+				if (Slot.ItemStructure.ID == GetHotbarSlotItem(i).ItemStructure.ID)
+				{
+					ClearHotbarSlotItem(i);
+					break;
+				}
+			}
+		}
+	}
+}
+
+bool UInventoryManagerComponent::CanContainerStoreItems(UInventoryComponent* Inventory)
+{
+	if (IsValid(CurrentContainer))
+	{
+		UInventoryComponent* LocalInventory{};
+
+		IInventoryInterface::Execute_GetContainerInventory(CurrentContainer, LocalInventory);
+
+		if (Inventory == LocalInventory)
+		{
+			bool LocalCanStoreItems = IInventoryInterface::Execute_GetCanStoreItems(CurrentContainer);
+
+			if (!LocalCanStoreItems)
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+void UInventoryManagerComponent::AddGold(uint8 Amount) {
+	Gold += Amount;
+	OnRep_UpdateGoldAmount();
+}
+
+void UInventoryManagerComponent::OnRep_UpdateGoldAmount() {
+	if (IsValid(MainLayoutUI))
+	{
+		MainLayoutUI->Inventory->UpdateGoldAmount();
 	}
 }

@@ -17,12 +17,17 @@ public:
 	// Sets default values for this actor's properties
 	AContainerActor();
 	
+	/* */
 	virtual bool OnActorUsed_Implementation(APlayerController* Controller) override;
-
+	
+	/* Interface */
 	virtual void GetContainerProperties_Implementation(FName& Namee, uint8& NumberOfRows, uint8& SlotsPerRow, bool& IsStorageContainer, uint8& InventorySize) override;
 	virtual void GetContainerInventory_Implementation(UInventoryComponent*& OutInventoryComponent) override;
 	virtual TArray<APlayerState*> GetPlayersViewing_Implementation() override;
-	
+	virtual bool ContainerLooted_Implementation() override;
+	virtual bool GetCanStoreItems_Implementation() override;
+	/* Ends Interface*/
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -41,12 +46,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Name", Category="Properties"))
 	FName C_Name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
 	uint8 C_NumberOfRows;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Slots Per Row", Category="Properties"))
 	uint8 C_SlotsPerRow;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Can Store Items", Category="Properties"))
 	bool C_CanStoreItems;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory Size", Category="Properties"))
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory Size", Category="Properties"))
 	uint8 C_InventorySize;
 };

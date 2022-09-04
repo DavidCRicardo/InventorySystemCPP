@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "Item/FItemStructure.h"
+#include "Inventory/FItemStructure.h"
 #include "FSlotStructure.generated.h"
 
 enum class EAttributes : int8;

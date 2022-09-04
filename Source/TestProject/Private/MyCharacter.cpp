@@ -52,18 +52,18 @@ AMyCharacter::AMyCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-	
+
 	InteractionField = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionField"));
 	InteractionField->SetupAttachment(GetMesh());
 
 	InteractionField->InitSphereRadius(150);
 	//InteractionField->InitCapsuleSize(150.f, 100.f);
 	InteractionField->SetCollisionProfileName(TEXT("CollisionTrigger"));
-	
+
 	// Initialize the player's equipment
 	MainWeapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	MainWeapon->SetupAttachment(GetMesh());
-	
+
 	Chest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest"));
 	Chest->SetupAttachment(GetMesh());
 
@@ -72,16 +72,19 @@ AMyCharacter::AMyCharacter()
 
 	Feet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
 	Feet->SetupAttachment(GetMesh());
-	
+
+	Legs = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Legs"));
+	Legs->SetupAttachment(GetMesh());
+
+	Head = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head"));
+	Head->SetupAttachment(GetMesh());
+
 	MainWeaponMesh = nullptr;
 	ChestMesh = nullptr;
 	FeetMesh = nullptr;
 	HandsMesh = nullptr;
-	
-	//Initialize the player's Health
-	MaxHealth = 100.0f;
-	CurrentHealth = MaxHealth;
-	
+	LegsMesh = nullptr;
+	HeadMesh = nullptr;
 	//GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
 }
 
@@ -89,52 +92,14 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	//Replicate current health.
-	DOREPLIFETIME(AMyCharacter, CurrentHealth);
-
 	DOREPLIFETIME(AMyCharacter, UsableActorsInsideRange);
-	
+
 	DOREPLIFETIME(AMyCharacter, MainWeaponMesh);
 	DOREPLIFETIME(AMyCharacter, ChestMesh);
 	DOREPLIFETIME(AMyCharacter, FeetMesh);
 	DOREPLIFETIME(AMyCharacter, HandsMesh);
-}
-
-void AMyCharacter::OnHealthUpdate()
-{
-	//Client-specific functionality
-	if (IsLocallyControlled())
-	{
-		FString healthMessage = FString::Printf(TEXT("You now have %f health remaining."), CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
-
-		if (CurrentHealth <= 0)
-		{
-			FString deathMessage = FString::Printf(TEXT("You have been killed."));
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, deathMessage);
-		}
-	}
-
-	//Server-specific functionality
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		FString healthMessage = FString::Printf(TEXT("%s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
-	}
-
-	//Functions that occur on all machines. 
-	/*  
-		Any special functionality that should occur as a result of damage or death should be placed here. 
-	*/
-}
-
-void AMyCharacter::SetCurrentHealth(float healthValue)
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
-		OnHealthUpdate();
-	}
+	DOREPLIFETIME(AMyCharacter, LegsMesh);
+	DOREPLIFETIME(AMyCharacter, HeadMesh);
 }
 
 void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -152,34 +117,38 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
 					{
 						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
-						WorldActor->BeginOutlineFocus_Implementation();
+						IUsableActorInterface::Execute_BeginOutlineFocus(WorldActor);
 						SetActorTickEnabled(true);
 						WorldActorsInsideRange.Add(WorldActor);
 						UsableActorsInsideRange.Add(WorldActor);
-						
+
 						return;
 					}
 
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
-						UsableActor->BeginOutlineFocus_Implementation();
-						
+
 						if (!UsableActor->InteractUserWidget)
 						{
 							UsableActor->InteractUserWidget = MyPlayerController->GetInteractWidget();
 							UsableActor->InteractUserWidget->AddToViewport();
 						}
-						
-						// Set Interact Text
-						FText MessageText = UsableActor->GetUseActionText_Implementation();
-						UsableActor->SetInteractText(MessageText);
 
-						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
-						//UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
-
-						SetActorTickEnabled(true);
 						UsableActorsInsideRange.Add(UsableActor);
-						
+
+						if (IUsableActorInterface::Execute_GetIsActorUsable(UsableActor))
+						{
+							IUsableActorInterface::Execute_BeginOutlineFocus(UsableActor);
+
+							// Set Interact Text
+							FText MessageText = IUsableActorInterface::Execute_GetUseActionText(UsableActor);
+							UsableActor->SetInteractText(MessageText);
+
+							UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+
+							SetActorTickEnabled(true);
+						}
+
 						return;
 					}
 				}
@@ -202,23 +171,23 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
 					{
 						MyPlayerController->RemoveUsableActorToDropMenu(WorldActor->ID);
-						WorldActor->EndOutlineFocus_Implementation();
-						
+						IUsableActorInterface::Execute_EndOutlineFocus(WorldActor);
+
 						WorldActorsInsideRange.Remove(WorldActor);
 						UsableActorsInsideRange.Remove(WorldActor);
 
 						return;
 					}
-					
+
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
-						UsableActor->EndOutlineFocus_Implementation();
+						IUsableActorInterface::Execute_EndOutlineFocus(UsableActor);
 						UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
-						
+
 						UsableActorsInsideRange.Remove(UsableActor);
 
 						// At the moment, Containers are the only case that run the code until here
-						if(MyPlayerController->IsContainerOpen())
+						if (MyPlayerController->IsContainerOpen())
 						{
 							MyPlayerController->InventoryManagerComponent->Server_CloseContainer();
 						}
@@ -231,18 +200,13 @@ void AMyCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	}
 }
 
-void AMyCharacter::OnRep_CurrentHealth()
-{
-	OnHealthUpdate();
-}
-
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	MyPlayerController = Cast<AMyPlayerController>(GetController());
-	
+
 	/* Overlap Events */
 	InteractionField->OnComponentBeginOverlap.AddDynamic(this, &AMyCharacter::OnBeginOverlap);
 	InteractionField->OnComponentEndOverlap.AddDynamic(this, &AMyCharacter::OnEndOverlap);
@@ -252,18 +216,18 @@ void AMyCharacter::BeginPlay()
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	if (UsableActorsInsideRange.Num() == 0)
 	{
 		if (IsValid(MyPlayerController))
 		{
 			MyPlayerController->DisableUIMode();
 		}
-		
+
 		SetActorTickEnabled(false);
 		return;
 	}
-	
+
 	for (AActor*& UsableActor : UsableActorsInsideRange)
 	{
 		if (Cast<AWorldActor>(UsableActor))
@@ -273,20 +237,28 @@ void AMyCharacter::Tick(float DeltaTime)
 
 		if (AUsableActor* TempUsableActor = Cast<AUsableActor>(UsableActor))
 		{
-			FVector2D ScreenPosition = {};
-			MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
-			TempUsableActor->SetScreenPosition(ScreenPosition);
-			if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
+			if (IUsableActorInterface::Execute_GetIsActorUsable(TempUsableActor))
 			{
-				if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)
+				FVector2D ScreenPosition = {};
+				MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition);
+				TempUsableActor->SetScreenPosition(ScreenPosition);
+				if (MyPlayerController->ProjectWorldLocationToScreen(UsableActor->GetActorLocation(), ScreenPosition))
 				{
-					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+					if (TempUsableActor->InteractUserWidget->GetVisibility() == ESlateVisibility::Hidden)
+					{
+						TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
+						TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+					}
+
+					TempUsableActor->SetScreenPosition(ScreenPosition);
+				}
+				else
+				{
 					TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 				}
-				
-				TempUsableActor->SetScreenPosition(ScreenPosition);
-			}else
-			{
+			}
+			else {
+				IUsableActorInterface::Execute_EndOutlineFocus(TempUsableActor);
 				TempUsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
@@ -317,6 +289,18 @@ void AMyCharacter::OnRep_MainHandsMesh()
 	Hands->SetSkeletalMesh(HandsMesh);
 	Hands->SetMasterPoseComponent(GetMesh());
 }
+
+void AMyCharacter::OnRep_MainLegsMesh()
+{
+	Legs->SetSkeletalMesh(LegsMesh);
+	Legs->SetMasterPoseComponent(GetMesh());
+}
+
+void AMyCharacter::OnRep_MainHeadMesh() {
+	Head->SetSkeletalMesh(HeadMesh);
+	Head->SetMasterPoseComponent(GetMesh());
+}
+
 /* End OnRep Functions */
 
 // Called to bind functionality to input
@@ -325,14 +309,14 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	InitializeDefaultPawnInputBindings();
-	
+
 	PlayerInputComponent->BindAxis("MyCharacter_MoveForward", this, &AMyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MyCharacter_MoveRight", this, &AMyCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("MyCharacter_MoveUp", this, &AMyCharacter::MoveUp_World);
 
 	PlayerInputComponent->BindAxis("MyCharacter_Turn", this, &AMyCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("MyCharacter_LookUp", this, &AMyCharacter::AddControllerPitchInput);
-	
+
 	PlayerInputComponent->BindAxis("MyCharacter_LookUpRate", this, &AMyCharacter::LookUpAtRate);
 	PlayerInputComponent->BindAxis("MyCharacter_TurnRate", this, &AMyCharacter::TurnAtRate);
 }
@@ -348,10 +332,10 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveForward", EKeys::S, -1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveRight", EKeys::A, -1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveRight", EKeys::D, 1.f));
-		
+
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveUp", EKeys::E, 1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveUp", EKeys::Q, -1.f));
-		
+
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_Turn", EKeys::MouseX, 1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_LookUp", EKeys::MouseY, -1.f));
 
@@ -364,8 +348,15 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Interact", EKeys::F));
 
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleUIMode", EKeys::LeftAlt));
-		
+
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("QuitGame", EKeys::Escape));
+
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar1", EKeys::One));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar2", EKeys::Two));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar3", EKeys::Three));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar4", EKeys::Four));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar5", EKeys::Five));
+
 	}
 }
 
@@ -378,7 +369,7 @@ void AMyCharacter::MoveRight(float Val)
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();
 
 			// transform to world space and add it
-			AddMovementInput( FRotationMatrix(ControlSpaceRot).GetScaledAxis( EAxis::Y ), Val );
+			AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), Val);
 		}
 	}
 }
@@ -392,7 +383,7 @@ void AMyCharacter::MoveForward(float Val)
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();
 
 			// transform to world space and add it
-			AddMovementInput( FRotationMatrix(ControlSpaceRot).GetScaledAxis( EAxis::X ), Val );
+			AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Val);
 		}
 	}
 }

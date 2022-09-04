@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryInterface.h"
+#include "InventoryHUDInterface.h"
 #include "MyPlayerController.generated.h"
 
 class UDataTable;
@@ -16,7 +16,7 @@ static const FName LCOMMON_WORDS = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
  * 
  */
 UCLASS()
-class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, public IInventoryInterface
+class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, public IInventoryHUDInterface
 {
 	GENERATED_BODY()
 	
@@ -35,7 +35,10 @@ public:
 	virtual void UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_EquipFromContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UnEquipToContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
+	virtual void UI_MoveHotbarItem_Implementation(const uint8& FromSlot, const uint8& ToSlot, const bool IsDraggedFromInventory, const bool IsDraggedFromHotbar) override;
 	/* Ends Interface */
+
+	uint8 UIGetPlayerGold();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(Category="Inventory", OverrideNativeName="InventoryComponent"))
 	UInventoryManagerComponent* InventoryManagerComponent;
@@ -94,6 +97,8 @@ public:
 	UFUNCTION()
 	UDataTable* GetItemDB();
 	
+	uint8 GetMaximumHotbarSlots() { return MaximumHotbarSlots; };
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -103,8 +108,17 @@ protected:
 	void Interact();
 	
 	UFUNCTION()
-	void OnActorUsed(AActor* Actor);
+	void OnActorUsed(AActor* Actor1);
 	
 	UFUNCTION()
 	void QuitGame();
+
+	void UseHotbarSlot1();
+	void UseHotbarSlot2();
+	void UseHotbarSlot3();
+	void UseHotbarSlot4();
+	void UseHotbarSlot5();
+
+private:
+	uint8 MaximumHotbarSlots = 10;
 };

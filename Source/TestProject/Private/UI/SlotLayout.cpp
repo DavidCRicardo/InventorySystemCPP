@@ -10,8 +10,10 @@
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "Item/FItemQuality.h"
+#include "Inventory/FItemQuality.h"
 #include "UI/W_ItemTooltip.h"
+#include "Components/CanvasPanel.h"
+#include "Internationalization/StringTableRegistry.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -24,6 +26,22 @@ void USlotLayout::NativeConstruct()
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 }
 
+void USlotLayout::SetNameBoxVisibility() {
+	if (IsStorageSlot || NativeFromInventory)
+	{
+		NameBox->SetVisibility(ESlateVisibility::Collapsed);
+		NameText->SetText(FText::GetEmpty());
+	}
+	else {
+		
+		FString LItemName = SlotStructure.ItemStructure.ID.ToString();
+		FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
+
+		NameBox->SetVisibility(ESlateVisibility::Visible);
+		NameText->SetText(ItemNameText);
+	}
+}
+
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
@@ -33,13 +51,13 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 {
 	if (NativeFromContainer)
 	{
-		IInventoryInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
+		IInventoryHUDInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
 	}
 	else
 	{
 		if (HasItem())
 		{
-			IInventoryInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
 		}
 	}
 	
@@ -78,8 +96,6 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 
-		// DragDropOperation->DefaultDragVisual = NewObject<USlotLayout>();
-		// DragDropOperation->DefaultDragVisual = this;
 		DragDropOperation->DefaultDragVisual = DragVisual;
 		DragDropOperation->Pivot = EDragPivot::MouseDown;
 
@@ -124,25 +140,25 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			// Check If Unequipping
 			if (IsUnequipping(LocalDraggedSlot))
 			{
-				IInventoryInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				IInventoryHUDInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 				return true;
 			}
 			
-			IInventoryInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
 		// Check If Unequipping
 		if (IsUnequipping(LocalDraggedSlot))
 		{
-			IInventoryInterface::Execute_UI_UnEquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_UnEquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
 		// Check If Equipping
 		if (IsEquipping(InventorySlotIndex))
 		{
-			IInventoryInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_EquipInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
@@ -153,7 +169,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		}
 
 		// To Inventory
-		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+		IInventoryHUDInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
 		
 		return true;
@@ -168,7 +184,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			// Are we Equipping
 			if (IsEquipping(InventorySlotIndex))
 			{
-				IInventoryInterface::Execute_UI_EquipFromContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+				IInventoryHUDInterface::Execute_UI_EquipFromContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 				return true;
 			}
 
@@ -179,7 +195,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				return true;
 			}
 			
-			IInventoryInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 
@@ -193,7 +209,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				return true;
 			}
 			
-			IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			IInventoryHUDInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}
@@ -205,25 +221,8 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 {
 	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("DragCancelled")));
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("DragCancelled")));
 	// DragCancelled called when OnDrop returns false
-	
-	/* The Slot will stay bugged until the next Refresh() */
-	/*UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
-	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
-	{
-		return;
-	}
-
-	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
-	if (DragDropOperation->IsDraggedFromInventory)
-	{
-		IInventoryInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-
-	}else if (DragDropOperation->IsDraggedFromContainer)
-	{
-		IInventoryInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
-	}*/
 }
 
 /* Update SlotStructure Info */
@@ -234,6 +233,8 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	UpdateSlotInfo();
 
 	ToggleTooltip();
+
+	SetNameBoxVisibility();
 }
 
 /* Update Slot Info */

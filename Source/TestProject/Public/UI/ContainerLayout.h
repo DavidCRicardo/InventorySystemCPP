@@ -19,6 +19,8 @@ class INVENTORYSYSTEMCPP_API UContainerLayout : public UWindowLayout
 public:
 	UContainerLayout();
 	
+	void Function1(ESlateVisibility InVisibility);
+
 	virtual void ToggleWindow() override;
 	virtual void OnButtonQuitClicked() override;
 	
@@ -33,5 +35,4 @@ public:
 
 private:
 	virtual void NativeConstruct() override;
-
 };

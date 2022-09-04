@@ -18,6 +18,13 @@ AWorldActor::AWorldActor()
 	StartWithPhysicsEnabled = true;
 }
 
+void AWorldActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AWorldActor, WorldMesh);
+}
+
 // Called when the game starts or when spawned
 void AWorldActor::BeginPlay()
 {
@@ -61,6 +68,8 @@ bool AWorldActor::LoadItemFromList()
 	InventoryItem.Amount = Amount;
 	InventoryItem.ItemStructure = *NewItemData;
 
+	Name = NewItemData->Name;
+	
 	return true;
 }
 
@@ -79,7 +88,7 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 			if (OutSuccess)
 			{
 				InventoryManager->Server_UpdateTooltips();
-				
+
 				Destroy();
 			}
 			
@@ -88,16 +97,4 @@ bool AWorldActor::OnActorUsed_Implementation(APlayerController* Controller)
 	}
 	
 	return false;
-}
-
-void AWorldActor::OnRep_WorldMesh()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("OnRep_WorldMesh being called"));
-
-	StaticMesh->SetStaticMesh(WorldMesh);
-}
-
-void AWorldActor::UpdateItemAmount()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("UpdateItemAmount being called"));
 }

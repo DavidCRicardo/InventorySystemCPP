@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Tuples.h"
 #include "Components/ActorComponent.h"
-#include "Item/EEquipmentSlot.h"
+#include "Inventory/EEquipmentSlot.h"
 #include "Inventory/FSlotStructure.h"
 #include "InventoryComponent.generated.h"
 
@@ -22,17 +22,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="NumberOfRows", Category="Inventory UI"))
 	uint8 NumberOfRowsInventory = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="RowsPerSlot", Category="Inventory UI"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="SlotsPerRow", Category="Inventory UI"))
 	uint8 SlotsPerRowInventory = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="Inventory", Category="Inventory UI"))
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Slots On Hotbar", Category = "Inventory UI"))
+	uint8 NumberOfSlotsOnHotbar = 0;
+
 	TArray<FSlotStructure> Inventory;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UDataTable* GetItemDB();
 	UPROPERTY()
 	UDataTable* ItemDB;
 public:
@@ -71,9 +72,6 @@ public:
 
 	UFUNCTION()
 	FSlotStructure GetInventoryItem(uint8 InventorySlot);
-	
-	UFUNCTION()
-	void PrintInventory();
 
 	UFUNCTION()
 	FSlotStructure GetEmptySlot(EEquipmentSlot FromEquipmentType);
