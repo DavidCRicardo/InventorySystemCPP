@@ -8,7 +8,7 @@
 
 UContainerLayout::UContainerLayout() {}
 
-void UContainerLayout::Function1(ESlateVisibility InVisibility)
+void UContainerLayout::SetTextToContainer(ESlateVisibility InVisibility)
 {
 	if (InVisibility == ESlateVisibility::Visible)
 	{
@@ -29,7 +29,7 @@ void UContainerLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	OnNativeVisibilityChanged.AddUObject(this, &UContainerLayout::Function1);
+	OnNativeVisibilityChanged.AddUObject(this, &UContainerLayout::SetTextToContainer);
 }
 
 void UContainerLayout::ToggleWindow()

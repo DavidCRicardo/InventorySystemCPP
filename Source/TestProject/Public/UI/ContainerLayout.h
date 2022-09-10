@@ -19,7 +19,7 @@ class INVENTORYSYSTEMCPP_API UContainerLayout : public UWindowLayout
 public:
 	UContainerLayout();
 	
-	void Function1(ESlateVisibility InVisibility);
+	void SetTextToContainer(ESlateVisibility InVisibility);
 
 	virtual void ToggleWindow() override;
 	virtual void OnButtonQuitClicked() override;
