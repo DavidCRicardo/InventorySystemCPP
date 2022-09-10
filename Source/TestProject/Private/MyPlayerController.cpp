@@ -108,8 +108,10 @@ void AMyPlayerController::BeginPlay()
 
 		InventoryManagerComponent->InitializePlayerAttributes();
 
-		// Use this code to Play on *Package Mode* instead of HUD line 58-61
-		//SetupHUDReferences();
+		// UE_BUILD_DEBUG/UE_BUILD_DEVELOPMENT on PlayerController line 58-61
+		#if UE_BUILD_SHIPPING
+			SetupHUDReferences();
+		#endif
 
 		EnableInput(this);
 	}, 0.5, false);

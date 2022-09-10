@@ -54,11 +54,13 @@ void AMyHUD::BeginPlay()
 		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
-	// Use this code to *Play on Editor Mode* instead of PlayerController line 112
+	// UE_BUILD_SHIPPING on PlayerController line 112
+	#if UE_BUILD_DEBUG + UE_BUILD_DEVELOPMENT
 	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
 	{
 		PlayerController->SetupHUDReferences();
 	}
+	#endif
 }
 
 UUserWidget* AMyHUD::GetInteractWidget()
