@@ -14,6 +14,7 @@
 #include "UI/W_ItemTooltip.h"
 #include "Components/CanvasPanel.h"
 #include "Internationalization/StringTableRegistry.h"
+#include "MyGameInstance.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -24,6 +25,8 @@ void USlotLayout::NativeConstruct()
 	Super::NativeConstruct();
 
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+
+	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
 }
 
 void USlotLayout::SetNameBoxVisibility() {
@@ -33,10 +36,9 @@ void USlotLayout::SetNameBoxVisibility() {
 		NameText->SetText(FText::GetEmpty());
 	}
 	else {
-		
-		FString LItemName = SlotStructure.ItemStructure.ID.ToString();
-		FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
-
+		FString ItemName = SlotStructure.ItemStructure.ID.ToString();
+		FName InTableID = GameInstance->COMMON_WORDS;
+		FText ItemNameText = FText::FromStringTable(InTableID, ItemName);
 		NameBox->SetVisibility(ESlateVisibility::Visible);
 		NameText->SetText(ItemNameText);
 	}

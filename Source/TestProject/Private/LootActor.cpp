@@ -3,13 +3,11 @@
 
 #include "LootActor.h"
 #include "Inventory/FLootList.h"
+#include "MyGameInstance.h"
 
 ALootActor::ALootActor()
 {
 	C_CanStoreItems = false;
-
-	Action = LOCTABLE(COMMON_WORDS2, "Loot");
-	Name = LOCTABLE(COMMON_WORDS2, "Skeleton");
 }
 
 bool ALootActor::InitializeInventory()
@@ -53,7 +51,7 @@ TArray<FSlotStructure> ALootActor::GetRandomLootItems()
 			{
 				FLootList Loot = LootLootItems[LocalItemIndex];
 
-				if (Loot.DropChance >= FMath::RandRange(0.01, 1))
+				if (Loot.DropChance >= FMath::RandRange(0.01f, 1.f))
 				{
 					LocalItemIndexes.AddUnique(LocalItemIndex);
 
@@ -122,6 +120,10 @@ uint8 ALootActor::GetItemMaxStackSize(const FSlotStructure Item)
 
 void ALootActor::BeginPlay()
 {
+	FName InTableID = Cast<UMyGameInstance>(GetGameInstance())->COMMON_WORDS;
+	Action = FText::FromStringTable(InTableID, "Loot");
+	Name = FText::FromStringTable(InTableID, "Skeleton");
+
 	DB_ItemList = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 
 	uint8 LocalNumberOfRows = InventoryComponent->NumberOfRowsInventory;

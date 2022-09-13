@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MyPlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "MyPlayerController.h"
+#include "MyGameInstance.h"
 #include "WindowLayout.generated.h"
 
 /**
@@ -23,7 +24,9 @@ public:
 	TSubclassOf<UUserWidget> WidgetClass;
 
 	UPROPERTY()
-	AMyPlayerController* PlayerController;
+	class AMyPlayerController* PlayerController;
+	UPROPERTY()
+	class UMyGameInstance* GameInstance;
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* WindowTitle;

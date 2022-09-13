@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/InteractText.h"
+//#include "MyGameInstance.h"
 
 // Sets default values
 AUsableActor::AUsableActor()
@@ -21,7 +22,8 @@ AUsableActor::AUsableActor()
 	SetRootComponent(Scene);
 	StaticMesh->AttachToComponent(Scene, FAttachmentTransformRules::KeepRelativeTransform);
 
-	
+	//GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+
 	Name = FText::FromString("NULL");
 	Action = FText::FromString("Use");
 	IsUsable = true;

@@ -24,7 +24,7 @@ FItemStructure::FItemStructure()
 	Health = 0;
 }
 
-FItemStructure::FItemStructure(FName ID, UTexture2D* Icon, FText Name, FName Description, EItemType ItemType, EItemQuality Quality, uint8 PriceValue,
+/*FItemStructure::FItemStructure(FName ID, UTexture2D* Icon, FText Name, FName Description, EItemType ItemType, EItemQuality Quality, uint8 PriceValue,
 	bool IsStackable, uint8 MaxStackSize, bool IsDroppable, USkeletalMesh* SkeletalMesh, UStaticMesh* WorldMesh, float Duration, 
 	EEquipmentSlot EquipmentSlot, uint8 Strength, uint8 Endurance, uint8 Dexterity, uint8 Intelligence, uint8 Health)
 {
@@ -47,4 +47,4 @@ FItemStructure::FItemStructure(FName ID, UTexture2D* Icon, FText Name, FName Des
 	Dexterity = Dexterity;
 	Intelligence = Intelligence;
 	Health = Health;
-}
+}*/

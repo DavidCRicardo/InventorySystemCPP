@@ -4,6 +4,7 @@
 #include "Actors/UsableDoor.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "UI/InteractText.h"
+#include "MyGameInstance.h"
 
 AUsableDoor::AUsableDoor() {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> LocalStaticMesh(TEXT("/Game/Environment/Meshes/SM_Door.SM_Door"));
@@ -11,14 +12,6 @@ AUsableDoor::AUsableDoor() {
 
 	static ConstructorHelpers::FObjectFinder<USoundCue> LocalSoundCue(TEXT("/Game/Environment/Sounds/Environment/SFX_Door_Cue.SFX_Door_Cue"));
 	UsedSound = LocalSoundCue.Object;
-
-	Name = LOCTABLE(COMMON_WORDS2, "Door");
-	
-	OpenText = LOCTABLE(COMMON_WORDS2, "Open");
-	CloseText = LOCTABLE(COMMON_WORDS2, "Close");
-	//Action = LOCTABLE(COMMON_WORDS2, "Use");
-	Action = OpenText;
-
 
 	StaticMesh->SetMobility(EComponentMobility::Movable);
 	StaticMesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -54,4 +47,14 @@ bool AUsableDoor::OnWasUsed()
 	
 
 	return Super::OnWasUsed();
+}
+
+void AUsableDoor::BeginPlay()
+{
+	FName InTableID = Cast<UMyGameInstance>(GetGameInstance())->COMMON_WORDS;
+	Name = FText::FromStringTable(InTableID, "Door");
+
+	OpenText = FText::FromStringTable(InTableID, "Open");
+	CloseText = FText::FromStringTable(InTableID, "Close");
+	Action = OpenText;
 }

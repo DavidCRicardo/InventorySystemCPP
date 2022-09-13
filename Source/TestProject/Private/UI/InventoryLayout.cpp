@@ -4,6 +4,8 @@
 #include "UI/InventoryLayout.h"
 #include "Components/TextBlock.h"
 #include "Internationalization/StringTableRegistry.h"
+#include "MyPlayerController.h"
+#include "MyGameInstance.h"
 
 UInventoryLayout::UInventoryLayout() {}
 
@@ -11,7 +13,8 @@ void UInventoryLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FText Text = LOCTABLE(COMMON_WORDS, "Inventory");
+	FName InTableID = GameInstance->COMMON_WORDS;
+	FText Text = FText::FromStringTable(InTableID, "Inventory");
 	Super::SetTitleToWindow(Text);
 }
 

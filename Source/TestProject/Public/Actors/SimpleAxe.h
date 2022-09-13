@@ -15,4 +15,7 @@ class INVENTORYSYSTEMCPP_API ASimpleAxe : public AWorldActor
 	GENERATED_BODY()
 	
 	ASimpleAxe();
+
+protected:
+	virtual void BeginPlay() override;
 };

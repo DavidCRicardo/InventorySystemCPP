@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UsableActor.h"
 #include "Inventory/FSlotStructure.h"
+#include "MyGameInstance.h"
 #include "WorldActor.generated.h"
 
 class UDataTable;

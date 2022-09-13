@@ -7,6 +7,7 @@
 #include "Components/Image.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "Inventory/FItemStructure.h"
+#include "MyGameInstance.h"
 
 void UInteractiveText_Entry::NativeConstruct()
 {
@@ -26,6 +27,12 @@ void UInteractiveText_Entry::NativeConstruct()
 	if (!IsValid(PC))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Controller Not Valid")));
+	}
+
+	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+	if (!IsValid(GameInstance))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("GameInstance Not Valid")));
 	}
 }
 
@@ -48,8 +55,10 @@ void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 				{
 					IconImage->SetBrushFromTexture(NewItemData->Icon);
 					
-					FString LItemName = NewItemData->ID.ToString();
-					FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
+					FString ItemName = NewItemData->ID.ToString();
+					FName InTableID = GameInstance->COMMON_WORDS;
+					FText ItemNameText = FText::FromStringTable(InTableID, ItemName);
+
 					NameLabel->SetText(ItemNameText);
 				}
 			}		

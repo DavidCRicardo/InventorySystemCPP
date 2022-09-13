@@ -117,4 +117,7 @@ private:
 	bool IsUnequipping(const uint8& LocalDraggedSlotIndex);
 	UFUNCTION()
 	bool IsEquipping(const uint8& InventorySlot);
+
+	UPROPERTY()
+	class UMyGameInstance* GameInstance;
 };

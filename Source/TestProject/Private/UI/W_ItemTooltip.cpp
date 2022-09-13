@@ -7,28 +7,36 @@
 #include "Components/InventoryManagerComponent.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "Inventory/FItemType.h"
+#include "MyGameInstance.h"
 
 void UW_ItemTooltip::NativeConstruct()
 {
-
+	
 }
 
-void UW_ItemTooltip::InitializeTooltip(const FItemStructure& Item)
+void UW_ItemTooltip::InitializeTooltip(/*const FItemStructure& Item*/)
 {
-	SetItemName(Item);
+	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
 
-	Icon->SetBrushFromTexture(Item.Icon);
+	//SetItemName(Item);
 
-	SetItemType(Item);
+	//Icon->SetBrushFromTexture(Item.Icon);
 
-	SetDescription(Item);
+	//SetItemType(Item);
 
-	//SetAttributes(Item);
+	//SetDescription(Item);
+
+	////SetAttributes(Item);
 }
 
 void UW_ItemTooltip::UpdateTooltipAttributes(const FItemStructure& Item, const FSlotStructure& EquippedSlot)
 {
 	EquippedSlotOnProfile = EquippedSlot;
+
+	//if (!IsValid(GameInstance))
+	//{
+	//	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+	//}
 
 	SetItemName(Item);
 
@@ -43,41 +51,45 @@ void UW_ItemTooltip::UpdateTooltipAttributes(const FItemStructure& Item, const F
 
 void UW_ItemTooltip::SetDescription(const FItemStructure& Item)
 {
-	FString LItemDescription = Item.Description.ToString();
-	FText ItemDescriptionText = LOCTABLE(COMMON_WORDS, ItemDescription);
+	FName InTableID = GameInstance->COMMON_WORDS;
+	FText ItemDescriptionText = FText::FromStringTable(InTableID, Item.Description.ToString());
 	Description->SetText(ItemDescriptionText);
 }
 
 void UW_ItemTooltip::SetItemType(const FItemStructure& Item)
 {
-	FName LItemType;
+	FName ItemType;
 	switch (Item.ItemType)
 	{
 	case EItemType::Consumable:
-		LItemType = FItemType::Consumable;
+		ItemType = FItemType::Consumable;
 		break;
 	case EItemType::Equipment:
-		LItemType = FItemType::Equipment;
+		ItemType = FItemType::Equipment;
 		break;
 	case EItemType::Miscellaneous:
-		LItemType = FItemType::Miscellanious;
+		ItemType = FItemType::Miscellanious;
 		break;
 	case EItemType::Currency:
-		LItemType = FItemType::Currency;
+		ItemType = FItemType::Currency;
 		break;
 	case EItemType::Undefined:
 	default:
-		LItemType = FItemType::Undefined;
+		ItemType = FItemType::Undefined;
 		break;
 	}
-	FText ItemTypeText = LOCTABLE(COMMON_WORDS, ItemType.ToString());
+
+	FName InTableID = GameInstance->COMMON_WORDS;
+	FText ItemTypeText = FText::FromStringTable(InTableID, ItemType.ToString());
 	Type->SetText(ItemTypeText);
 }
 
 void UW_ItemTooltip::SetItemName(const FItemStructure& Item)
 {
-	FString LItemName = Item.ID.ToString();
-	FText ItemNameText = LOCTABLE(COMMON_WORDS, ItemName);
+	FString ItemName = Item.ID.ToString();
+	FName InTableID = GameInstance->COMMON_WORDS;
+	FText ItemNameText = FText::FromStringTable(InTableID, ItemName);
+
 	Name->SetText(ItemNameText);
 }
 

@@ -2,9 +2,9 @@
 
 
 #include "UI/ContainerLayout.h"
-#include "LootActor.h"
-#include "Components/InventoryManagerComponent.h"
 #include "Internationalization/StringTableRegistry.h"
+#include "Components/InventoryManagerComponent.h"
+#include "LootActor.h"
 
 UContainerLayout::UContainerLayout() {}
 
@@ -12,16 +12,16 @@ void UContainerLayout::SetTextToContainer(ESlateVisibility InVisibility)
 {
 	if (InVisibility == ESlateVisibility::Visible)
 	{
+		FName InTableID = GameInstance->COMMON_WORDS;
 		FText Text{};
 		if (IsStorageContainer)
 		{
-			Text = LOCTABLE(COMMON_WORDS, "Container");
-			Super::SetTitleToWindow(Text);
+			Text = FText::FromStringTable(InTableID, "Container");
 		}
 		else {
-			Text = LOCTABLE(COMMON_WORDS, "Loot");
-			Super::SetTitleToWindow(Text);
+			Text = FText::FromStringTable(InTableID, "Loot");
 		}
+		Super::SetTitleToWindow(Text);
 	}
 }
 

@@ -44,27 +44,27 @@ void UEquipmentComponent::UpdateEquippedMeshes(uint8 InventorySlot)
 
 			switch (InventorySlot)
 			{
-			case EEquipmentSlot::Weapon:
+			case (uint8)EEquipmentSlot::Weapon:
 				EquipmentCharacterReference->MainWeaponMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainWeaponMesh();
 				break;
-			case EEquipmentSlot::Chest:
+			case (uint8)EEquipmentSlot::Chest:
 				EquipmentCharacterReference->ChestMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainChestMesh();
 				break;
-			case EEquipmentSlot::Feet:
+			case (uint8)EEquipmentSlot::Feet:
 				EquipmentCharacterReference->FeetMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainFeetMesh();
 				break;
-			case EEquipmentSlot::Hands:
+			case (uint8)EEquipmentSlot::Hands:
 				EquipmentCharacterReference->HandsMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainHandsMesh();
 				break;
-			case EEquipmentSlot::Legs:
+			case (uint8)EEquipmentSlot::Legs:
 				EquipmentCharacterReference->LegsMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainLegsMesh();
 				break;
-			case EEquipmentSlot::Head:
+			case (uint8)EEquipmentSlot::Head:
 				EquipmentCharacterReference->HeadMesh = NewMesh;
 				EquipmentCharacterReference->OnRep_MainHeadMesh();
 				break;

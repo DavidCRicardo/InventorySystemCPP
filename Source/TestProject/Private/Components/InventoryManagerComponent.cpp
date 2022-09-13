@@ -266,6 +266,8 @@ void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(c
 		if (!IsValid(Tooltip))
 		{
 			Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
+			Tooltip->InitializeTooltip();
+			//Tooltip->AddToViewport();
 
 			UE_LOG(LogTemp, Verbose, TEXT("Creating Container Tooltip"))
 		}
@@ -327,6 +329,8 @@ void UInventoryManagerComponent::Client_UpdateInventoryTooltips_Implementation(c
 		{
 			// Tooltips must be initialized on Load
 			Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
+			Tooltip->InitializeTooltip();
+			//Tooltip->AddToViewport();
 
 			UE_LOG(LogTemp, Verbose, TEXT("Creating Inventory Tooltip"))
 		}

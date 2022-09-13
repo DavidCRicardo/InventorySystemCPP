@@ -2,12 +2,14 @@
 
 
 #include "UI/WindowLayout.h"
-#include "DragWidget.h"
-#include "MyHUD.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
+#include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
-#include "Components/TextBlock.h"
+#include "MyPlayerController.h"
+#include "MyGameInstance.h"
+#include "DragWidget.h"
+#include "MyHUD.h"
 
 void UWindowLayout::NativeConstruct()
 {
@@ -15,8 +17,8 @@ void UWindowLayout::NativeConstruct()
 
 	QuitButton->OnClicked.AddUniqueDynamic(this, &UWindowLayout::OnButtonQuitClicked);
 	
-	
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
 
 	SetVisibility(ESlateVisibility::Hidden);
 }
@@ -132,7 +134,7 @@ void UWindowLayout::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDr
 
 FReply UWindowLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey)
 {
-	if ( InMouseEvent.GetEffectingButton() == DragKey /*|| PointerEvent.IsTouchEvent()*/ && TopBorder->IsHovered())
+	if ( (InMouseEvent.GetEffectingButton() == DragKey && TopBorder->IsHovered()) || InMouseEvent.IsTouchEvent())
 	{
 		FEventReply Reply;
 		Reply.NativeReply = FReply::Handled();

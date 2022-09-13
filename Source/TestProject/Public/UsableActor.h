@@ -9,8 +9,6 @@
 #include "Internationalization/StringTableRegistry.h"
 #include "UsableActor.generated.h"
 
-static const FName LCOMMON_WORDS2 = "/Game/UI/COMMON_WORDS.COMMON_WORDS";
-
 UCLASS()
 class INVENTORYSYSTEMCPP_API AUsableActor : public AActor, public IUsableActorInterface
 {
@@ -72,4 +70,7 @@ public:
 	void SetInteractText(FText Text);
 	UFUNCTION()
 	void SetScreenPosition(FVector2D ScreenPosition);
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//class UMyGameInstance* GameInstance;
 };

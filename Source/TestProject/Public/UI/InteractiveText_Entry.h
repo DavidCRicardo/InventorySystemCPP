@@ -45,4 +45,7 @@ protected:
 	
 	UPROPERTY()
 	class AMyPlayerController* PC;
+
+	UPROPERTY()
+	class UMyGameInstance* GameInstance;
 };

@@ -2,15 +2,14 @@
 
 
 #include "UI/ProfileLayout.h"
-
-#include "EAttributes.h"
-#include "FWidgetsLayoutBP.h"
-#include "MyHUD.h"
-#include "MyPlayerController.h"
-#include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
+#include "Components/UniformGridPanel.h"
 #include "Internationalization/StringTableRegistry.h"
+#include "MyPlayerController.h"
 #include "UI/Attribute_Entry.h"
+#include "FWidgetsLayoutBP.h"
+#include "EAttributes.h"
+#include "MyHUD.h"
 
 UProfileLayout::UProfileLayout() {}
 
@@ -18,7 +17,8 @@ void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	FText Text = LOCTABLE(COMMON_WORDS, "Profile");
+	FName InTableID = GameInstance->COMMON_WORDS;
+	FText Text = FText::FromStringTable(InTableID, "Profile");
 	Super::SetTitleToWindow(Text);
 
 	if(IsValid(PlayerController))

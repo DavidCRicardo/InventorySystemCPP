@@ -26,7 +26,7 @@ public:
 	FSlotStructure EquippedSlotOnProfile;
 
 	UFUNCTION()
-	void InitializeTooltip(const FItemStructure& Item);
+	void InitializeTooltip(/*const FItemStructure& Item*/);
 	UFUNCTION()
 	void UpdateTooltipAttributes(const FItemStructure& Item, const FSlotStructure& EquippedSlot);
 
@@ -51,6 +51,7 @@ protected:
 
 private:
     virtual void NativeConstruct() override;
+
 	void SetDescription(const FItemStructure& Item);
 	void SetItemType(const FItemStructure& Item);
 	void SetItemName(const FItemStructure& Item);
@@ -58,4 +59,7 @@ private:
 
 	UFUNCTION()
 	void GetAttributeValueFromItem(const FItemStructure& Item, EAttributes Attribute, int8& Value);
+
+	UPROPERTY()
+	class UMyGameInstance* GameInstance;
 };
