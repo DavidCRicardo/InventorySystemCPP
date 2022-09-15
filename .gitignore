@@ -71,6 +71,7 @@ Saved/*
 Intermediate/*
 Plugins/*/Intermediate/*
 WindowsNoEditor/*
+Android_Multi/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
