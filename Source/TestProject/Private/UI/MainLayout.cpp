@@ -14,7 +14,9 @@ void UMainLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	SetVisibility(ESlateVisibility::Visible);
+	//SetVisibility(ESlateVisibility::Visible);
+
+	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }
 
 bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

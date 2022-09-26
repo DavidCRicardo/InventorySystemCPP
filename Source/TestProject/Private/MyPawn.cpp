@@ -9,6 +9,10 @@
 #include "GameFramework/PlayerInput.h"
 #include "GameFramework/SpringArmComponent.h"
 
+/*
+ * MyPawn is not currently used to anything 
+ */
+
 // Sets default values
 AMyPawn::AMyPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {

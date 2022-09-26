@@ -11,8 +11,6 @@
 #include "EAttributes.h"
 #include "MyHUD.h"
 
-UProfileLayout::UProfileLayout() {}
-
 void UProfileLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -30,6 +28,8 @@ void UProfileLayout::NativeConstruct()
 		
 		UpdatePlayerStatsUI(InitAttributes);
 	}
+
+	WindowLayout = ELayout::Equipment;
 }
 
 void UProfileLayout::CreateAttributesEntry()

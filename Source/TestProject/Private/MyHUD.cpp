@@ -47,13 +47,6 @@ void AMyHUD::BeginPlay()
 		}
 	}
 	
-	InteractTextWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
-	if (InteractTextWidget)
-	{
-		InteractTextWidget->AddToViewport();
-		InteractTextWidget->SetVisibility(ESlateVisibility::Hidden);
-	}
-
 	// UE_BUILD_SHIPPING on PlayerController line 112
 	#if UE_BUILD_DEBUG + UE_BUILD_DEVELOPMENT
 	if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwner()))
@@ -63,12 +56,22 @@ void AMyHUD::BeginPlay()
 	#endif
 }
 
-UUserWidget* AMyHUD::GetInteractWidget()
+UUserWidget* AMyHUD::GenerateInteractWidget(FText Text)
 {
 	const UDataTable* WidgetTable = WidgetDB;
 	FWidgetsLayoutBP* NewWidgetData = nullptr;
-	
-	return CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractText_WBP"));
+
+	UUserWidget* EntryUserWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractiveText_Entry_WBP"));
+	UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(EntryUserWidget);
+	FName LocalName = *Text.ToString();
+	Entry->SetEntryText(LocalName);
+
+	UUserWidget* PanelUserWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractiveText_Panel_WBP"));
+	UInteractiveText_Panel* Panel = Cast<UInteractiveText_Panel>(PanelUserWidget);
+	Panel->AddEntryToList(Entry);
+	Panel->AddToViewport();
+
+	return Panel;
 }
 
 bool AMyHUD::IsAnyWidgetVisible()

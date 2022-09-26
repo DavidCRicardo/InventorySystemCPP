@@ -108,14 +108,57 @@ void AMyPlayerController::BeginPlay()
 
 		InventoryManagerComponent->InitializePlayerAttributes();
 
-		// UE_BUILD_DEBUG/UE_BUILD_DEVELOPMENT on PlayerController line 58-61
+		// UE_BUILD_DEBUG/UE_BUILD_DEVELOPMENT on PlayerController line 51-56
 		#if UE_BUILD_SHIPPING
 			SetupHUDReferences();
 		#endif
 
 		EnableInput(this);
 	}, 0.5, false);
+}
 
+int AMyPlayerController::GetCurrentViewMode(const APlayerController* PlayerController)
+{
+
+	if (IsValid(PlayerController))
+	{
+		UGameViewportClient* GameViewportClient = PlayerController->GetWorld()->GetGameViewport();
+		ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+
+		bool ignore = GameViewportClient->IgnoreInput();
+		EMouseCaptureMode capt = GameViewportClient->GetMouseCaptureMode(); // ->CaptureMouseOnClick();
+
+		if (ignore == false && capt == EMouseCaptureMode::CaptureDuringMouseDown)
+		{
+			return 0;  // Game And UI
+		}
+		else if (ignore == true && capt == EMouseCaptureMode::NoCapture)
+		{
+			return 1;  // UI Only
+		}
+		else
+		{
+			return 2;  // Game Only
+		}
+	}
+
+	return -1;
+}
+
+void AMyPlayerController::Tick(float DeltaTime)
+{
+	if (GetCurrentViewMode(this) == 0)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, "Game And UI");
+	}
+	if (GetCurrentViewMode(this) == 1)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, "UI Only");
+	}
+	if (GetCurrentViewMode(this) == 2)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, "Game Only");
+	}
 }
 
 void AMyPlayerController::SetupHUDReferences()
@@ -227,17 +270,8 @@ void AMyPlayerController::ToggleInventory()
 {
 	if (IsValid(HUD_Reference))
 	{
-		HUD_Reference->ToggleWindow(ELayout::Inventory);
-
-		if (HUD_Reference->IsAnyWidgetVisible())
-		{
-			SetInputMode(FInputModeGameAndUI());
-			bShowMouseCursor = true;
-		}else
-		{
-			SetInputMode(FInputModeGameOnly());
-			bShowMouseCursor = false;
-		}
+		HUD_Reference->ToggleWindow(ELayout::Inventory);		
+		SetInputDependingFromVisibleWidgets();
 	}
 }
 
@@ -246,16 +280,7 @@ void AMyPlayerController::ToggleProfile()
 	if (IsValid(HUD_Reference))
 	{
 		HUD_Reference->ToggleWindow(ELayout::Equipment);
-	
-		if (HUD_Reference->IsAnyWidgetVisible())
-		{
-			SetInputMode(FInputModeGameAndUI());
-			bShowMouseCursor = true;
-		}else
-		{
-			SetInputMode(FInputModeGameOnly());
-			bShowMouseCursor = false;
-		}
+		SetInputDependingFromVisibleWidgets();
 	}
 }
 
@@ -264,16 +289,56 @@ void AMyPlayerController::ToggleContainer()
 	if (IsValid(HUD_Reference))
 	{
 		HUD_Reference->ToggleWindow(ELayout::Container);
-	
-		if (HUD_Reference->IsAnyWidgetVisible())
-		{
-			SetInputMode(FInputModeGameAndUI());
-			bShowMouseCursor = true;
-		}else
-		{
-			SetInputMode(FInputModeGameOnly());
-			bShowMouseCursor = false;
-		}
+		SetInputDependingFromVisibleWidgets();
+	}
+}
+
+void AMyPlayerController::SetInputDependingFromVisibleWidgets()
+{
+	if (HUD_Reference->IsAnyWidgetVisible())
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
+
+		HUDLayoutReference->MainLayout->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+
+		HUDLayoutReference->MainLayout->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+}
+
+void AMyPlayerController::EnableUIMode()
+{
+	if (!IsValid(HUD_Reference))
+	{
+		return;
+	}
+
+	if (!bShowMouseCursor)
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
+
+		SetMouseToCenterPosition();
+	}
+}
+
+void AMyPlayerController::DisableUIMode()
+{
+	if (!IsValid(HUD_Reference))
+	{
+		return;
+	}
+
+	if (bShowMouseCursor)
+	{
+		SetInputDependingFromVisibleWidgets();
+	//	SetInputMode(FInputModeGameOnly());
+	//	bShowMouseCursor = false;
 	}
 }
 
@@ -343,12 +408,18 @@ void AMyPlayerController::CollectFromPanel(const FName& Name)
 				return;
 			}
 		}
+		else {
+			// It's an Usable Actor
+			Server_OnActorUsed(Actor);
+
+			return;
+		}
 	}
 }
 
-UUserWidget* AMyPlayerController::GetInteractWidget()
+UUserWidget* AMyPlayerController::GenerateInteractWidget(FText Text)
 {
-	return HUD_Reference->GetInteractWidget();
+	return HUD_Reference->GenerateInteractWidget(Text);
 }
 
 void AMyPlayerController::SetMouseToCenterPosition()
@@ -360,40 +431,12 @@ void AMyPlayerController::SetMouseToCenterPosition()
 	SetMouseLocation(SizeX / 2, SizeY / 2);
 }
 
-void AMyPlayerController::EnableUIMode()
-{
-	if (!bShowMouseCursor)
-	{
-		SetInputMode(FInputModeGameAndUI());
-		bShowMouseCursor = true;
-
-		SetMouseToCenterPosition();
-	}
-}
-
-void AMyPlayerController::DisableUIMode()
-{
-	if (!IsValid(HUD_Reference))
-	{
-		return;
-	}
-	
-	if (HUD_Reference->IsAnyWidgetVisible())
-	{
-		SetInputMode(FInputModeGameAndUI());
-		bShowMouseCursor = true;
-	}else
-	{
-		SetInputMode(FInputModeGameOnly());
-		bShowMouseCursor = false;
-	}
-}
-
 void AMyPlayerController::AddUsableActorToDropMenu(FName IDName)
 {
 	if (IsValid(HUD_Reference))
 	{
-		HUD_Reference->HUDReference->TertiaryHUD->CreateInteractiveTextEntry(IDName);
+		UInteractiveText_Entry* Entry = HUD_Reference->HUDReference->TertiaryHUD->CreateInteractiveTextEntry(IDName);
+		HUD_Reference->HUDReference->TertiaryHUD->AddInteractiveTextEntry(Entry);
 
 		EnableUIMode();
 	}

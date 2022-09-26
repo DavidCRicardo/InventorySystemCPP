@@ -17,10 +17,6 @@ class INVENTORYSYSTEMCPP_API UInventoryLayout : public UWindowLayout
 	GENERATED_BODY()
 
 public:
-	UInventoryLayout();
-
-	virtual void ToggleWindow() override;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	UUniformGridPanel* InventoryGridPanel;
 	
@@ -28,7 +24,7 @@ public:
 	TArray<USlotLayout*>InventorySlotsArray;
 	
 	UPROPERTY(meta = (BindWidget))
-		UTextBlock* Gold_Amount;
+	UTextBlock* Gold_Amount;
 
 	void UpdateGoldAmount();
 

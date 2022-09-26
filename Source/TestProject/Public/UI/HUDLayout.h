@@ -32,7 +32,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UButton* Btn_Inventory;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite/*, meta = (BindWidget)*/)
 	UMainLayout* MainLayout;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))

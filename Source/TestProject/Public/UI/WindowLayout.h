@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MyPlayerController.h"
 #include "MyGameInstance.h"
+#include "ELayout.h"
 #include "WindowLayout.generated.h"
 
 /**
@@ -19,9 +20,6 @@ class INVENTORYSYSTEMCPP_API UWindowLayout : public UUserWidget
 public:
 	UFUNCTION()
 	virtual void ToggleWindow();
-	
-	UPROPERTY(EditAnywhere, Category = "Default")
-	TSubclassOf<UUserWidget> WidgetClass;
 
 	UPROPERTY()
 	class AMyPlayerController* PlayerController;
@@ -31,6 +29,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* WindowTitle;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	ELayout WindowLayout;
+
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;

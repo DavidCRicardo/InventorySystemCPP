@@ -6,7 +6,24 @@
 #include "Components/InventoryManagerComponent.h"
 #include "LootActor.h"
 
-UContainerLayout::UContainerLayout() {}
+void UContainerLayout::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	OnNativeVisibilityChanged.AddUObject(this, &UContainerLayout::SetTextToContainer);
+
+	WindowLayout = ELayout::Container;
+}
+
+void UContainerLayout::OnButtonQuitClicked()
+{
+	if (IsValid(PlayerController))
+	{
+		PlayerController->InventoryManagerComponent->Server_CloseContainer();
+	
+		PlayerController->SetInputDependingFromVisibleWidgets();
+	}
+}
 
 void UContainerLayout::SetTextToContainer(ESlateVisibility InVisibility)
 {
@@ -22,25 +39,5 @@ void UContainerLayout::SetTextToContainer(ESlateVisibility InVisibility)
 			Text = FText::FromStringTable(InTableID, "Loot");
 		}
 		Super::SetTitleToWindow(Text);
-	}
-}
-
-void UContainerLayout::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	OnNativeVisibilityChanged.AddUObject(this, &UContainerLayout::SetTextToContainer);
-}
-
-void UContainerLayout::ToggleWindow()
-{
-	Super::ToggleWindow();
-}
-
-void UContainerLayout::OnButtonQuitClicked()
-{
-	if (IsValid(PlayerController))
-	{
-		PlayerController->InventoryManagerComponent->Server_CloseContainer();
 	}
 }

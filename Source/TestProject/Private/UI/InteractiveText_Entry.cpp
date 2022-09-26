@@ -13,15 +13,7 @@ void UInteractiveText_Entry::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	if (IsValid(NameLabel))
-	{
-		NameLabel->SetText(FText::FromName("Default Text"));
-		
-		SelectedImage->SetOpacity(0.f);
-	}else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Not Valid")));
-	}
+	SelectedImage->SetOpacity(0.f);
 
 	PC = Cast<AMyPlayerController>(GetOwningPlayer());
 	if (!IsValid(PC))
@@ -60,6 +52,22 @@ void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 					FText ItemNameText = FText::FromStringTable(InTableID, ItemName);
 
 					NameLabel->SetText(ItemNameText);
+
+					//MainBorder->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+					//MainBorder->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+				}
+				else {
+					UTexture2D* IconTexture = LoadObject<UTexture2D>(this, TEXT("/Game/UI/Textures/hand.hand"));
+					IconImage->SetBrushFromTexture(IconTexture);
+
+					NameLabel->SetJustification(ETextJustify::Center);
+
+					//MainBorder->SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+					//MainBorder->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Center);
+					
+					NameLabel->SetText(FText::FromName(Entry->ID));
+					SelectedImage->SetBrushTintColor(FSlateColor({ 1,1,1,0 }));
+					SelectedImage->SetOpacity(0.f);
 				}
 			}		
 		}
@@ -91,12 +99,12 @@ void UInteractiveText_Entry::NativeOnItemSelectionChanged(bool bIsSelected)
 	}
 }
 
-void UInteractiveText_Entry::InitializeName(const FName& Name)
+void UInteractiveText_Entry::SetEntryText(const FName& Name)
 {
 	ID = Name;
 }
 
-FName UInteractiveText_Entry::GetIDName()
+FName UInteractiveText_Entry::GetEntryText()
 {
 	return ID;
 }

@@ -16,12 +16,9 @@ class INVENTORYSYSTEMCPP_API UContainerLayout : public UWindowLayout
 {
 	GENERATED_BODY()
 
-public:
-	UContainerLayout();
-	
+public:	
 	void SetTextToContainer(ESlateVisibility InVisibility);
 
-	virtual void ToggleWindow() override;
 	virtual void OnButtonQuitClicked() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))

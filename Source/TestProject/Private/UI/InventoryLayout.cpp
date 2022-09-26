@@ -7,8 +7,6 @@
 #include "MyPlayerController.h"
 #include "MyGameInstance.h"
 
-UInventoryLayout::UInventoryLayout() {}
-
 void UInventoryLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -16,11 +14,8 @@ void UInventoryLayout::NativeConstruct()
 	FName InTableID = GameInstance->COMMON_WORDS;
 	FText Text = FText::FromStringTable(InTableID, "Inventory");
 	Super::SetTitleToWindow(Text);
-}
 
-void UInventoryLayout::ToggleWindow()
-{
-	Super::ToggleWindow();
+	WindowLayout = ELayout::Inventory;
 }
 
 void UInventoryLayout::UpdateGoldAmount() {

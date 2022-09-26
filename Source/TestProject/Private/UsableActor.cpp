@@ -7,7 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/InteractText.h"
-//#include "MyGameInstance.h"
+#include "UI/InteractiveText_Entry.h"
 
 // Sets default values
 AUsableActor::AUsableActor()
@@ -49,7 +49,8 @@ FText AUsableActor::GetUseActionText_Implementation()
 	Args.Add("Name", Name);
 	
 	FText FormattedText = FText::Format(
-		NSLOCTEXT("MyNamespace", "MyKey", "[F] {Action} {Name}"),
+		//NSLOCTEXT("MyNamespace", "MyKey", "[F] {Action} {Name}"),
+		NSLOCTEXT("MyNamespace", "MyKey", "{Action} {Name}"),
 		Args
 	);
 	
@@ -112,11 +113,15 @@ void AUsableActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+/* Each Usable Actor contains one Entry to be added later on the Panel */
 void AUsableActor::SetInteractText(FText Text)
 {
-	if (UInteractText* Widget = Cast<UInteractText>(InteractUserWidget))
+	if (UInteractiveText_Entry* Widget = Cast<UInteractiveText_Entry>(InteractUserWidget))
 	{
-		Widget->InteractText->SetText(Text);
+		FString LocalString = Text.ToString();
+		FName LocalName = *LocalString;
+
+		Widget->SetEntryText(LocalName);
 	}
 }
 

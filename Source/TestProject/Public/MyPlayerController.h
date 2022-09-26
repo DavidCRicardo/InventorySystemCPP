@@ -10,7 +10,7 @@ class UDataTable;
 class AMyCharacter;
 class UEquipmentComponent;
 class UInventoryManagerComponent;
-
+class UInteractiveText_Entry;
 /**
  * 
  */
@@ -22,6 +22,11 @@ class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, pub
 public:
 	AMyPlayerController();
 	
+	UFUNCTION(BlueprintCallable, Category = "Runtime Inspector")
+		int GetCurrentViewMode(const APlayerController* PlayerController);
+
+	virtual void Tick(float DeltaTime) override;
+
 	/* Interface */
 	virtual void UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_DropInventoryItem_Implementation(const uint8& InventorySlot) override;
@@ -67,6 +72,7 @@ public:
 	void ToggleInventory();
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleProfile();
+	void SetInputDependingFromVisibleWidgets();
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleContainer();
 	
@@ -79,7 +85,7 @@ public:
 	void Server_OnActorUsed(AActor* Actor);
 	
 	UFUNCTION()
-	UUserWidget* GetInteractWidget();
+	UUserWidget* GenerateInteractWidget(FText Text);
 	UFUNCTION()
 	void SetMouseToCenterPosition();
 

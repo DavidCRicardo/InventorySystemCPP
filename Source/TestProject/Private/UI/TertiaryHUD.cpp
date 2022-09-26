@@ -15,22 +15,28 @@ void UTertiaryHUD::NativeConstruct()
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 }
 
-void UTertiaryHUD::CreateInteractiveTextEntry(FName IDName)
+UInteractiveText_Entry* UTertiaryHUD::CreateInteractiveTextEntry(FName IDName)
 {
+	UInteractiveText_Entry* Entry = nullptr;
+
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PlayerController->MyHUD)->GetWidgetBPClass("InteractiveText_Entry_WBP");
 	if (WidgetLayout)
 	{
 		UClass* WidgetClass = WidgetLayout->Widget;
 		
-		UInteractiveText_Entry* Entry = CreateWidget<UInteractiveText_Entry>(this, WidgetClass);
+		Entry = CreateWidget<UInteractiveText_Entry>(this, WidgetClass);
 		
-		Entry->InitializeName(IDName);
-		
-		InteractiveMenu->AddEntryToList(Entry);
+		Entry->SetEntryText(IDName);
 	}
+
+	return Entry;
 }
 
 void UTertiaryHUD::RemoveInteractiveTextEntry(const FName& ID)
 {
 	InteractiveMenu->RemoveEntryFromList(ID);
+}
+
+void UTertiaryHUD::AddInteractiveTextEntry(UInteractiveText_Entry* Entry) {
+	InteractiveMenu->AddEntryToList(Entry);
 }
