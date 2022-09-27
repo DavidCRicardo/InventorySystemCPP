@@ -5,6 +5,8 @@
 #include "Internationalization/StringTableRegistry.h"
 #include "UI/InteractText.h"
 #include "MyGameInstance.h"
+#include "UI/InteractiveText_Entry.h"
+#include "UI/InteractiveText_Panel.h"
 
 AUsableDoor::AUsableDoor() {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> LocalStaticMesh(TEXT("/Game/Environment/Meshes/SM_Door.SM_Door"));
@@ -37,7 +39,13 @@ bool AUsableDoor::OnWasUsed()
 		LocalRotation = 90;
 	}
 
-	SetInteractText(IUsableActorInterface::Execute_GetUseActionText(this));
+
+	//SetInteractText(IUsableActorInterface::Execute_GetUseActionText(this));
+	UInteractiveText_Panel* Panel = Cast<UInteractiveText_Panel>(InteractUserWidget);
+	UListView* ListView = Panel->InteractiveText_List;
+	UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(ListView->GetItemAt(0));
+	Entry->SetNameLabelText(IUsableActorInterface::Execute_GetUseActionText(this));
+	ListView->RegenerateAllEntries();
 
 	FRotator Rotator = StaticMesh->GetComponentRotation();	
 	
