@@ -45,6 +45,16 @@ bool AContainerActor::OnActorUsed_Implementation(APlayerController* Controller)
 		{
 			if (AMyPlayerController* PlayerController = Cast<AMyPlayerController>(Controller))
 			{
+				// If Container is open and it was used by one click on entry, it will close
+				if (PlayersViewing.Contains(PlayerController->PlayerState))
+				{
+					PlayerController->InventoryManagerComponent->Server_CloseContainer();
+
+					PlayerController->SetInputDependingFromVisibleWidgets();
+
+					return true;
+				}
+
 				//Server: Use Container And Add Player To Viewers List
 				PlayersViewing.Add(PlayerController->PlayerState);
 
