@@ -422,6 +422,10 @@ UUserWidget* AMyPlayerController::GenerateInteractWidget(FText Text)
 	return HUD_Reference->GenerateInteractWidget(Text);
 }
 
+UUserWidget* AMyPlayerController::CreateInteractWidget(FName Name) {
+	return HUD_Reference->CustomCreateWidget(Name);
+}
+
 void AMyPlayerController::SetMouseToCenterPosition()
 {
 	int32 SizeX;

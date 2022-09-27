@@ -87,6 +87,8 @@ public:
 	UFUNCTION()
 	UUserWidget* GenerateInteractWidget(FText Text);
 	UFUNCTION()
+	UUserWidget* CreateInteractWidget(FName Name);
+	UFUNCTION()
 	void SetMouseToCenterPosition();
 
 	UFUNCTION(BlueprintCallable, Category="Character")

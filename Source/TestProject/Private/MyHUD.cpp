@@ -56,6 +56,20 @@ void AMyHUD::BeginPlay()
 	#endif
 }
 
+UUserWidget* AMyHUD::CustomCreateWidget(FName Name)
+{
+	const UDataTable* WidgetTable = WidgetDB;
+	FWidgetsLayoutBP* NewWidgetData = nullptr;
+
+	UUserWidget* UserWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, Name);
+	if (UserWidget)
+	{
+		return UserWidget;
+	}
+
+	return nullptr;
+}
+
 UUserWidget* AMyHUD::GenerateInteractWidget(FText Text)
 {
 	const UDataTable* WidgetTable = WidgetDB;
@@ -63,13 +77,13 @@ UUserWidget* AMyHUD::GenerateInteractWidget(FText Text)
 
 	UUserWidget* EntryUserWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractiveText_Entry_WBP"));
 	UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(EntryUserWidget);
-	FName LocalName = *Text.ToString();
-	Entry->SetEntryText(LocalName);
+	//FName LocalName = *Text.ToString();
+	//Entry->SetEntryText(LocalName);
 
 	UUserWidget* PanelUserWidget = CreateWidgetFromDataTable(WidgetTable, NewWidgetData, FName("InteractiveText_Panel_WBP"));
 	UInteractiveText_Panel* Panel = Cast<UInteractiveText_Panel>(PanelUserWidget);
 	Panel->AddEntryToList(Entry);
-	Panel->AddToViewport();
+	//Panel->AddToViewport();
 
 	return Panel;
 }

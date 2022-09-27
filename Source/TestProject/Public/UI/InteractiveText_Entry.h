@@ -21,6 +21,8 @@ public:
 
 	UFUNCTION()
 	FName GetEntryText();
+
+	void SetNameLabelText(FText Text);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* NameLabel;
@@ -54,4 +56,7 @@ protected:
 
 	UPROPERTY()
 	class UMyGameInstance* GameInstance;
+
+	UPROPERTY()
+	FText TextFromUsableActor;
 };

@@ -62,10 +62,22 @@ void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 					NameLabel->SetJustification(ETextJustify::Center);
 
+
+					//FString String = TextFromUsableActor.ToString();
+					// String = Empty
+					//FString String = ID.ToString();
+					// String = None
+					FString String = Entry->TextFromUsableActor.ToString();
+
 					//MainBorder->SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 					//MainBorder->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Center);
 					
-					NameLabel->SetText(FText::FromName(Entry->ID));
+					//FString ItemName = Entry->ID.ToString();
+					//FName InTableID = GameInstance->COMMON_WORDS;
+					//FText ItemNameText = FText::FromStringTable(InTableID, ItemName);
+
+					NameLabel->SetText(Entry->TextFromUsableActor);
+					
 					SelectedImage->SetBrushTintColor(FSlateColor({ 1,1,1,0 }));
 					SelectedImage->SetOpacity(0.f);
 				}
@@ -107,4 +119,8 @@ void UInteractiveText_Entry::SetEntryText(const FName& Name)
 FName UInteractiveText_Entry::GetEntryText()
 {
 	return ID;
+}
+
+void UInteractiveText_Entry::SetNameLabelText(FText Text) {
+	TextFromUsableActor = Text;
 }

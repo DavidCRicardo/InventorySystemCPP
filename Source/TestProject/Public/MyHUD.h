@@ -33,6 +33,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UHUDLayout* HUDReference;
 	
+	UUserWidget* CustomCreateWidget(FName Name);
 protected:
 	AMyHUD();
 	

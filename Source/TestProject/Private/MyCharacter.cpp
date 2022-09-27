@@ -16,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/InteractiveText_Panel.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -139,7 +140,47 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 							{
 								// Set Interact Text
 								FText MessageText = IUsableActorInterface::Execute_GetUseActionText(UsableActor);
-								UsableActor->InteractUserWidget = MyPlayerController->GenerateInteractWidget(MessageText);
+								
+								/* Debug */
+								FString a = MessageText.ToString();
+								// L "Use Pot"
+								// 
+								UE_LOG(LogTemp, Warning, TEXT("%s"), *a);
+								/**/
+
+								UUserWidget* Entry = MyPlayerController->CreateInteractWidget("InteractiveText_Entry_WBP");
+								UUserWidget* Panel = MyPlayerController->CreateInteractWidget("InteractiveText_Panel_WBP");
+
+								if (UInteractiveText_Entry* a1 = Cast<UInteractiveText_Entry>(Entry))
+								{
+									a1->SetNameLabelText(MessageText);
+									FString string1 = MessageText.ToString();
+									FName name1 = *string1;
+
+									//a1->SetEntryText(name1);
+
+									if (UInteractiveText_Panel* a2 = Cast<UInteractiveText_Panel>(Panel))
+									{
+										a2->AddEntryToList(a1);
+										a2->AddToViewport();
+
+										UsableActor->InteractUserWidget = a2;
+									}
+								}
+
+
+								//UsableActor->InteractUserWidget = MyPlayerController->GenerateInteractWidget(MessageText);
+
+								//UInteractiveText_Panel* test = Cast<UInteractiveText_Panel>(UsableActor->InteractUserWidget);
+								//if (test)
+								//{
+								//	UsableActor->SetInteractText(MessageText);
+								//	//UInteractiveText_Entry* testEntry = test->InteractiveText_List[0];
+								//	//test->InteractiveText_List->RegenerateAllEntries();
+								//}
+								//else {
+								//	UE_LOG(LogTemp, Warning, TEXT("This test is Not Valid"))
+								//}
 							}
 
 							UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);

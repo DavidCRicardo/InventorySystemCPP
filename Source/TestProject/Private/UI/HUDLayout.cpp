@@ -5,9 +5,9 @@
 #include "Components/Border.h"
 #include "Components/Button.h"
 #include "MyPlayerController.h"
-#include "MyHUD.h"
+//#include "MyHUD.h"
 #include "FWidgetsLayoutBP.h"
-#include "UI/MainLayout.h"
+//#include "UI/MainLayout.h"
 #include "Engine/DataTable.h"
 
 void UHUDLayout::NativeConstruct()
@@ -23,7 +23,7 @@ void UHUDLayout::NativeConstruct()
 	Btn_Inventory->OnUnhovered.AddUniqueDynamic(this, &UHUDLayout::SlipDownInventory);
 	Btn_Profile->OnUnhovered.AddUniqueDynamic(this, &UHUDLayout::SlipDownProfile);
 
-	UDataTable* WidgetDB = nullptr;
+	/*UDataTable* WidgetDB = nullptr;
 
 	UDataTable* BP_WidgetDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Widgets_DB.Widgets_DB"));
 	if (IsValid(BP_WidgetDB))
@@ -43,7 +43,7 @@ void UHUDLayout::NativeConstruct()
 				MainLayout->AddToViewport();
 			}
 		}
-	}
+	}*/
 }
 
 void UHUDLayout::OnBtnUIClicked() {
