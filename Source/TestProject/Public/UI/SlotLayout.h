@@ -9,7 +9,10 @@
 #include "SlotLayout.generated.h"
 
 class AMyPlayerController;
-
+class UCanvasPanel;
+class UTextBlock;
+class UButton;
+class UMenuAnchor;
 /**
  * 
  */
@@ -69,19 +72,21 @@ protected:
 	UBorder* ItemBorder;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* SlotButton;
+	UButton* SlotButton;
 	
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* AmountTextBlock;
+	UTextBlock* AmountTextBlock;
 
 	UPROPERTY(meta = (BindWidget))
-		class UCanvasPanel* NameBox;
+	UCanvasPanel* NameBox;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* NameText;
+	UTextBlock* NameText;
+
+	UPROPERTY(meta = (BindWidget))
+	UMenuAnchor* DropDownMenu;
 
 protected:
-
 	virtual void NativeConstruct() override;
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -101,17 +106,24 @@ protected:
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
 
 	UFUNCTION(Category="Default")
-		FLinearColor GetBorderColor();
+	FLinearColor GetBorderColor();
 	UFUNCTION(Category="Default")
-		void DisplayTooltip();
+	void DisplayTooltip();
 	UFUNCTION(Category="Default")
-		void HideTooltip();
+	void HideTooltip();
 	UFUNCTION(Category="Default")
-		bool HasItem();
+	bool HasItem();
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UItemDragVisual> ItemDragVisualClass;
-	
+
+	/* Mobile */
+	virtual FReply NativeOnTouchGesture(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+	virtual FReply NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+	virtual FReply NativeOnTouchForceChanged(const FGeometry& MyGeometry, const FPointerEvent& TouchEvent) override;
+	virtual FReply NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+	virtual FReply NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+
 private:
 	UFUNCTION()
 	bool IsUnequipping(const uint8& LocalDraggedSlotIndex);
@@ -120,4 +132,7 @@ private:
 
 	UPROPERTY()
 	class UMyGameInstance* GameInstance;
+
+	UFUNCTION()
+	void OpenSlotMenu();
 };

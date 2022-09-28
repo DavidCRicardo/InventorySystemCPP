@@ -149,15 +149,15 @@ void AMyPlayerController::Tick(float DeltaTime)
 {
 	if (GetCurrentViewMode(this) == 0)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, "Game And UI");
+		GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Red, "Game And UI");
 	}
 	if (GetCurrentViewMode(this) == 1)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, "UI Only");
+		GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Red, "UI Only");
 	}
 	if (GetCurrentViewMode(this) == 2)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, "Game Only");
+		GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Red, "Game Only");
 	}
 }
 

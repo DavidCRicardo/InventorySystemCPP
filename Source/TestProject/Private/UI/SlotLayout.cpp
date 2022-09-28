@@ -15,6 +15,7 @@
 #include "Components/CanvasPanel.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "MyGameInstance.h"
+#include "Components/MenuAnchor.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -24,9 +25,14 @@ void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	// DownDownMenu Class defined on WBP_SlotLayout
+	// DropDownMenu->MenuClass = WBP_SlotDropDownMenu
+
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 
 	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+
+	//ItemBorder->OnMouseButtonDownEvent.BindUFunction(this, "OpenSlotMenu");
 }
 
 void USlotLayout::SetNameBoxVisibility() {
@@ -46,6 +52,14 @@ void USlotLayout::SetNameBoxVisibility() {
 
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	// Right Mouse Button To Open Drop Down Menu
+	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		OpenSlotMenu();
+		return FReply::Unhandled();
+	}
+
+	// Left Mouse Button To Drag And Drop
 	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
 }
 
@@ -356,4 +370,43 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Cannot equip this"))
 	return false;
+}
+
+FReply USlotLayout::NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchStarted");
+	return FReply::Unhandled();
+}
+
+FReply USlotLayout::NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchEnded");
+	return FReply::Unhandled();
+}
+
+FReply USlotLayout::NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchMoved");
+	return FReply::Unhandled();
+}
+
+// Not being called
+FReply USlotLayout::NativeOnTouchForceChanged(const FGeometry& MyGeometry, const FPointerEvent& TouchEvent)
+{
+	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchForceChanged");
+	return FReply::Handled();
+}
+
+//Not being called
+FReply USlotLayout::NativeOnTouchGesture(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchGesture");
+	return FReply::Handled();
+}
+
+void USlotLayout::OpenSlotMenu() {
+	if (SlotStructure.Amount > 0)
+	{
+		DropDownMenu->Open(false);
+	}
 }
