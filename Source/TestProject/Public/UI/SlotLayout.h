@@ -146,4 +146,6 @@ private:
 
 	UFUNCTION()
 	void MenuOpenChanged(bool bIsOpen);
+
+	bool LeftMouseButtonClickedOnce;
 };

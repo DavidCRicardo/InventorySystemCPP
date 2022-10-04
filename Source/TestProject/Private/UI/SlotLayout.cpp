@@ -88,14 +88,23 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 	}
 
 	// Left Mouse Button To Drag And Drop
-	//if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	//{
-	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
-	//}
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		LeftMouseButtonClickedOnce = true;
+		return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
+	}
+
+	return FReply::Unhandled();
 }
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	if (LeftMouseButtonClickedOnce)
+	{
+		UseItem();
+		LeftMouseButtonClickedOnce = false;
+	}
+
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
 
@@ -125,6 +134,8 @@ void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointer
 void USlotLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseLeave(InMouseEvent);
+
+	LeftMouseButtonClickedOnce = false;
 
 	ItemBorder->SetBrushColor(GetBorderColor());
 
