@@ -65,20 +65,3 @@ bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		return true;
 	}
 }
-
-FReply UMainLayout::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	//if (Inventory)
-	//{
-	//	if (Inventory->DraggedSlot)
-	//	{
-	//		UItemDragVisual* LocalVisual = Inventory->DraggedSlot;
-	//		//LocalVisual->SetPositionInViewport(InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition()));
-	//		//LocalVisual->SetPositionInViewport(InMouseEvent.GetScreenSpacePosition()); // better but not good
-
-	//		LocalVisual->SetPositionInViewport(InMouseEvent.GetLastScreenSpacePosition());
-	//	}
-	//}
-	
-	return FReply::Handled();
-}

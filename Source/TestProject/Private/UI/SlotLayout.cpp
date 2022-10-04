@@ -35,7 +35,6 @@ void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-
 	// DownDownMenu Class defined on WBP_SlotLayout
 	// DropDownMenu->MenuClass = WBP_SlotDropDownMenu
 
@@ -70,8 +69,6 @@ void USlotLayout::SetNameBoxVisibility() {
 
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	GEngine->AddOnScreenDebugMessage(8, 1.f, FColor::Emerald, TEXT("OnMouseButtonDown"));
-
 	// Right Mouse Button To Open Drop Down Menu
 	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
@@ -99,8 +96,6 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	UseItem();
-
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
 
@@ -142,8 +137,6 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
-	//DragSlot();
-
 	if (HasItem())
 	{
 		HideTooltip();
@@ -175,72 +168,6 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 	{
 		OutOperation = nullptr;
 	}
-}
-
-FReply USlotLayout::DragSlot(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
-	UDragDropOperation*& OutOperation)
-{
-	GEngine->AddOnScreenDebugMessage(10, 1.f, FColor::Silver, TEXT("This should be dragging"));
-
-	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
-
-	// create visual
-	UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
-	DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
-	DragVisual->ItemBorder->SetBrushColor(ItemBorder->BrushColor);
-
-	UDragItem* DragDropOperation = NewObject<UDragItem>();
-	DragDropOperation->DefaultDragVisual = DragVisual;
-	DragDropOperation->Pivot = EDragPivot::CenterCenter;
-
-	//DragVisual->AddToViewport();
-
-	//PlayerController->HUDLayoutReference->MainLayout->Inventory->DraggedSlot = DragVisual;
-	
-	OutOperation = DragDropOperation;
-
-	//DragDropOperation->Dragged(FPointerEvent::GetLastScreenSpacePosition());
-	// follow the mouse
-	// tell to inventory that this slot must swap with other
-	// // when hovering another slot, with the current drag slot, the current drag slot will not receive the OnMouseMove
-	// on the next click , swap with the other
-	// if outside the window, so it will drop 
-
-	return FReply::Handled();
-}
-
-// You need to give it a pointer index so it knows which 'thing' to listen for it to release to end the drag and perform the drop.  
-// So like which touch finger, or sans that ull need to provide the cursor index, which is..  FSlateApplication::CursorPointerIndex
-void USlotLayout::BeginDragDrop(ULocalPlayer* LocalPlayer, UDragDropOperation* Operation, int32 PointerIndex) {
-	//if (LocalPlayer /* && Operation*/)
-	//{
-	//	TSharedPtr<const FSlateUser> SlateUser = LocalPlayer->GetSlateUser();
-	//	FVector2D ScreenCursorPos = SlateUser->GetCursorPosition();
-	//	
-	//	FVector2D ScreenDraggedPosition = SlateUser->GetCursorPosition(); // line 189 - Add any offset here, you could pass in a vector to offset the thing being dragged if you want it centered on the cursor or something.
-
-	//	const float DPIScale = UWidgetLayoutLibrary::GetViewportScale(LocalPlayer);
-
-	//	TSharedRef<FUMGDragDropOp> DragDropOp = 
-	//		FUMGDragDropOp::New(Operation, PointerIndex, ScreenCursorPos, ScreenDraggedPosition, DPIScale, SharedThis(this));
-
-	//	LocalPlayer->GetSlateOperations().BeginDragDrop(DragDropOp);
-	//}
-}
-
-FEventReply USlotLayout::OnMouseButtonDown(FGeometry MyGeometry, const FPointerEvent& MouseEvent)
-{
-	FEventReply Reply;
-	Reply.NativeReply = FReply::Handled();
-
-	TSharedPtr<SWidget> SlateWidgetDetectingDrag = GetCachedWidget();
-	if (SlateWidgetDetectingDrag.IsValid())
-	{
-		Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), EKeys::LeftMouseButton);
-		return Reply;
-	}
-
-	return Reply;
 }
 
 FReply USlotLayout::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

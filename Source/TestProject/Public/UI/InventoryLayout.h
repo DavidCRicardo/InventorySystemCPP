@@ -27,8 +27,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Gold_Amount;
 
-	UItemDragVisual* DraggedSlot;
-
 	void UpdateGoldAmount();
 
 private:

@@ -15,7 +15,7 @@ void UW_SlotDropDownMenu::NativeConstruct()
 	Super::NativeConstruct();
 
 	Btn_UseMultiple->SetIsEnabled(false);
-	//Btn_Move->SetIsEnabled(false);
+	Btn_Move->SetIsEnabled(false);
 
 	Btn_Use->OnClicked.AddUniqueDynamic(this, &UW_SlotDropDownMenu::BtnUseClicked);
 	Btn_Move->OnClicked.AddUniqueDynamic(this, &UW_SlotDropDownMenu::BtnMoveClicked);
@@ -69,7 +69,7 @@ void UW_SlotDropDownMenu::BtnMoveClicked()
 	const FPointerEvent InMouseEvent = FPointerEvent();
 	UDragDropOperation* OutOperation = nullptr;
 
-	LocalSlot->DragSlot(InGeometry,InMouseEvent, OutOperation);
+	//LocalSlot->DragSlot(InGeometry,InMouseEvent, OutOperation);
 
 	CloseDropDownMenu();
 }
