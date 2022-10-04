@@ -430,15 +430,29 @@ FReply USlotLayout::NativeOnTouchStarted(const FGeometry& InGeometry, const FPoi
 	return FReply::Unhandled();
 }
 
-FReply USlotLayout::NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
-{
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchEnded");
-	return FReply::Unhandled();
-}
-
 FReply USlotLayout::NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
 {
 	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchMoved");
+	return FReply::Unhandled();
+}
+
+FReply USlotLayout::NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchEnded");
+
+	if (HasItem())
+	{
+		//ToggleTooltip();
+		if (!DropDownMenu->IsOpen())
+		{
+			HideTooltip();
+			OpenSlotMenu();
+
+			PlayerController->MenuAnchorIndex = InventorySlotIndex;
+		}
+
+		return FReply::Handled();
+	}
 	return FReply::Unhandled();
 }
 
