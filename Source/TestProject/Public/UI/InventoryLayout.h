@@ -8,6 +8,7 @@
 
 class USlotLayout;
 class UUniformGridPanel;
+class UItemDragVisual;
 /**
  * 
  */
@@ -25,6 +26,8 @@ public:
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Gold_Amount;
+
+	UItemDragVisual* DraggedSlot;
 
 	void UpdateGoldAmount();
 

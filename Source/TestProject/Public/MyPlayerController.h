@@ -106,6 +106,7 @@ public:
 	
 	uint8 GetMaximumHotbarSlots() { return MaximumHotbarSlots; };
 
+	uint8 MenuAnchorIndex;
 protected:
 	virtual void BeginPlay() override;
 	

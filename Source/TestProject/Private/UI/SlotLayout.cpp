@@ -16,6 +16,16 @@
 #include "Internationalization/StringTableRegistry.h"
 #include "MyGameInstance.h"
 #include "Components/MenuAnchor.h"
+#include "UI/W_SlotDropDownMenu.h"
+
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Slate/UMGDragDropOp.h"
+#include "Slate/SObjectWidget.h"
+#include "Widgets/SWidget.h"
+#include "Templates/SharedPointer.h"
+#include "UI/HUDLayout.h"
+#include "UI/MainLayout.h"
+#include "UI/InventoryLayout.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -25,14 +35,22 @@ void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+
 	// DownDownMenu Class defined on WBP_SlotLayout
 	// DropDownMenu->MenuClass = WBP_SlotDropDownMenu
 
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
-
 	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
 
-	//ItemBorder->OnMouseButtonDownEvent.BindUFunction(this, "OpenSlotMenu");
+	//ItemBorder->OnMouseMoveEvent.BindUFunction(this, "MouseMoveOnSlot");
+
+	DropDownMenu->SetPlacement(TEnumAsByte<EMenuPlacement>::EnumType::MenuPlacement_MenuLeft);
+
+	//DropDownMenu->OnGetUserMenuContentEvent.BindUFunction(this, "MyOnGetUserMenuContentEvent");
+	//DropDownMenu->OnMenuOpenChanged.AddUniqueDynamic(this, &USlotLayout::MenuOpenChanged);
+
+	PlayerController->bEnableClickEvents = true;
+
 }
 
 void USlotLayout::SetNameBoxVisibility() {
@@ -52,19 +70,41 @@ void USlotLayout::SetNameBoxVisibility() {
 
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	GEngine->AddOnScreenDebugMessage(8, 1.f, FColor::Emerald, TEXT("OnMouseButtonDown"));
+
 	// Right Mouse Button To Open Drop Down Menu
 	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
-		OpenSlotMenu();
-		return FReply::Unhandled();
+		if (HasItem())
+		{
+			//ToggleTooltip();
+			if (!DropDownMenu->IsOpen())
+			{
+				HideTooltip();
+				OpenSlotMenu();
+
+				PlayerController->MenuAnchorIndex = InventorySlotIndex;
+			}
+
+			return FReply::Handled();
+		}
 	}
 
 	// Left Mouse Button To Drag And Drop
+	//if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	//{
 	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
+	//}
 }
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	UseItem();
+
+	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
+}
+
+void USlotLayout::UseItem() {
 	if (NativeFromContainer)
 	{
 		IInventoryHUDInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
@@ -76,14 +116,12 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 			IInventoryHUDInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
 		}
 	}
-	
-	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
 
 void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
-	
+
 	ItemBorder->SetBrushColor(FItemQuality::Common);
 
 	ToggleTooltip();
@@ -92,8 +130,10 @@ void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointer
 void USlotLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseLeave(InMouseEvent);
-	
+
 	ItemBorder->SetBrushColor(GetBorderColor());
+
+	ToggleTooltip();
 }
 
 /* Only Create Drag Visual and initialize a DragDropOperation if Slot has an item and is not empty */
@@ -101,15 +141,17 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 	UDragDropOperation*& OutOperation)
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
-	
+
+	//DragSlot();
+
 	if (HasItem())
 	{
 		HideTooltip();
-		
+
 		UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
 		DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
 		DragVisual->ItemBorder->SetBrushColor(ItemBorder->BrushColor);
-		
+
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 
 		DragDropOperation->DefaultDragVisual = DragVisual;
@@ -126,12 +168,84 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		{
 			DragDropOperation->IsDraggedFromContainer = true;
 		}
-		
+
 		OutOperation = DragDropOperation;
-	}else
+	}
+	else
 	{
 		OutOperation = nullptr;
 	}
+}
+
+FReply USlotLayout::DragSlot(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
+	UDragDropOperation*& OutOperation)
+{
+	GEngine->AddOnScreenDebugMessage(10, 1.f, FColor::Silver, TEXT("This should be dragging"));
+
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	// create visual
+	UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
+	DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
+	DragVisual->ItemBorder->SetBrushColor(ItemBorder->BrushColor);
+
+	UDragItem* DragDropOperation = NewObject<UDragItem>();
+	DragDropOperation->DefaultDragVisual = DragVisual;
+	DragDropOperation->Pivot = EDragPivot::CenterCenter;
+
+	//DragVisual->AddToViewport();
+
+	//PlayerController->HUDLayoutReference->MainLayout->Inventory->DraggedSlot = DragVisual;
+	
+	OutOperation = DragDropOperation;
+
+	//DragDropOperation->Dragged(FPointerEvent::GetLastScreenSpacePosition());
+	// follow the mouse
+	// tell to inventory that this slot must swap with other
+	// // when hovering another slot, with the current drag slot, the current drag slot will not receive the OnMouseMove
+	// on the next click , swap with the other
+	// if outside the window, so it will drop 
+
+	return FReply::Handled();
+}
+
+// You need to give it a pointer index so it knows which 'thing' to listen for it to release to end the drag and perform the drop.  
+// So like which touch finger, or sans that ull need to provide the cursor index, which is..  FSlateApplication::CursorPointerIndex
+void USlotLayout::BeginDragDrop(ULocalPlayer* LocalPlayer, UDragDropOperation* Operation, int32 PointerIndex) {
+	//if (LocalPlayer /* && Operation*/)
+	//{
+	//	TSharedPtr<const FSlateUser> SlateUser = LocalPlayer->GetSlateUser();
+	//	FVector2D ScreenCursorPos = SlateUser->GetCursorPosition();
+	//	
+	//	FVector2D ScreenDraggedPosition = SlateUser->GetCursorPosition(); // line 189 - Add any offset here, you could pass in a vector to offset the thing being dragged if you want it centered on the cursor or something.
+
+	//	const float DPIScale = UWidgetLayoutLibrary::GetViewportScale(LocalPlayer);
+
+	//	TSharedRef<FUMGDragDropOp> DragDropOp = 
+	//		FUMGDragDropOp::New(Operation, PointerIndex, ScreenCursorPos, ScreenDraggedPosition, DPIScale, SharedThis(this));
+
+	//	LocalPlayer->GetSlateOperations().BeginDragDrop(DragDropOp);
+	//}
+}
+
+FEventReply USlotLayout::OnMouseButtonDown(FGeometry MyGeometry, const FPointerEvent& MouseEvent)
+{
+	FEventReply Reply;
+	Reply.NativeReply = FReply::Handled();
+
+	TSharedPtr<SWidget> SlateWidgetDetectingDrag = GetCachedWidget();
+	if (SlateWidgetDetectingDrag.IsValid())
+	{
+		Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), EKeys::LeftMouseButton);
+		return Reply;
+	}
+
+	return Reply;
+}
+
+FReply USlotLayout::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	return FReply::Handled();
 }
 
 /* Called when the Drop occurs in one Slot Layout. If the Slot its dropped outside, so the OnDrop from HUDLayout is called */
@@ -139,13 +253,13 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-	
+
 	UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
 	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
 	{
 		return false;
 	}
-	
+
 	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
 
 	// Is Dragged From Inventory
@@ -159,7 +273,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				IInventoryHUDInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 				return true;
 			}
-			
+
 			IInventoryHUDInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
@@ -181,16 +295,16 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		bool bSplit = false;
 		if (bSplit)
 		{
-				
+
 		}
 
 		// To Inventory
 		IInventoryHUDInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
-		
+
 		return true;
 	}
-	
+
 	// Is Dragged From Container
 	if (DragDropOperation->IsDraggedFromContainer)
 	{
@@ -210,7 +324,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				// ...
 				return true;
 			}
-			
+
 			IInventoryHUDInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
@@ -224,12 +338,12 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				// ...
 				return true;
 			}
-			
+
 			IInventoryHUDInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -245,7 +359,7 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SetSlotStructure(NewSlotStructure);
-	
+
 	UpdateSlotInfo();
 
 	ToggleTooltip();
@@ -282,7 +396,7 @@ bool USlotLayout::HasItem()
 	return SlotStructure.Amount > 0 ? true : false;
 }
 
-/* Color Based on the Item Quality */ 
+/* Color Based on the Item Quality */
 FLinearColor USlotLayout::GetBorderColor()
 {
 	const EItemQuality ItemQuality = SlotStructure.ItemStructure.Quality;
@@ -307,15 +421,15 @@ FLinearColor USlotLayout::GetBorderColor()
 
 FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey)
 {
-	if ( InMouseEvent.GetEffectingButton() == DragKey || InMouseEvent.IsTouchEvent() )
+	if (InMouseEvent.GetEffectingButton() == DragKey || InMouseEvent.IsTouchEvent())
 	{
 		FEventReply Reply;
 		Reply.NativeReply = FReply::Handled();
-		
-		if ( WidgetDetectingDrag )
+
+		if (WidgetDetectingDrag)
 		{
 			TSharedPtr<SWidget> SlateWidgetDetectingDrag = WidgetDetectingDrag->GetCachedWidget();
-			if ( SlateWidgetDetectingDrag.IsValid() )
+			if (SlateWidgetDetectingDrag.IsValid())
 			{
 				Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), DragKey);
 				return Reply.NativeReply;
@@ -326,6 +440,7 @@ FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget*
 	return FReply::Unhandled();
 }
 
+/* Tooltip */
 void USlotLayout::ToggleTooltip()
 {
 	if (IsValid(ToolTipWidget))
@@ -340,7 +455,6 @@ void USlotLayout::ToggleTooltip()
 		}
 	}
 }
-
 void USlotLayout::DisplayTooltip()
 {
 	ToolTipWidget->SetVisibility(ESlateVisibility::Visible);
@@ -369,7 +483,7 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 		return true;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Cannot equip this"))
-	return false;
+		return false;
 }
 
 FReply USlotLayout::NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
@@ -390,23 +504,29 @@ FReply USlotLayout::NativeOnTouchMoved(const FGeometry& InGeometry, const FPoint
 	return FReply::Unhandled();
 }
 
-// Not being called
-FReply USlotLayout::NativeOnTouchForceChanged(const FGeometry& MyGeometry, const FPointerEvent& TouchEvent)
-{
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchForceChanged");
-	return FReply::Handled();
-}
-
-//Not being called
-FReply USlotLayout::NativeOnTouchGesture(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
-{
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchGesture");
-	return FReply::Handled();
-}
-
 void USlotLayout::OpenSlotMenu() {
 	if (SlotStructure.Amount > 0)
 	{
-		DropDownMenu->Open(false);
+		DropDownMenu->Open(true);
 	}
+}
+
+void USlotLayout::CloseSlotMenu() {
+	DropDownMenu->Close();
+}
+
+void USlotLayout::MyOnGetUserMenuContentEvent() {
+	/*UUserWidget* LocalWidget = PlayerController->HUD_Reference->CustomCreateWidget("SlotDropDownMenu_WBP");
+	UW_SlotDropDownMenu* LocalClassB = Cast<UW_SlotDropDownMenu>(LocalWidget);
+	if (IsValid(LocalClassB))
+	{
+		LocalClassB->SlotReference = this;
+		LocalClassB->ThisIsANumber = 1;
+	}*/
+
+	GEngine->AddOnScreenDebugMessage(6, 1.f, FColor::Cyan, "1");
+}
+
+void USlotLayout::MenuOpenChanged(bool bIsOpen) {
+	GEngine->AddOnScreenDebugMessage(7, 1.f, FColor::Cyan, "2");
 }

@@ -6,7 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "MainLayout.generated.h"
 
-class USlotLayout;
 struct FSlotStructure;
 /**
  * 
@@ -34,4 +33,6 @@ protected:
 	virtual void NativeConstruct() override;
 	
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 };

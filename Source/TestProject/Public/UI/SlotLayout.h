@@ -17,13 +17,13 @@ class UMenuAnchor;
  * 
  */
 UCLASS()
-class INVENTORYSYSTEMCPP_API USlotLayout : public UUserWidget
+class INVENTORYSYSTEMCPP_API USlotLayout : public UUserWidget//, public TSharedFromThis<SObjectWidget>
 {
 	GENERATED_BODY()
 
 public:
 	USlotLayout(const FObjectInitializer& ObjectInitializer);
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	uint8 InventorySlotIndex;
 
@@ -61,6 +61,19 @@ public:
 
 	void SetNameBoxVisibility();
 	
+	UFUNCTION()
+	void OpenSlotMenu();
+	UFUNCTION()
+	void CloseSlotMenu();
+
+	UFUNCTION()
+	void UseItem();
+
+	FReply DragSlot(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation);
+	void BeginDragDrop(ULocalPlayer* LocalPlayer, UDragDropOperation* Operation, int32 PointerIndex);
+
+	FEventReply OnMouseButtonDown(FGeometry MyGeometry, const FPointerEvent& MouseEvent);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Icon;
@@ -90,15 +103,17 @@ protected:
 	virtual void NativeConstruct() override;
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	
+
 	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	
+
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 	
+	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
-	
+
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
@@ -118,9 +133,7 @@ protected:
 	TSubclassOf<UItemDragVisual> ItemDragVisualClass;
 
 	/* Mobile */
-	virtual FReply NativeOnTouchGesture(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
 	virtual FReply NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
-	virtual FReply NativeOnTouchForceChanged(const FGeometry& MyGeometry, const FPointerEvent& TouchEvent) override;
 	virtual FReply NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
 	virtual FReply NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
 
@@ -134,5 +147,8 @@ private:
 	class UMyGameInstance* GameInstance;
 
 	UFUNCTION()
-	void OpenSlotMenu();
+	void MyOnGetUserMenuContentEvent();
+
+	UFUNCTION()
+	void MenuOpenChanged(bool bIsOpen);
 };

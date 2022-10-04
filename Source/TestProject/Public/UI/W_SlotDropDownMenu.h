@@ -9,15 +9,15 @@
 /**
  * 
  */
+class AMyPlayerController;
 class UButton;
+class USlotLayout;
 UCLASS()
 class INVENTORYSYSTEMCPP_API UW_SlotDropDownMenu : public UUserWidget
 {
 	GENERATED_BODY()
 	
 public:
-	//UW_SlotDropDownMenu();
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
 	UButton* Btn_Use;
 
@@ -27,12 +27,28 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UButton* Btn_UseMultiple;
 
+	//UPROPERTY(EditAnywhere)
+	//UUserWidget* SlotReference;
+
+	UPROPERTY(EditAnywhere)
+	USlotLayout* SlotReference;
+	UPROPERTY(EditAnywhere)
+	uint8 ThisIsANumber = 0;
+
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 	UFUNCTION()
 	void BtnUseClicked();
 	UFUNCTION()
 	void BtnMoveClicked();
+
+	UFUNCTION()
+	void CloseDropDownMenu();
+
+	UPROPERTY()
+	AMyPlayerController* PlayerController;
 };
