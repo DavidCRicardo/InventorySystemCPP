@@ -1,0 +1,463 @@
+﻿# Game English translation.
+# Copyright Epic Games, Inc. All Rights Reserved.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Game\n"
+"POT-Creation-Date: 2022-10-05 18:03\n"
+"PO-Revision-Date: 2022-10-05 18:03\n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Key:	1A57635840779DD34FD41F8E69427F01
+#. SourceLocation:	/Game/UI/WBP_InventoryLayout.WBP_InventoryLayout_C:WidgetTree.Gold_Amount.Text
+#: /Game/UI/WBP_InventoryLayout.WBP_InventoryLayout_C:WidgetTree.Gold_Amount.Text
+msgctxt ",1A57635840779DD34FD41F8E69427F01"
+msgid "0"
+msgstr "0"
+
+#. Key:	2532A23548C0F3A8E3F35CA1B7F02EB2
+#. SourceLocation:	/Game/UI/WBP_SlotDropDownMenu.WBP_SlotDropDownMenu_C:WidgetTree.TextBlock.Text
+#: /Game/UI/WBP_SlotDropDownMenu.WBP_SlotDropDownMenu_C:WidgetTree.TextBlock.Text
+msgctxt ",2532A23548C0F3A8E3F35CA1B7F02EB2"
+msgid "Move"
+msgstr "Move"
+
+#. Key:	29832EB14121152857FEA4B8122921D3
+#. SourceLocation:	/Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+#: /Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+msgctxt ",29832EB14121152857FEA4B8122921D3"
+msgid "AM"
+msgstr "AM"
+
+#. Key:	50417454430CF99D32F82693AEE8D22B
+#. SourceLocation:	/Game/UI/WBP_Time.WBP_Time_C:GetTime [Script Bytecode]
+#: /Game/UI/WBP_Time.WBP_Time_C:GetTime [Script Bytecode]
+msgctxt ",50417454430CF99D32F82693AEE8D22B"
+msgid "{Hours}:{Minutes}:{Seconds}"
+msgstr "{Hours}:{Minutes}:{Seconds}"
+
+#. Key:	7245DDB34EBDF2E8C0B97795ADEA47C6
+#. SourceLocation:	/Game/UI/WBP_HotbarSlot.WBP_HotbarSlot_C:WidgetTree.Number.Text
+#: /Game/UI/WBP_HotbarSlot.WBP_HotbarSlot_C:WidgetTree.Number.Text
+msgctxt ",7245DDB34EBDF2E8C0B97795ADEA47C6"
+msgid "#"
+msgstr "#"
+
+#. Key:	97BEBC1E49811942701E3B85430D76CF
+#. SourceLocation:	/Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+#: /Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+msgctxt ",97BEBC1E49811942701E3B85430D76CF"
+msgid "{Hours}:{Minutes}:{Seconds} {pm/am}"
+msgstr "{Hours}:{Minutes}:{Seconds} {pm/am}"
+
+#. Key:	9B5D1A6C4B5A2E740A7C02A8DAF4A123
+#. SourceLocation:	/Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+#: /Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+msgctxt ",9B5D1A6C4B5A2E740A7C02A8DAF4A123"
+msgid "{Hours}:{Minutes}:{Seconds} {pm/am}"
+msgstr "{Hours}:{Minutes}:{Seconds} {pm/am}"
+
+#. Key:	A177DBBC4F02A61752AE5398D3AE007F
+#. SourceLocation:	/Game/UI/WBP_ProfileLayout.WBP_ProfileLayout_C:WidgetTree.TextBlock_55.Text
+#: /Game/UI/WBP_ProfileLayout.WBP_ProfileLayout_C:WidgetTree.TextBlock_55.Text
+msgctxt ",A177DBBC4F02A61752AE5398D3AE007F"
+msgid "X"
+msgstr "X"
+
+#. Key:	AD808DC542F93331286BD7870F2940F5
+#. SourceLocation:	/Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+#: /Game/UI/WBP_Time.WBP_Time_C:ConvertTimeFormat [Script Bytecode]
+msgctxt ",AD808DC542F93331286BD7870F2940F5"
+msgid "PM"
+msgstr "PM"
+
+#. Key:	B1FB8111414476740A1880B3C2AE8B32
+#. SourceLocation:	/Game/UI/WBP_SlotDropDownMenu.WBP_SlotDropDownMenu_C:WidgetTree.TextBlock_108.Text
+#: /Game/UI/WBP_SlotDropDownMenu.WBP_SlotDropDownMenu_C:WidgetTree.TextBlock_108.Text
+msgctxt ",B1FB8111414476740A1880B3C2AE8B32"
+msgid "Use"
+msgstr "Use"
+
+#. Key:	B559B5824D392EC80C507CAEDC709649
+#. SourceLocation:	/Game/UI/WBP_SlotDropDownMenu.WBP_SlotDropDownMenu_C:WidgetTree.TextBlock_1.Text
+#: /Game/UI/WBP_SlotDropDownMenu.WBP_SlotDropDownMenu_C:WidgetTree.TextBlock_1.Text
+msgctxt ",B559B5824D392EC80C507CAEDC709649"
+msgid "Multiple Use"
+msgstr "Multiple Use"
+
+#. Key:	BCB2AC4442BD1D98E00B31A75A8A48EF
+#. SourceLocation:	/Game/UI/WBP_Time.WBP_Time_C:WidgetTree.TextBlock_19.Text
+#: /Game/UI/WBP_Time.WBP_Time_C:WidgetTree.TextBlock_19.Text
+msgctxt ",BCB2AC4442BD1D98E00B31A75A8A48EF"
+msgid "00:00:00"
+msgstr "00:00:00"
+
+#. Key:	C89F840D4955FE41EB10FCB18B76F30F
+#. SourceLocation:	/Game/UI/WBP_InventoryLayout.WBP_InventoryLayout_C:WidgetTree.TextBlock_55.Text
+#: /Game/UI/WBP_InventoryLayout.WBP_InventoryLayout_C:WidgetTree.TextBlock_55.Text
+msgctxt ",C89F840D4955FE41EB10FCB18B76F30F"
+msgid "X"
+msgstr "X"
+
+#. Key:	E4A51D334745B8C8670BC79E53CE4582
+#. SourceLocation:	/Game/UI/WBP_ContainerLayout.WBP_ContainerLayout_C:WidgetTree.TextBlock_55.Text
+#: /Game/UI/WBP_ContainerLayout.WBP_ContainerLayout_C:WidgetTree.TextBlock_55.Text
+msgctxt ",E4A51D334745B8C8670BC79E53CE4582"
+msgid "X"
+msgstr "X"
+
+#. Key:	ECB16E694AB561DEE071C39B302E8B00
+#. SourceLocation:	/Game/UI/WBP_Time.WBP_Time_C:ForceDoubleDigits [Script Bytecode]
+#: /Game/UI/WBP_Time.WBP_Time_C:ForceDoubleDigits [Script Bytecode]
+msgctxt ",ECB16E694AB561DEE071C39B302E8B00"
+msgid "0{Value}"
+msgstr "0{Value}"
+
+#. Key:	Close
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Close"
+msgid "Close"
+msgstr "Close"
+
+#. Key:	Consumable
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Consumable"
+msgid "Consumable"
+msgstr "Consumable"
+
+#. Key:	Container
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Container"
+msgid "Container"
+msgstr "Container"
+
+#. Key:	Currency
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Currency"
+msgid "Currency"
+msgstr "Currency"
+
+#. Key:	Description_Armor_Leather_Boots
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_Armor_Leather_Boots"
+msgid "These are Leather Boots"
+msgstr "These are Leather Boots"
+
+#. Key:	Description_CardboardBoots
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_CardboardBoots"
+msgid "These are Cardboard Boots"
+msgstr "These are Cardboard Boots"
+
+#. Key:	Description_CardboardChest
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_CardboardChest"
+msgid "This is a Cardboard Chest"
+msgstr "This is a Cardboard Chest"
+
+#. Key:	Description_CardboardGloves
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_CardboardGloves"
+msgid "These are Cardboard Gloves"
+msgstr "These are Cardboard Gloves"
+
+#. Key:	Description_CardboardHelmet
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_CardboardHelmet"
+msgid "This is a Cardboard Helmet"
+msgstr "This is a Cardboard Helmet"
+
+#. Key:	Description_CardboardLegs
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_CardboardLegs"
+msgid "These are Cardboard Legs"
+msgstr "These are Cardboard Legs"
+
+#. Key:	Description_Coin
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_Coin"
+msgid "This is a Coin"
+msgstr "This is a Coin"
+
+#. Key:	Description_FoodBaguette
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_FoodBaguette"
+msgid "This is a Baguette"
+msgstr "This is a Baguette"
+
+#. Key:	Description_FoodBread
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_FoodBread"
+msgid "This is a Bread"
+msgstr "This is a Bread"
+
+#. Key:	Description_FoodHambone
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_FoodHambone"
+msgid "This is a Hambone"
+msgstr "This is a Hambone"
+
+#. Key:	Description_GreenApple
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_GreenApple"
+msgid "This is a Green Apple"
+msgstr "This is a Green Apple"
+
+#. Key:	Description_RedApple
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_RedApple"
+msgid "This is a Red Apple"
+msgstr "This is a Red Apple"
+
+#. Key:	Description_SimpleAxe
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_SimpleAxe"
+msgid "This is a Simple Axe"
+msgstr "This is a Simple Axe"
+
+#. Key:	Description_SwordBone
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Description_SwordBone"
+msgid "This is a Simple Sword"
+msgstr "This is a Simple Sword"
+
+#. Key:	DexterityKey
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,DexterityKey"
+msgid "Dexterity: {Value}"
+msgstr "Dexterity: {Value}"
+
+#. Key:	Door
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Door"
+msgid "Door"
+msgstr "Door"
+
+#. Key:	EmptySlot
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,EmptySlot"
+msgid "EmptySlot"
+msgstr "EmptySlot"
+
+#. Key:	EnduranceKey
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,EnduranceKey"
+msgid "Endurance: {Value}"
+msgstr "Endurance: {Value}"
+
+#. Key:	Equipment
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Equipment"
+msgid "Equipment"
+msgstr "Equipment"
+
+#. Key:	ID_Armor_Leather_Boots
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_Armor_Leather_Boots"
+msgid "Leather Boots"
+msgstr "Leather Boots"
+
+#. Key:	ID_BoneSword
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_BoneSword"
+msgid "Bone Sword"
+msgstr "Bone Sword"
+
+#. Key:	ID_CardboardBoots
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_CardboardBoots"
+msgid "Cardboard Boots"
+msgstr "Cardboard Boots"
+
+#. Key:	ID_CardboardChest
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_CardboardChest"
+msgid "Cardboard Chest"
+msgstr "Cardboard Chest"
+
+#. Key:	ID_CardboardGloves
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_CardboardGloves"
+msgid "Cardboard Gloves"
+msgstr "Cardboard Gloves"
+
+#. Key:	ID_CardboardHelmet
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_CardboardHelmet"
+msgid "Cardboard Helmet"
+msgstr "Cardboard Helmet"
+
+#. Key:	ID_CardboardLegs
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_CardboardLegs"
+msgid "Cardboard Legs"
+msgstr "Cardboard Legs"
+
+#. Key:	ID_Coin
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_Coin"
+msgid "Coin"
+msgstr "Coin"
+
+#. Key:	ID_Empty
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_Empty"
+msgid " "
+msgstr " "
+
+#. Key:	ID_FoodBaguette
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_FoodBaguette"
+msgid "Baguette"
+msgstr "Baguette"
+
+#. Key:	ID_FoodBread
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_FoodBread"
+msgid "Bread"
+msgstr "Bread"
+
+#. Key:	ID_FoodHambone
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_FoodHambone"
+msgid "Hambone"
+msgstr "Hambone"
+
+#. Key:	ID_GreenApple
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_GreenApple"
+msgid "Green Apple"
+msgstr "Green Apple"
+
+#. Key:	ID_RedApple
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_RedApple"
+msgid "Red Apple"
+msgstr "Red Apple"
+
+#. Key:	ID_SimpleAxe
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,ID_SimpleAxe"
+msgid "Simple Axe"
+msgstr "Simple Axe"
+
+#. Key:	IntelligenceKey
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,IntelligenceKey"
+msgid "Intelligence: {Value}"
+msgstr "Intelligence: {Value}"
+
+#. Key:	Inventory
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Inventory"
+msgid "Inventory"
+msgstr "Inventory"
+
+#. Key:	Loot
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Loot"
+msgid "Loot"
+msgstr "Loot"
+
+#. Key:	None
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,None"
+msgid "None"
+msgstr "None"
+
+#. Key:	Open
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Open"
+msgid "Open"
+msgstr "Open"
+
+#. Key:	Pot
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Pot"
+msgid "Pot"
+msgstr "Pot"
+
+#. Key:	Profile
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Profile"
+msgid "Profile"
+msgstr "Profile"
+
+#. Key:	Skeleton
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Skeleton"
+msgid "Skeleton"
+msgstr "Skeleton"
+
+#. Key:	StrengthKey
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,StrengthKey"
+msgid "Strength: {Value}"
+msgstr "Strength: {Value}"
+
+#. Key:	Undefined
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Undefined"
+msgid "Undefined"
+msgstr "Undefined"
+
+#. Key:	Use
+#. SourceLocation:	/Game/UI/COMMON_WORDS.COMMON_WORDS
+#: /Game/UI/COMMON_WORDS.COMMON_WORDS
+msgctxt "MyNamespace,Use"
+msgid "Use"
+msgstr "Use"
+

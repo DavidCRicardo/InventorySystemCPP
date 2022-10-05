@@ -119,7 +119,6 @@ void AMyPlayerController::BeginPlay()
 
 int AMyPlayerController::GetCurrentViewMode(const APlayerController* PlayerController)
 {
-
 	if (IsValid(PlayerController))
 	{
 		UGameViewportClient* GameViewportClient = PlayerController->GetWorld()->GetGameViewport();

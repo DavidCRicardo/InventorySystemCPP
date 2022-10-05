@@ -18,15 +18,6 @@
 #include "Components/MenuAnchor.h"
 #include "UI/W_SlotDropDownMenu.h"
 
-#include "Blueprint/WidgetLayoutLibrary.h"
-#include "Slate/UMGDragDropOp.h"
-#include "Slate/SObjectWidget.h"
-#include "Widgets/SWidget.h"
-#include "Templates/SharedPointer.h"
-#include "UI/HUDLayout.h"
-#include "UI/MainLayout.h"
-#include "UI/InventoryLayout.h"
-
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 }
@@ -34,6 +25,12 @@ USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(Ob
 void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	UTexture2D* SlotBorderTexture = LoadObject<UTexture2D>(this, TEXT("/Game/UI/Textures/T_UI_Slot.T_UI_Slot"));
+	if (IsValid(SlotBorderTexture))
+	{
+		SlotBorder->SetBrushFromTexture(SlotBorderTexture);
+	}
 
 	// DownDownMenu Class defined on WBP_SlotLayout
 	// DropDownMenu->MenuClass = WBP_SlotDropDownMenu
@@ -49,7 +46,6 @@ void USlotLayout::NativeConstruct()
 	//DropDownMenu->OnMenuOpenChanged.AddUniqueDynamic(this, &USlotLayout::MenuOpenChanged);
 
 	PlayerController->bEnableClickEvents = true;
-
 }
 
 void USlotLayout::SetNameBoxVisibility() {
@@ -303,6 +299,12 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	ToggleTooltip();
 
 	SetNameBoxVisibility();
+
+	UTexture2D* SlotBorderTexture = LoadObject<UTexture2D>(this, TEXT("/Game/UI/Textures/T_UI_Slot.T_UI_Slot"));
+	if (IsValid(SlotBorderTexture))
+	{
+		SlotBorder->SetBrushFromTexture(SlotBorderTexture);
+	}
 }
 
 /* Update Slot Info */
