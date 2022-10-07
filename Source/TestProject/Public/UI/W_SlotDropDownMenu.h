@@ -22,18 +22,32 @@ public:
 	UButton* Btn_Use;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UButton* Btn_Pick;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UButton* Btn_Move;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UButton* Btn_UseMultiple;
 
-	//UPROPERTY(EditAnywhere)
-	//UUserWidget* SlotReference;
-
 	UPROPERTY(EditAnywhere)
 	USlotLayout* SlotReference;
 	UPROPERTY(EditAnywhere)
 	uint8 ThisIsANumber = 0;
+
+	UPROPERTY(EditAnywhere)
+	bool NativeFromInventory;
+
+	UPROPERTY(EditAnywhere)
+	bool NativeFromContainer;
+
+	UFUNCTION()
+	void SetMenuOptions(uint8 LocalNumber);
+
+	UFUNCTION()
+	void RunThis();
+	UFUNCTION()
+	void RunThis2(ESlateVisibility InVisibility);
 
 protected:
 	UFUNCTION()
@@ -43,6 +57,8 @@ protected:
 
 	UFUNCTION()
 	void BtnUseClicked();
+	UFUNCTION()
+	void BtnPickClicked();
 	UFUNCTION()
 	void BtnMoveClicked();
 

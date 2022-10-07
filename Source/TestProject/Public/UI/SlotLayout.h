@@ -13,6 +13,7 @@ class UCanvasPanel;
 class UTextBlock;
 class UButton;
 class UMenuAnchor;
+class UW_SlotDropDownMenu;
 /**
  * 
  */
@@ -69,6 +70,11 @@ public:
 	UFUNCTION()
 	void UseItem();
 
+	UFUNCTION()
+	void CustomConstruct();
+
+	UFUNCTION()
+	void GetUserMenuContent();
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Icon;
@@ -92,7 +98,7 @@ protected:
 	UTextBlock* NameText;
 
 	UPROPERTY(meta = (BindWidget))
-	UMenuAnchor* DropDownMenu;
+	UMenuAnchor* SlotMenuAnchor;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -140,9 +146,6 @@ private:
 
 	UPROPERTY()
 	class UMyGameInstance* GameInstance;
-
-	UFUNCTION()
-	void MyOnGetUserMenuContentEvent();
 
 	UFUNCTION()
 	void MenuOpenChanged(bool bIsOpen);

@@ -110,6 +110,9 @@ void UInventoryManagerComponent::Client_LoadInventoryUI_Implementation()
 			LocalSlot->NativeFromInventory = true;
 
 			LocalSlot->UpdateSlot(SlotStructure);
+
+			//LocalSlot->AddToViewport();
+			LocalSlot->CustomConstruct();
 		}
 	}
 }
@@ -395,7 +398,6 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 	UInventoryComponent* LocalInventory = Inventory;
 
 	uint8 AmountRemaining = LocalItemAmount;
-
 
 	if (LocalInventoryItem.ItemStructure.ItemType == EItemType::Currency)
 	{
@@ -1586,18 +1588,18 @@ void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8
 	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
 
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
-	USlotLayout* Widget = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+	USlotLayout* LocalSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
-	MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(Widget, Row, Column);
+	MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(LocalSlot, Row, Column);
 
-	MainLayoutUI->Container->ContainerSlotsArray.Add(Widget);
+	MainLayoutUI->Container->ContainerSlotsArray.Add(LocalSlot);
 
 	// Used to Change Loot Display
-	Widget->IsStorageSlot = IsStorage;
-	Widget->InventorySlotIndex = Slot;
-	Widget->NativeFromContainer = true;
+	LocalSlot->IsStorageSlot = IsStorage;
+	LocalSlot->InventorySlotIndex = Slot;
+	LocalSlot->NativeFromContainer = true;
 
-	Widget->SetNameBoxVisibility();
+	LocalSlot->SetNameBoxVisibility();
 }
 
 /* Client Only - Hotbar Events */
