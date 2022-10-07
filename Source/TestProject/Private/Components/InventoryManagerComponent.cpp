@@ -39,6 +39,13 @@ void UInventoryManagerComponent::BeginPlay()
 
 	Gold = 0;
 
+	TotalNumberOfSlots = (NumberOfRowsInventory * SlotsPerRowInventory) + (uint8)EEquipmentSlot::Count;
+
+	InitializeItemDB();
+}
+
+void UInventoryManagerComponent::InitializeItemDB()
+{
 	UDataTable* BP_ItemDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 	if (IsValid(BP_ItemDB))
 	{
@@ -48,8 +55,6 @@ void UInventoryManagerComponent::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UDataTable not Loaded"))
 	}
-
-	TotalNumberOfSlots = (NumberOfRowsInventory * SlotsPerRowInventory) + (uint8)EEquipmentSlot::Count;
 }
 
 // Called every frame
@@ -110,9 +115,6 @@ void UInventoryManagerComponent::Client_LoadInventoryUI_Implementation()
 			LocalSlot->NativeFromInventory = true;
 
 			LocalSlot->UpdateSlot(SlotStructure);
-
-			//LocalSlot->AddToViewport();
-			LocalSlot->CustomConstruct();
 		}
 	}
 }
@@ -853,6 +855,17 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 		const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
 
 		Slot.InitSlot(*NewItemData, 0);
+	}
+	else {
+		InitializeItemDB();
+
+		if (IsValid(ItemDB))
+		{
+			const UDataTable* ItemTable = ItemDB;
+			const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
+
+			Slot.InitSlot(*NewItemData, 0);
+		}
 	}
 
 	return Slot;

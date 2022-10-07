@@ -260,11 +260,11 @@ void AMyCharacter::Tick(float DeltaTime)
 	{
 		if (IsValid(MyPlayerController))
 		{
-			//MyPlayerController->DisableUIMode();
+			MyPlayerController->DisableUIMode();
 			MyPlayerController->Tick(DeltaTime);
-
 		}
 
+		// For Debug Purposes
 		//SetActorTickEnabled(false);
 		return;
 	}

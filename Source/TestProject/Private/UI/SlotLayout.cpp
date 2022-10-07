@@ -28,12 +28,6 @@ void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	UTexture2D* SlotBorderTexture = LoadObject<UTexture2D>(this, TEXT("/Game/UI/Textures/T_UI_Slot.T_UI_Slot"));
-	if (IsValid(SlotBorderTexture))
-	{
-		SlotBorder->SetBrushFromTexture(SlotBorderTexture);
-	}
-
 	// DownDownMenu Class defined on WBP_SlotLayout
 	// DropDownMenu->MenuClass = WBP_SlotDropDownMenu
 
@@ -86,11 +80,13 @@ void USlotLayout::GetUserMenuContent()
 }
 
 void USlotLayout::CustomConstruct() {
-
 	UTexture2D* SlotBorderTexture = LoadObject<UTexture2D>(this, TEXT("/Game/UI/Textures/T_UI_Slot.T_UI_Slot"));
 	if (IsValid(SlotBorderTexture))
 	{
 		SlotBorder->SetBrushFromTexture(SlotBorderTexture);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("TEXTURE NOT VALID"))
 	}
 
 	/*UW_SlotDropDownMenu* SlotMenu = Cast<UW_SlotDropDownMenu>(SlotMenuAnchor);
@@ -361,12 +357,6 @@ void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 	ToggleTooltip();
 
 	SetNameBoxVisibility();
-
-	UTexture2D* SlotBorderTexture = LoadObject<UTexture2D>(this, TEXT("/Game/UI/Textures/T_UI_Slot.T_UI_Slot"));
-	if (IsValid(SlotBorderTexture))
-	{
-		SlotBorder->SetBrushFromTexture(SlotBorderTexture);
-	}
 }
 
 /* Update Slot Info */

@@ -380,6 +380,11 @@ void AMyPlayerController::Interact()
 			{
 				Server_OnActorUsed(UsableActor);
 
+				//IUsableActorInterface::Execute_EndOutlineFocus(UsableActor);
+				//UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Hidden);
+
+				//CharacterReference->UsableActorsInsideRange.Remove(Actor);
+
 				return;
 			}
 		//}
