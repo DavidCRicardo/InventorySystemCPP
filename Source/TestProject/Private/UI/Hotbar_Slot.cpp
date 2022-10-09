@@ -15,9 +15,26 @@ UHotbar_Slot::UHotbar_Slot(const FObjectInitializer& ObjectInitializer) : Super(
 	NativeFromHotbar = true;
 }
 
+void UHotbar_Slot::NativeConstruct()
+{
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+}
+
+void UHotbar_Slot::UseItem()
+{
+	IInventoryHUDInterface::Execute_UI_UseHotbarItem(PlayerController, HotbarSlotIndex);
+}
+
 FReply UHotbar_Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
+	// Left Mouse Button To Drag And Drop
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		LeftMouseButtonClickedOnce = true;
+		return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
+	}
+
+	return FReply::Unhandled();
 }
 
 void UHotbar_Slot::SetKeyNumber(uint8 InNumber)
@@ -25,11 +42,6 @@ void UHotbar_Slot::SetKeyNumber(uint8 InNumber)
 	InNumber++;
 
 	Number->SetText(FText::AsNumber(InNumber));
-}
-
-void UHotbar_Slot::NativeConstruct()
-{
-	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 }
 
 void UHotbar_Slot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
@@ -143,6 +155,29 @@ void UHotbar_Slot::UpdateSlotInfo()
 void UHotbar_Slot::SetSlotIndex(uint8 Index)
 {
 	HotbarSlotIndex = Index;
+}
+
+FReply UHotbar_Slot::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (LeftMouseButtonClickedOnce)
+	{
+		UseItem();
+		LeftMouseButtonClickedOnce = false;
+	}
+
+	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
+}
+
+FReply UHotbar_Slot::NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	if (HasItem())
+	{
+		UseItem();
+
+		return FReply::Handled();
+	}
+
+	return FReply::Unhandled();
 }
 
 bool UHotbar_Slot::HasItem()

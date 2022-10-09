@@ -35,6 +35,9 @@ public:
 		FSlotStructure SlotStructure;
 
 	UFUNCTION()
+	void UseItem();
+
+	UFUNCTION()
 		void UpdateSlot(const FSlotStructure& NewSlotStructure);
 	UFUNCTION()
 		void SetSlotStructure(const FSlotStructure& SlotToSet);
@@ -46,17 +49,8 @@ public:
 
 	UFUNCTION()
 		void SetKeyNumber(uint8 InNumber);
+
 protected:
-	virtual void NativeConstruct() override;
-
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-
-	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
-
-	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-
-	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
-
 	UPROPERTY(meta = (BindWidget))
 		UBorder* SlotBorder;
 
@@ -79,4 +73,24 @@ protected:
 	UFUNCTION(Category = "Default")
 		bool HasItem();
 
+protected:
+	virtual void NativeConstruct() override;
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
+
+	/* Mobile */
+	//virtual FReply NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+	virtual FReply NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+	//virtual FReply NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+
+private:
+	bool LeftMouseButtonClickedOnce;
 };

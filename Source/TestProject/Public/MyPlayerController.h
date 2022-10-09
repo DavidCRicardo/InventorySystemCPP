@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InventoryHUDInterface.h"
+#include "Tuples.h"
 #include "MyPlayerController.generated.h"
 
 class UDataTable;
@@ -34,6 +35,7 @@ public:
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_UseContainerItem_Implementation(const uint8& InventorySlot) override;
+	virtual void UI_UseHotbarItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot) override;
 	virtual void UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
@@ -107,6 +109,9 @@ public:
 	uint8 GetMaximumHotbarSlots() { return MaximumHotbarSlots; };
 
 	uint8 MenuAnchorIndex;
+
+	FReturnTupleSlotNativeID MenuAnchorSlotIndex;
+	
 protected:
 	virtual void BeginPlay() override;
 	

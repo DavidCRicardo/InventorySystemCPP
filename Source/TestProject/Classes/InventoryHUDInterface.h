@@ -42,6 +42,9 @@ public:
 		void UI_UseContainerItem(const uint8& InventorySlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Default")
+		void UI_UseHotbarItem(const uint8& InventorySlot);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Default")
 		void UI_TakeContainerItem(const uint8& FromContainerSlot, const uint8& ToInventorySlot);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Default")

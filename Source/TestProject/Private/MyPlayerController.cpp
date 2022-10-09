@@ -227,6 +227,11 @@ void AMyPlayerController::UI_UseContainerItem_Implementation(const uint8& Invent
 	InventoryManagerComponent->Server_UseContainerItem(InventorySlot);
 }
 
+void AMyPlayerController::UI_UseHotbarItem_Implementation(const uint8& InventorySlot) 
+{
+	InventoryManagerComponent->Client_UseHotbarSlot(InventorySlot);
+}
+
 void AMyPlayerController::UI_EquipFromContainer_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot)
 {
 	InventoryManagerComponent->Server_EquipFromContainer(FromInventorySlot, ToInventorySlot);

@@ -14,8 +14,8 @@ class UTextBlock;
 class UButton;
 class UMenuAnchor;
 class UW_SlotDropDownMenu;
-/**
- * 
+/** Slots used on Inventory, Profile and Containers. 
+ *  For slots used on Hotbar, go to Hotbar_Slot
  */
 UCLASS()
 class INVENTORYSYSTEMCPP_API USlotLayout : public UUserWidget//, public TSharedFromThis<SObjectWidget>
@@ -34,9 +34,6 @@ public:
 	bool NativeFromEquipment = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	bool NativeFromContainer = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-	bool NativeFromHotbar = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlotStructure SlotStructure;
@@ -70,11 +67,6 @@ public:
 	UFUNCTION()
 	void UseItem();
 
-	UFUNCTION()
-	void CustomConstruct();
-
-	UFUNCTION()
-	void GetUserMenuContent();
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Icon;
@@ -146,9 +138,6 @@ private:
 
 	UPROPERTY()
 	class UMyGameInstance* GameInstance;
-
-	UFUNCTION()
-	void MenuOpenChanged(bool bIsOpen);
 
 	bool LeftMouseButtonClickedOnce;
 };

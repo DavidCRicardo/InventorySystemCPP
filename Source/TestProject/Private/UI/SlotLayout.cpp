@@ -34,77 +34,7 @@ void USlotLayout::NativeConstruct()
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
 
-	//ItemBorder->OnMouseMoveEvent.BindUFunction(this, "MouseMoveOnSlot");
-
 	SlotMenuAnchor->SetPlacement(TEnumAsByte<EMenuPlacement>::EnumType::MenuPlacement_MenuLeft);
-
-	//SlotMenuAnchor->OnMenuOpenChanged.AddUniqueDynamic(this, &USlotLayout::MenuOpenChanged);
-	//SlotMenuAnchor->OnGetUserMenuContentEvent.BindUFunction(this, "GetUserMenuContent");
-
-	//FGetUserWidget OnGetUserMenuContentEvent;
-
-	//PlayerController->bEnableClickEvents = true;
-
-	//CustomConstruct();
-}
-
-void USlotLayout::GetUserMenuContent()
-{
-	//UUserWidget* widget = CreateWidget(this, SlotMenuClass);
-	//UW_SlotDropDownMenu* a = Cast<UW_SlotDropDownMenu>(widget);
-
-	/*if (a)
-	{
-		uint8 LocalNumber = 0;
-
-		if (NativeFromInventory)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("NativeFromInventory"))
-				a->NativeFromInventory;
-			LocalNumber = 1;
-		}
-		else if (NativeFromContainer)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("NativeFromContainer"))
-				a->NativeFromContainer;
-			LocalNumber = 2;
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("NoNative"))
-		}
-
-		a->SetMenuOptions(LocalNumber);
-
-		SlotMenuAnchor->MenuClass = a->StaticClass();
-	}*/
-}
-
-void USlotLayout::CustomConstruct() {
-	UTexture2D* SlotBorderTexture = LoadObject<UTexture2D>(this, TEXT("/Game/UI/Textures/T_UI_Slot.T_UI_Slot"));
-	if (IsValid(SlotBorderTexture))
-	{
-		SlotBorder->SetBrushFromTexture(SlotBorderTexture);
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("TEXTURE NOT VALID"))
-	}
-
-	/*UW_SlotDropDownMenu* SlotMenu = Cast<UW_SlotDropDownMenu>(SlotMenuAnchor);
-
-	if (NativeFromInventory)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NativeFromInventory"))
-			SlotMenu->NativeFromInventory = true;
-	}
-	else if (NativeFromContainer)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NativeFromContainer"))
-			SlotMenu->NativeFromContainer = true;
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("NoNative"))
-	}
-	SlotMenu->SetMenuOptions(0);*/
 }
 
 void USlotLayout::SetNameBoxVisibility() {
@@ -134,6 +64,9 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 			{
 				HideTooltip();
 				PlayerController->MenuAnchorIndex = InventorySlotIndex;
+				
+				//PlayerController->MenuAnchorSlotIndex = { NativeFromInventory, NativeFromContainer, InventorySlotIndex };
+
 				OpenSlotMenu();
 			}
 
@@ -174,6 +107,8 @@ void USlotLayout::UseItem() {
 			IInventoryHUDInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
 		}
 	}
+
+	CloseSlotMenu();
 }
 
 void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -318,6 +253,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 			}
 
 			IInventoryHUDInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			CloseSlotMenu();
 			return true;
 		}
 
@@ -478,118 +414,43 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 		return false;
 }
 
+void USlotLayout::OpenSlotMenu() {
+	if (SlotStructure.Amount > 0)
+	{
+		SlotMenuAnchor->Open(true);
+	}
+}
+
+void USlotLayout::CloseSlotMenu() {
+	SlotMenuAnchor->Close();
+}
+
 FReply USlotLayout::NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchStarted");
 	return FReply::Unhandled();
 }
 
 FReply USlotLayout::NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchMoved");
 	return FReply::Unhandled();
 }
 
 FReply USlotLayout::NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
 {
-	GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Cyan, "NativeOnTouchEnded");
-
 	if (HasItem())
 	{
 		//ToggleTooltip();
 		if (!SlotMenuAnchor->IsOpen())
 		{
 			HideTooltip();
-			OpenSlotMenu();
 
 			PlayerController->MenuAnchorIndex = InventorySlotIndex;
+
+			OpenSlotMenu();
 		}
 
 		return FReply::Handled();
 	}
+
 	return FReply::Unhandled();
-}
-
-void USlotLayout::OpenSlotMenu() {
-	if (SlotStructure.Amount > 0)
-	{
-		UW_SlotDropDownMenu* a = Cast<UW_SlotDropDownMenu>(SlotMenuAnchor);
-
-		if (a)
-		{
-			if (NativeFromInventory)
-			{
-				a->SetMenuOptions(1);
-			}
-			else if (NativeFromContainer)
-			{
-				a->SetMenuOptions(2);
-			}
-
-			SlotMenuAnchor->Open(true);
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(10, 1.f, FColor::Red, TEXT("Not Valid"));
-
-			SlotMenuAnchor->Open(true);
-		}
-	}
-	//if (SlotStructure.Amount > 0)
-	//{
-	//	//CustomDropDownMenu->SetVisibility(ESlateVisibility::Visible);
-	//	UW_SlotDropDownMenu* a = PlayerController->HUDLayoutReference->TertiaryHUD->CustomSlotMenu;
-	//	//a->AddToViewport();
-	//	
-	//	if (NativeFromInventory)
-	//	{
-	//		a->SetMenuOptions(1);
-	//	}
-	//	else if(NativeFromContainer)
-	//	{
-	//		a->SetMenuOptions(2);
-	//	}
-
-	//	FVector2D Position0 = SlotMenuAnchor->GetMenuPosition();
-	//	FVector2D Position = FVector2D(0, 0);
-	//	
-	//	//FVector2D Position1 = UWidgetLayoutLibrary::GetMousePositionOnPlatform();
-	//	//FVector2D b = GetCachedGeometry().LocalToAbsolute(Position);
-	//	
-	//	//FVector2D b = GetCachedGeometry().GetAbsolutePosition();
-	//	//FVector2D b = GetCachedGeometry().LocalToAbsolute(GetCachedGeometry().GetAbsolutePosition());
-	//	//FVector2D b = GetCachedGeometry().AbsoluteToLocal(GetCachedGeometry().GetAbsolutePosition());
-
-	//	//PlayerController->HUDLayoutReference->TertiaryHUD->CustomSlotMenu->SetPositionInViewport(FVector2D(1000,1000));
-
-	//	
-	//	a->SetVisibility(ESlateVisibility::Visible);
-	//	//SlotMenuAnchor->Open(true);
-	//	a->SetPositionInViewport(FVector2D(2000, 2000));
-	//}
-}
-
-void USlotLayout::CloseSlotMenu() {
-//	auto a = PlayerController->HUDLayoutReference->TertiaryHUD->CustomSlotMenu;
-	//a->SetVisibility(ESlateVisibility::Hidden);
-	SlotMenuAnchor->Close();
-}
-
-void USlotLayout::MenuOpenChanged(bool bIsOpen) {
-
-	if (bIsOpen)
-	{
-		/*TSubclassOf<UUserWidget> a = SlotMenuAnchor->MenuClass;
-
-		UUserWidget* b = NewObject<UUserWidget>(a);
-
-		UW_SlotDropDownMenu* SlotMenu = Cast<UW_SlotDropDownMenu>(b);
-		if (SlotMenu)
-		{
-			SlotMenu->SetMenuOptions();
-		}
-		else{
-			GEngine->AddOnScreenDebugMessage(7, 1.f, FColor::Cyan, "MenuOpenChanged Not Valid");
-		}*/
-	}
 }

@@ -15,7 +15,6 @@ void UW_SlotDropDownMenu::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	//OnNativeVisibilityChanged.AddUFunction(this, "RunThis");
 	OnVisibilityChanged.AddUniqueDynamic(this, &UW_SlotDropDownMenu::RunThis2);
 
 	Btn_UseMultiple->SetIsEnabled(false);
@@ -30,30 +29,15 @@ void UW_SlotDropDownMenu::NativeConstruct()
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 }
 
-void UW_SlotDropDownMenu::RunThis2(ESlateVisibility InVisibility) {
-
-
-	if (ESlateVisibility::Hidden == InVisibility)
+void UW_SlotDropDownMenu::RunThis2(ESlateVisibility InVisibility) 
+{
+	if (ESlateVisibility::Visible == InVisibility)
 	{
-		GEngine->AddOnScreenDebugMessage(12, 1.f, FColor::Blue, TEXT("HIDDEN"));
-	}else if (ESlateVisibility::Collapsed == InVisibility)
-	{
-		GEngine->AddOnScreenDebugMessage(12, 1.f, FColor::Blue, TEXT("COLLAPSE"));
-	}
-	else if (ESlateVisibility::Visible == InVisibility)
-	{
-		GEngine->AddOnScreenDebugMessage(12, 1.f, FColor::Blue, TEXT("Visible"));
-
 		RunThis();
-	}
-	else {
-		GEngine->AddOnScreenDebugMessage(12, 1.f, FColor::Blue, TEXT("InVisibility"));
 	}
 }
 
 void UW_SlotDropDownMenu::RunThis() {
-
-	GEngine->AddOnScreenDebugMessage(11, 1.f, FColor::Blue, TEXT("RUN THIS"));
 
 	if (!PlayerController)
 	{
@@ -80,7 +64,6 @@ void UW_SlotDropDownMenu::RunThis() {
 		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Inventory->InventorySlotsArray[Index];
 	}
 
-	// slot id 0 but it can be native from container
 	if (LocalSlot->IsHovered())
 	{
 		Btn_Use->SetVisibility(ESlateVisibility::Visible);
@@ -103,13 +86,31 @@ void UW_SlotDropDownMenu::RunThis() {
 		Btn_Pick->SetVisibility(ESlateVisibility::Collapsed);
 		Btn_Move->SetVisibility(ESlateVisibility::Visible);
 		Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
-	}else if (LocalSlot->NativeFromContainer)
+	}
+	else if (LocalSlot->NativeFromContainer)
 	{
 		Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
 		Btn_Pick->SetVisibility(ESlateVisibility::Visible);
 		Btn_Move->SetVisibility(ESlateVisibility::Visible);
 		Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
 	}
+
+	//// slot id 0 but it can be native from container
+	//if (LocalSlot->IsHovered())
+	//{
+	//	Btn_Use->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_Pick->SetVisibility(ESlateVisibility::Collapsed);
+	//	Btn_Move->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
+	//}
+	//else {
+	//	Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
+	//	Btn_Pick->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_Move->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
+	//}
+
+	return;
 }
 
 void UW_SlotDropDownMenu::SetMenuOptions(uint8 LocalNumber)
