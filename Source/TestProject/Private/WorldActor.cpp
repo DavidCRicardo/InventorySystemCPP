@@ -36,7 +36,7 @@ void AWorldActor::BeginPlay()
 		ItemDB = BP_ItemDB;
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UDataTable not Loaded"))
+		UE_LOG(LogTemp, Warning, TEXT("WorldActor : UDataTable not Loaded"))
 	}
 	
 	Server_InitializeItemData();

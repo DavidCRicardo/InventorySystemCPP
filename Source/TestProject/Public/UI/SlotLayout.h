@@ -9,18 +9,22 @@
 #include "SlotLayout.generated.h"
 
 class AMyPlayerController;
-
-/**
- * 
+class UCanvasPanel;
+class UTextBlock;
+class UButton;
+class UMenuAnchor;
+class UW_SlotDropDownMenu;
+/** Slots used on Inventory, Profile and Containers. 
+ *  For slots used on Hotbar, go to Hotbar_Slot
  */
 UCLASS()
-class INVENTORYSYSTEMCPP_API USlotLayout : public UUserWidget
+class INVENTORYSYSTEMCPP_API USlotLayout : public UUserWidget//, public TSharedFromThis<SObjectWidget>
 {
 	GENERATED_BODY()
 
 public:
 	USlotLayout(const FObjectInitializer& ObjectInitializer);
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	uint8 InventorySlotIndex;
 
@@ -30,9 +34,6 @@ public:
 	bool NativeFromEquipment = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	bool NativeFromContainer = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-	bool NativeFromHotbar = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlotStructure SlotStructure;
@@ -58,6 +59,14 @@ public:
 
 	void SetNameBoxVisibility();
 	
+	UFUNCTION()
+	void OpenSlotMenu();
+	UFUNCTION()
+	void CloseSlotMenu();
+
+	UFUNCTION()
+	void UseItem();
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Icon;
@@ -69,31 +78,35 @@ protected:
 	UBorder* ItemBorder;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* SlotButton;
+	UButton* SlotButton;
 	
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* AmountTextBlock;
+	UTextBlock* AmountTextBlock;
 
 	UPROPERTY(meta = (BindWidget))
-		class UCanvasPanel* NameBox;
+	UCanvasPanel* NameBox;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* NameText;
+	UTextBlock* NameText;
+
+	UPROPERTY(meta = (BindWidget))
+	UMenuAnchor* SlotMenuAnchor;
 
 protected:
-
 	virtual void NativeConstruct() override;
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	
+
 	virtual FReply NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	
+
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
-	
+
+	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
-	
+
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
@@ -101,17 +114,22 @@ protected:
 	FReply CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey);
 
 	UFUNCTION(Category="Default")
-		FLinearColor GetBorderColor();
+	FLinearColor GetBorderColor();
 	UFUNCTION(Category="Default")
-		void DisplayTooltip();
+	void DisplayTooltip();
 	UFUNCTION(Category="Default")
-		void HideTooltip();
+	void HideTooltip();
 	UFUNCTION(Category="Default")
-		bool HasItem();
+	bool HasItem();
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UItemDragVisual> ItemDragVisualClass;
-	
+
+	/* Mobile */
+	virtual FReply NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+	virtual FReply NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+	virtual FReply NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
+
 private:
 	UFUNCTION()
 	bool IsUnequipping(const uint8& LocalDraggedSlotIndex);
@@ -120,4 +138,6 @@ private:
 
 	UPROPERTY()
 	class UMyGameInstance* GameInstance;
+
+	bool LeftMouseButtonClickedOnce;
 };

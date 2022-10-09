@@ -2,7 +2,6 @@
 
 
 #include "MyCharacter.h"
-
 #include "MyPlayerController.h"
 #include "UsableActor.h"
 #include "UsableActorInterface.h"
@@ -17,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/InteractiveText_Panel.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -116,33 +116,72 @@ void AMyCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 				{
 					if (AWorldActor* WorldActor = Cast<AWorldActor>(OtherActor))
 					{
-						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
-						IUsableActorInterface::Execute_BeginOutlineFocus(WorldActor);
-						SetActorTickEnabled(true);
 						WorldActorsInsideRange.Add(WorldActor);
 						UsableActorsInsideRange.Add(WorldActor);
+
+						MyPlayerController->AddUsableActorToDropMenu(WorldActor->ID);
+						IUsableActorInterface::Execute_BeginOutlineFocus(WorldActor);
+						
+						SetActorTickEnabled(true);
 
 						return;
 					}
 
 					if (AUsableActor* UsableActor = Cast<AUsableActor>(OtherActor))
 					{
-
-						if (!UsableActor->InteractUserWidget)
-						{
-							UsableActor->InteractUserWidget = MyPlayerController->GetInteractWidget();
-							UsableActor->InteractUserWidget->AddToViewport();
-						}
-
 						UsableActorsInsideRange.Add(UsableActor);
 
 						if (IUsableActorInterface::Execute_GetIsActorUsable(UsableActor))
 						{
 							IUsableActorInterface::Execute_BeginOutlineFocus(UsableActor);
 
-							// Set Interact Text
-							FText MessageText = IUsableActorInterface::Execute_GetUseActionText(UsableActor);
-							UsableActor->SetInteractText(MessageText);
+							/* Widget Related */
+							if (!UsableActor->InteractUserWidget)
+							{
+								// Set Interact Text
+								FText MessageText = IUsableActorInterface::Execute_GetUseActionText(UsableActor);
+								
+								/* Debug */
+								FString a = MessageText.ToString();
+								// L "Use Pot"
+								// 
+								UE_LOG(LogTemp, Warning, TEXT("%s"), *a);
+								/**/
+
+								UUserWidget* Entry = MyPlayerController->CreateInteractWidget("InteractiveText_Entry_WBP");
+								UUserWidget* Panel = MyPlayerController->CreateInteractWidget("InteractiveText_Panel_WBP");
+
+								if (UInteractiveText_Entry* a1 = Cast<UInteractiveText_Entry>(Entry))
+								{
+									a1->SetNameLabelText(MessageText);
+									FString string1 = MessageText.ToString();
+									FName name1 = *string1;
+
+									//a1->SetEntryText(name1);
+
+									if (UInteractiveText_Panel* a2 = Cast<UInteractiveText_Panel>(Panel))
+									{
+										a2->AddEntryToList(a1);
+										a2->AddToViewport();
+
+										UsableActor->InteractUserWidget = a2;
+									}
+								}
+
+
+								//UsableActor->InteractUserWidget = MyPlayerController->GenerateInteractWidget(MessageText);
+
+								//UInteractiveText_Panel* test = Cast<UInteractiveText_Panel>(UsableActor->InteractUserWidget);
+								//if (test)
+								//{
+								//	UsableActor->SetInteractText(MessageText);
+								//	//UInteractiveText_Entry* testEntry = test->InteractiveText_List[0];
+								//	//test->InteractiveText_List->RegenerateAllEntries();
+								//}
+								//else {
+								//	UE_LOG(LogTemp, Warning, TEXT("This test is Not Valid"))
+								//}
+							}
 
 							UsableActor->InteractUserWidget->SetVisibility(ESlateVisibility::Visible);
 
@@ -222,9 +261,11 @@ void AMyCharacter::Tick(float DeltaTime)
 		if (IsValid(MyPlayerController))
 		{
 			MyPlayerController->DisableUIMode();
+			MyPlayerController->Tick(DeltaTime);
 		}
 
-		SetActorTickEnabled(false);
+		// For Debug Purposes
+		//SetActorTickEnabled(false);
 		return;
 	}
 
@@ -310,16 +351,37 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	InitializeDefaultPawnInputBindings();
 
-	PlayerInputComponent->BindAxis("MyCharacter_MoveForward", this, &AMyCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MyCharacter_MoveRight", this, &AMyCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("MyCharacter_MoveUp", this, &AMyCharacter::MoveUp_World);
+	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
+	// "turn" handles devices that provide an absolute delta, such as a mouse.
+	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 
-	PlayerInputComponent->BindAxis("MyCharacter_Turn", this, &AMyCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("MyCharacter_LookUp", this, &AMyCharacter::AddControllerPitchInput);
+	/* Keyboard */
 
-	PlayerInputComponent->BindAxis("MyCharacter_LookUpRate", this, &AMyCharacter::LookUpAtRate);
-	PlayerInputComponent->BindAxis("MyCharacter_TurnRate", this, &AMyCharacter::TurnAtRate);
-}
+	PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AMyCharacter::MoveRight);
+
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AMyCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("TurnRate", this, &AMyCharacter::TurnAtRate);
+
+	/* Flying Mode */
+
+	PlayerInputComponent->BindAxis("MoveUp", this, &AMyCharacter::MoveUp_World);
+
+	/* Mobile */
+
+	//PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	//PlayerInputComponent->BindAxis("TurnRate", this, &AMyCharacter::TurnAtRate);
+	//PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	//PlayerInputComponent->BindAxis("LookUpRate", this, &AMyCharacter::LookUpAtRate);
+
+	// handle touch devices
+	//PlayerInputComponent->BindTouch(IE_Pressed, this, &AMyCharacter::TouchStarted);
+	//PlayerInputComponent->BindTouch(IE_Released, this, &AMyCharacter::TouchStopped);
+
+} 
 
 void AMyCharacter::InitializeDefaultPawnInputBindings()
 {
@@ -328,19 +390,18 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 	{
 		bBindingsAdded = true;
 
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveForward", EKeys::W, 1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveForward", EKeys::S, -1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveRight", EKeys::A, -1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveRight", EKeys::D, 1.f));
+		/* Keyboard */
 
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveUp", EKeys::E, 1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_MoveUp", EKeys::Q, -1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveForward", EKeys::W, 1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveForward", EKeys::S, -1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveRight", EKeys::A, -1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveRight", EKeys::D, 1.f));
 
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_Turn", EKeys::MouseX, 1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_LookUp", EKeys::MouseY, -1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Turn", EKeys::MouseX, 1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookUp", EKeys::MouseY, -1.f));
 
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_TurnRate", EKeys::Left, -1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MyCharacter_TurnRate", EKeys::Right, 1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::Left, -1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::Right, 1.f));
 
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleProfile", EKeys::P));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("ToggleInventory", EKeys::I));
@@ -357,6 +418,19 @@ void AMyCharacter::InitializeDefaultPawnInputBindings()
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar4", EKeys::Four));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("UseHotbar5", EKeys::Five));
 
+		/* Flying Mode */
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveUp", EKeys::E, 1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveUp", EKeys::Q, -1.f));
+
+		/* Mobile */
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveForward", EKeys::Gamepad_LeftY, 1.f)); // Gamepad Left Thumbstick Y-Axis
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveRight", EKeys::Gamepad_LeftX, 1.f)); // Gamepad Left Thumbstick X-Axis
+		
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::Gamepad_RightY, 1.f)); // Gamepad Right Thumbstick Y-Axis
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::Gamepad_RightX, 1.f)); // Gamepad Right Thumbstick X-Axis
+
+		//UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Turn", EKeys::Gamepad_RightX, 1.f));
+		//UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookUp", EKeys::Gamepad_RightY, -1.f));
 	}
 }
 
@@ -400,10 +474,27 @@ void AMyCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+
+	/* Mobile */
+	//AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AMyCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+
+	/* Mobile */
+	// calculate delta for this frame from the rate information
+	//AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMyCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
+{
+	//Jump();
+}
+
+void AMyCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
+{
+	//StopJumping();
 }

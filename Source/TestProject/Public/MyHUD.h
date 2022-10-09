@@ -28,11 +28,12 @@ public:
 	FWidgetsLayoutBP* GetWidgetBPClass(FName Name);
 	
 	UFUNCTION()
-	UUserWidget* GetInteractWidget();
+	UUserWidget* GenerateInteractWidget(FText Text);
 
 	UPROPERTY(EditAnywhere, Category = "Default")
 	UHUDLayout* HUDReference;
 	
+	UUserWidget* CustomCreateWidget(FName Name);
 protected:
 	AMyHUD();
 	
@@ -45,7 +46,4 @@ private:
 	UDataTable* WidgetDB;
 	
 	UUserWidget* CreateWidgetFromDataTable(const UDataTable* WidgetTable, FWidgetsLayoutBP*& NewWidgetData, FName Name);
-	
-	UPROPERTY(EditAnywhere, Category = "Default")
-	UUserWidget* InteractTextWidget;
 };

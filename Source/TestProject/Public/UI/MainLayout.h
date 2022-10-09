@@ -6,7 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "MainLayout.generated.h"
 
-class USlotLayout;
 struct FSlotStructure;
 /**
  * 

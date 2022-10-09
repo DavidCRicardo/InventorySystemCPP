@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "InventoryHUDInterface.h"
+#include "Tuples.h"
 #include "MyPlayerController.generated.h"
 
 class UDataTable;
 class AMyCharacter;
 class UEquipmentComponent;
 class UInventoryManagerComponent;
-
+class UInteractiveText_Entry;
 /**
  * 
  */
@@ -22,6 +23,11 @@ class INVENTORYSYSTEMCPP_API AMyPlayerController : public APlayerController, pub
 public:
 	AMyPlayerController();
 	
+	UFUNCTION(BlueprintCallable, Category = "Runtime Inspector")
+		int GetCurrentViewMode(const APlayerController* PlayerController);
+
+	virtual void Tick(float DeltaTime) override;
+
 	/* Interface */
 	virtual void UI_MoveInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_DropInventoryItem_Implementation(const uint8& InventorySlot) override;
@@ -29,6 +35,7 @@ public:
 	virtual void UI_UnEquipInventoryItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_UseInventoryItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_UseContainerItem_Implementation(const uint8& InventorySlot) override;
+	virtual void UI_UseHotbarItem_Implementation(const uint8& InventorySlot) override;
 	virtual void UI_TakeContainerItem_Implementation(const uint8& FromContainerSlot, const uint8& ToInventorySlot) override;
 	virtual void UI_DepositContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
 	virtual void UI_MoveContainerItem_Implementation(const uint8& FromInventorySlot, const uint8& ToInventorySlot) override;
@@ -67,6 +74,7 @@ public:
 	void ToggleInventory();
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleProfile();
+	void SetInputDependingFromVisibleWidgets();
 	UFUNCTION(BlueprintCallable, Category="Character")
 	void ToggleContainer();
 	
@@ -79,7 +87,9 @@ public:
 	void Server_OnActorUsed(AActor* Actor);
 	
 	UFUNCTION()
-	UUserWidget* GetInteractWidget();
+	UUserWidget* GenerateInteractWidget(FText Text);
+	UFUNCTION()
+	UUserWidget* CreateInteractWidget(FName Name);
 	UFUNCTION()
 	void SetMouseToCenterPosition();
 
@@ -98,6 +108,10 @@ public:
 	
 	uint8 GetMaximumHotbarSlots() { return MaximumHotbarSlots; };
 
+	uint8 MenuAnchorIndex;
+
+	FReturnTupleSlotNativeID MenuAnchorSlotIndex;
+	
 protected:
 	virtual void BeginPlay() override;
 	

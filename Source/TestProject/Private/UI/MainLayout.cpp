@@ -9,12 +9,13 @@
 #include "UI/Attribute_Entry.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
+#include "UI/ItemDragVisual.h"
 
 void UMainLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	SetVisibility(ESlateVisibility::Visible);
+	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }
 
 bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

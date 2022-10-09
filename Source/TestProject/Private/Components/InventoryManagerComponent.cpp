@@ -39,6 +39,13 @@ void UInventoryManagerComponent::BeginPlay()
 
 	Gold = 0;
 
+	TotalNumberOfSlots = (NumberOfRowsInventory * SlotsPerRowInventory) + (uint8)EEquipmentSlot::Count;
+
+	InitializeItemDB();
+}
+
+void UInventoryManagerComponent::InitializeItemDB()
+{
 	UDataTable* BP_ItemDB = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 	if (IsValid(BP_ItemDB))
 	{
@@ -48,8 +55,6 @@ void UInventoryManagerComponent::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UDataTable not Loaded"))
 	}
-
-	TotalNumberOfSlots = (NumberOfRowsInventory * SlotsPerRowInventory) + (uint8)EEquipmentSlot::Count;
 }
 
 // Called every frame
@@ -395,7 +400,6 @@ void UInventoryManagerComponent::TryToAddItemToInventory(UInventoryComponent* In
 	UInventoryComponent* LocalInventory = Inventory;
 
 	uint8 AmountRemaining = LocalItemAmount;
-
 
 	if (LocalInventoryItem.ItemStructure.ItemType == EItemType::Currency)
 	{
@@ -851,6 +855,17 @@ FSlotStructure UInventoryManagerComponent::GetItemFromItemDB(const FName Name)
 		const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
 
 		Slot.InitSlot(*NewItemData, 0);
+	}
+	else {
+		InitializeItemDB();
+
+		if (IsValid(ItemDB))
+		{
+			const UDataTable* ItemTable = ItemDB;
+			const FItemStructure* NewItemData = ItemTable->FindRow<FItemStructure>(Name, "", true);
+
+			Slot.InitSlot(*NewItemData, 0);
+		}
 	}
 
 	return Slot;
@@ -1586,18 +1601,18 @@ void UInventoryManagerComponent::AddContainerSlot(uint8 Row, uint8 Column, uint8
 	AMyPlayerController* PC = Cast<AMyPlayerController>(GetOwner());
 
 	FWidgetsLayoutBP* WidgetLayout = Cast<AMyHUD>(PC->HUD_Reference)->GetWidgetBPClass("SlotLayout_WBP");
-	USlotLayout* Widget = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
+	USlotLayout* LocalSlot = CreateWidget<USlotLayout>(GetWorld(), WidgetLayout->Widget);
 
-	MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(Widget, Row, Column);
+	MainLayoutUI->Container->ContainerGridPanel->AddChildToUniformGrid(LocalSlot, Row, Column);
 
-	MainLayoutUI->Container->ContainerSlotsArray.Add(Widget);
+	MainLayoutUI->Container->ContainerSlotsArray.Add(LocalSlot);
 
 	// Used to Change Loot Display
-	Widget->IsStorageSlot = IsStorage;
-	Widget->InventorySlotIndex = Slot;
-	Widget->NativeFromContainer = true;
+	LocalSlot->IsStorageSlot = IsStorage;
+	LocalSlot->InventorySlotIndex = Slot;
+	LocalSlot->NativeFromContainer = true;
 
-	Widget->SetNameBoxVisibility();
+	LocalSlot->SetNameBoxVisibility();
 }
 
 /* Client Only - Hotbar Events */

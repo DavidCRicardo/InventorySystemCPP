@@ -31,6 +31,9 @@ public:
 	UPROPERTY(Replicated, ReplicatedUsing=OnRep_UpdateGoldAmount)
 	uint8 Gold;
 
+	UFUNCTION()
+	void InitializeItemDB();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

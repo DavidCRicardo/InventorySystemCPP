@@ -7,6 +7,9 @@
 #include "Blueprint/IUserObjectListEntry.h"
 #include "InteractiveText_Entry.generated.h"
 
+class UTextBlock;
+class UImage;
+class UBorder;
 UCLASS()
 class UInteractiveText_Entry : public UUserWidget, public IUserObjectListEntry
 {
@@ -14,14 +17,22 @@ class UInteractiveText_Entry : public UUserWidget, public IUserObjectListEntry
 
 public:
 	UFUNCTION()
-	void InitializeName(const FName& Name);
+	void SetEntryText(const FName& Name);
 
 	UFUNCTION()
-	FName GetIDName();
+	FName GetEntryText();
+
+	void SetNameLabelText(FText Text);
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* NameLabel;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
-	class UImage* SelectedImage;
+	UImage* SelectedImage;
 	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	//UBorder* MainBorder;
+
 protected:
 	UFUNCTION()
 	virtual void NativeConstruct() override;
@@ -33,19 +44,19 @@ protected:
 	virtual void NativeOnEntryReleased() override;
 
 	virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
-	class UTextBlock* NameLabel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
 	UImage* IconImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
 	FName ID;
-	
+
 	UPROPERTY()
 	class AMyPlayerController* PC;
 
 	UPROPERTY()
 	class UMyGameInstance* GameInstance;
+
+	UPROPERTY()
+	FText TextFromUsableActor;
 };

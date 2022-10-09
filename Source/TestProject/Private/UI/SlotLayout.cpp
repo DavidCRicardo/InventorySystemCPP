@@ -15,6 +15,10 @@
 #include "Components/CanvasPanel.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "MyGameInstance.h"
+#include "Components/MenuAnchor.h"
+#include "UI/W_SlotDropDownMenu.h"
+#include "UI/TertiaryHUD.h"
+#include "UI/HUDLayout.h"
 
 USlotLayout::USlotLayout(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -24,9 +28,13 @@ void USlotLayout::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+	// DownDownMenu Class defined on WBP_SlotLayout
+	// DropDownMenu->MenuClass = WBP_SlotDropDownMenu
 
+	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+
+	SlotMenuAnchor->SetPlacement(TEnumAsByte<EMenuPlacement>::EnumType::MenuPlacement_MenuLeft);
 }
 
 void USlotLayout::SetNameBoxVisibility() {
@@ -46,11 +54,48 @@ void USlotLayout::SetNameBoxVisibility() {
 
 FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
+	// Right Mouse Button To Open Drop Down Menu
+	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		if (HasItem())
+		{
+			//ToggleTooltip();
+			if (!SlotMenuAnchor->IsOpen())
+			{
+				HideTooltip();
+				PlayerController->MenuAnchorIndex = InventorySlotIndex;
+				
+				//PlayerController->MenuAnchorSlotIndex = { NativeFromInventory, NativeFromContainer, InventorySlotIndex };
+
+				OpenSlotMenu();
+			}
+
+			return FReply::Handled();
+		}
+	}
+
+	// Left Mouse Button To Drag And Drop
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		LeftMouseButtonClickedOnce = true;
+		return CustomDetectDrag(InMouseEvent, this, EKeys::LeftMouseButton);
+	}
+
+	return FReply::Unhandled();
 }
 
 FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	if (LeftMouseButtonClickedOnce)
+	{
+		UseItem();
+		LeftMouseButtonClickedOnce = false;
+	}
+
+	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
+}
+
+void USlotLayout::UseItem() {
 	if (NativeFromContainer)
 	{
 		IInventoryHUDInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
@@ -62,14 +107,14 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 			IInventoryHUDInterface::Execute_UI_UseInventoryItem(PlayerController, InventorySlotIndex);
 		}
 	}
-	
-	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
+
+	CloseSlotMenu();
 }
 
 void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
-	
+
 	ItemBorder->SetBrushColor(FItemQuality::Common);
 
 	ToggleTooltip();
@@ -78,8 +123,12 @@ void USlotLayout::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointer
 void USlotLayout::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseLeave(InMouseEvent);
-	
+
+	LeftMouseButtonClickedOnce = false;
+
 	ItemBorder->SetBrushColor(GetBorderColor());
+
+	ToggleTooltip();
 }
 
 /* Only Create Drag Visual and initialize a DragDropOperation if Slot has an item and is not empty */
@@ -87,15 +136,15 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 	UDragDropOperation*& OutOperation)
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
-	
+
 	if (HasItem())
 	{
 		HideTooltip();
-		
+
 		UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
 		DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
 		DragVisual->ItemBorder->SetBrushColor(ItemBorder->BrushColor);
-		
+
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 
 		DragDropOperation->DefaultDragVisual = DragVisual;
@@ -112,12 +161,18 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 		{
 			DragDropOperation->IsDraggedFromContainer = true;
 		}
-		
+
 		OutOperation = DragDropOperation;
-	}else
+	}
+	else
 	{
 		OutOperation = nullptr;
 	}
+}
+
+FReply USlotLayout::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	return FReply::Handled();
 }
 
 /* Called when the Drop occurs in one Slot Layout. If the Slot its dropped outside, so the OnDrop from HUDLayout is called */
@@ -125,13 +180,13 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 	UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-	
+
 	UDragItem* DragDropOperation = Cast<UDragItem>(InOperation);
 	if (!IsValid(DragDropOperation) || DragDropOperation->DraggedSlotInformation.Amount <= 0)
 	{
 		return false;
 	}
-	
+
 	const uint8 LocalDraggedSlot = DragDropOperation->DraggedSlotIndex;
 
 	// Is Dragged From Inventory
@@ -145,7 +200,7 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				IInventoryHUDInterface::Execute_UI_UnEquipToContainer(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 				return true;
 			}
-			
+
 			IInventoryHUDInterface::Execute_UI_DepositContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
@@ -167,16 +222,16 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		bool bSplit = false;
 		if (bSplit)
 		{
-				
+
 		}
 
 		// To Inventory
 		IInventoryHUDInterface::Execute_UI_MoveInventoryItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 		HideTooltip();
-		
+
 		return true;
 	}
-	
+
 	// Is Dragged From Container
 	if (DragDropOperation->IsDraggedFromContainer)
 	{
@@ -196,8 +251,9 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				// ...
 				return true;
 			}
-			
+
 			IInventoryHUDInterface::Execute_UI_TakeContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
+			CloseSlotMenu();
 			return true;
 		}
 
@@ -210,12 +266,12 @@ bool USlotLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 				// ...
 				return true;
 			}
-			
+
 			IInventoryHUDInterface::Execute_UI_MoveContainerItem(PlayerController, LocalDraggedSlot, InventorySlotIndex);
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -231,7 +287,7 @@ void USlotLayout::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, U
 void USlotLayout::UpdateSlot(const FSlotStructure& NewSlotStructure)
 {
 	SetSlotStructure(NewSlotStructure);
-	
+
 	UpdateSlotInfo();
 
 	ToggleTooltip();
@@ -268,7 +324,7 @@ bool USlotLayout::HasItem()
 	return SlotStructure.Amount > 0 ? true : false;
 }
 
-/* Color Based on the Item Quality */ 
+/* Color Based on the Item Quality */
 FLinearColor USlotLayout::GetBorderColor()
 {
 	const EItemQuality ItemQuality = SlotStructure.ItemStructure.Quality;
@@ -293,15 +349,15 @@ FLinearColor USlotLayout::GetBorderColor()
 
 FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget* WidgetDetectingDrag, FKey DragKey)
 {
-	if ( InMouseEvent.GetEffectingButton() == DragKey || InMouseEvent.IsTouchEvent() )
+	if (InMouseEvent.GetEffectingButton() == DragKey || InMouseEvent.IsTouchEvent())
 	{
 		FEventReply Reply;
 		Reply.NativeReply = FReply::Handled();
-		
-		if ( WidgetDetectingDrag )
+
+		if (WidgetDetectingDrag)
 		{
 			TSharedPtr<SWidget> SlateWidgetDetectingDrag = WidgetDetectingDrag->GetCachedWidget();
-			if ( SlateWidgetDetectingDrag.IsValid() )
+			if (SlateWidgetDetectingDrag.IsValid())
 			{
 				Reply.NativeReply = Reply.NativeReply.DetectDrag(SlateWidgetDetectingDrag.ToSharedRef(), DragKey);
 				return Reply.NativeReply;
@@ -312,6 +368,7 @@ FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget*
 	return FReply::Unhandled();
 }
 
+/* Tooltip */
 void USlotLayout::ToggleTooltip()
 {
 	if (IsValid(ToolTipWidget))
@@ -326,7 +383,6 @@ void USlotLayout::ToggleTooltip()
 		}
 	}
 }
-
 void USlotLayout::DisplayTooltip()
 {
 	ToolTipWidget->SetVisibility(ESlateVisibility::Visible);
@@ -355,5 +411,46 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 		return true;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Cannot equip this"))
-	return false;
+		return false;
+}
+
+void USlotLayout::OpenSlotMenu() {
+	if (SlotStructure.Amount > 0)
+	{
+		SlotMenuAnchor->Open(true);
+	}
+}
+
+void USlotLayout::CloseSlotMenu() {
+	SlotMenuAnchor->Close();
+}
+
+FReply USlotLayout::NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	return FReply::Unhandled();
+}
+
+FReply USlotLayout::NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	return FReply::Unhandled();
+}
+
+FReply USlotLayout::NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent)
+{
+	if (HasItem())
+	{
+		//ToggleTooltip();
+		if (!SlotMenuAnchor->IsOpen())
+		{
+			HideTooltip();
+
+			PlayerController->MenuAnchorIndex = InventorySlotIndex;
+
+			OpenSlotMenu();
+		}
+
+		return FReply::Handled();
+	}
+
+	return FReply::Unhandled();
 }

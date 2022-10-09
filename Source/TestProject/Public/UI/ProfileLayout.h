@@ -14,8 +14,6 @@ class INVENTORYSYSTEMCPP_API UProfileLayout : public UWindowLayout
 	GENERATED_BODY()
 	
 public:
-	UProfileLayout();
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	UUniformGridPanel* EquipmentGridPanel;
 	

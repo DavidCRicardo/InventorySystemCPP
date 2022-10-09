@@ -18,8 +18,7 @@ void UInteractiveText_Panel::NativeConstruct()
 	{
 		if (UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(Object))
 		{
-			const FName ItemName = Entry->GetIDName();
-
+			const FName ItemName = Entry->GetEntryText();
 			MyPlayerController->CollectFromPanel(ItemName);
 		}
 	});
@@ -67,7 +66,7 @@ void UInteractiveText_Panel::RemoveEntryFromList(const FName& ID)
 	{
 		if (UInteractiveText_Entry* Entry = Cast<UInteractiveText_Entry>(Object))
 		{
-			if (Entry->GetIDName() == ID)
+			if (Entry->GetEntryText() == ID)
 			{
 				InteractiveText_List->RemoveItem(Object);
 

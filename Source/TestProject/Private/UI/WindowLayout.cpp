@@ -20,6 +20,8 @@ void UWindowLayout::NativeConstruct()
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
 
+	WindowLayout = ELayout::Undefined;
+
 	SetVisibility(ESlateVisibility::Hidden);
 }
 
@@ -57,7 +59,10 @@ void UWindowLayout::OnButtonQuitClicked()
 {
 	if (IsValid(PlayerController))
 	{
-		ToggleWindow();
+		PlayerController->HUD_Reference->ToggleWindow(WindowLayout);
+		
+		PlayerController->SetInputDependingFromVisibleWidgets();
+		//ToggleWindow();
 	}
 }
 

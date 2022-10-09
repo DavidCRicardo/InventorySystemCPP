@@ -8,6 +8,7 @@
 
 class AMyPlayerController;
 class UInteractiveText_Panel;
+class UInteractiveText_Entry;
 class UInteractText;
 /**
  * 
@@ -19,18 +20,17 @@ class INVENTORYSYSTEMCPP_API UTertiaryHUD : public UUserWidget
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	UInteractText* InteractText;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UInteractiveText_Panel* InteractiveMenu;
 
 	UPROPERTY()
 	AMyPlayerController* PlayerController;
 
 	UFUNCTION()
-	void CreateInteractiveTextEntry(FName IDName);
+	UInteractiveText_Entry* CreateInteractiveTextEntry(FName IDName);
 	UFUNCTION()
 	void RemoveInteractiveTextEntry(const FName& ID);
+	UFUNCTION()
+	void AddInteractiveTextEntry(UInteractiveText_Entry* Entry);
 	
 protected:
 	UFUNCTION()
