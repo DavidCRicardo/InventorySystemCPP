@@ -36,6 +36,8 @@ Container and Loot
 Tooltips will show you if it's whorthy or not to equip one item by displaying the difference on stats.
 <img src="imgs/tooltips.png" alt="Dynamic Tooltip">
 
+The project is compatible with Windows and Android.
+
 ### Controls
 WASD : To move <br>
 I : Open Inventory <br>
@@ -45,9 +47,9 @@ F : Collect Items, and, Use Pot/Loot <br>
 Left+Alt : Swap between "GameModeOnly" and "GameAndUIMode" <br>
 Escape : Quit Game
 
-## About Wiki
-* You can find information about items <br>
-* A brief explanation about how to create your own items using, whether BP or C++. <br>
+There are a few videos showing its features as well: <br>
+Project Overview : ![RPG InventorySystem C++ | Unreal Engine](https://www.youtube.com/watch?v=oyq-Yn8kdJI) <br>
+Multiplayer Sample : ![Multiplayer System WIP | RPG InventorySystem UE4 C++ - YouTube](https://www.youtube.com/watch?v=1obDlJyLR7Q) <br>
 
 ## Author 
 Developer: David Ricardo
