@@ -1,6 +1,7 @@
 # Inventory System CPP
 
-<img src="imgs/thumbnail.png" alt="Thumbnail">
+<!--<img src="imgs/thumbnail.png" alt="Thumbnail">-->
+<img src="imgs/tooltips.png" alt="Dynamic Tooltip">
 
 ## About
 The Inventory System CPP project contains a basic multiplayer supported inventory system featuring equip-able and usable items. The project is developed essentially on C++.
@@ -22,6 +23,7 @@ The technical demo included is an MMO styled example with a Drag & Drop UI. This
 • Dynamic Tooltips.									       <br>
 • Hotbar included.									   	   <br>
 • Support for Localization.								   <br>
+• The project is compatible with Windows and Android. <br>
 
 This is not an RPG Starter Kit and the practical examples and items demonstrating how to easily use the Inventory System CPP are a bonus.
 <br> <br>
@@ -34,9 +36,9 @@ Container and Loot
 <img src="imgs/container_loot.png" alt="Container Loot">
 
 Tooltips will show you if it's whorthy or not to equip one item by displaying the difference on stats.
-<img src="imgs/tooltips.png" alt="Dynamic Tooltip">
 
-The project is compatible with Windows and Android.
+
+
 
 ### Controls
 WASD : To move <br>
