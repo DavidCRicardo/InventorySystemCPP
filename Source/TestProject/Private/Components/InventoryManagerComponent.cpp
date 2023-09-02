@@ -267,7 +267,7 @@ void UInventoryManagerComponent::Client_UpdateContainerTooltips_Implementation(c
 		SlotLayout = MainLayoutUI->Container->ContainerSlotsArray[Index];
 
 		// Validate Tooltip
-		Tooltip = Cast<UW_ItemTooltip>(SlotLayout->ToolTipWidget);
+		Tooltip = Cast<UW_ItemTooltip>(SlotLayout->GetToolTip());
 		if (!IsValid(Tooltip))
 		{
 			Tooltip = CreateWidget<UW_ItemTooltip>(GetWorld(), WidgetLayout->Widget);
@@ -329,7 +329,7 @@ void UInventoryManagerComponent::Client_UpdateInventoryTooltips_Implementation(c
 		}
 
 		// Validate Tooltip
-		Tooltip = Cast<UW_ItemTooltip>(SlotLayout->ToolTipWidget);
+		Tooltip = Cast<UW_ItemTooltip>(SlotLayout->GetToolTip());
 		if (!IsValid(Tooltip))
 		{
 			// Tooltips must be initialized on Load
@@ -593,7 +593,7 @@ void UInventoryManagerComponent::RandomizeDropLocation(FSlotStructure LocalSlot,
 	FVector DistanceFromPawn{ (float)DropDistanceRangeX,1.0f,1.0f };
 
 	// Drop Items 360 Degrees Around Player
-	const float DropItemsRotation = FMath::FRandRange(-180, 180);
+	const float DropItemsRotation = FMath::FRandRange(-180.0, 180.0);
 	FRotator Rotation{ 1.0f, DropItemsRotation, DropItemsRotation }; // Drop Around Player
 	//FRotator Rotation {1.0f, 1.0f, DropItemsRotation}; // Drop In One Point
 

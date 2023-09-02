@@ -78,7 +78,7 @@ void UInteractiveText_Entry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 					NameLabel->SetText(Entry->TextFromUsableActor);
 					
-					SelectedImage->SetBrushTintColor(FSlateColor({ 1,1,1,0 }));
+					SelectedImage->SetBrushTintColor(FSlateColor(FLinearColor{ 1,1,1,0 }));
 					SelectedImage->SetOpacity(0.f);
 				}
 			}		
