@@ -118,8 +118,10 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 			FText CurrentAttributeText = FText::FromString(LocalString);
 
 			SingleAttribute->SetText(CurrentAttributeText);
-			SingleAttribute->Font.TypefaceFontName = FName(TEXT("Regular"));
-			SingleAttribute->Font.Size = 12;
+			FSlateFontInfo SingleAttributeFontInfo = FSlateFontInfo(SingleAttribute->GetFont());
+			SingleAttributeFontInfo.TypefaceFontName = FName(TEXT("Regular"));
+			SingleAttributeFontInfo.Size = 12;
+			SingleAttribute->SetFont(SingleAttributeFontInfo);
 
 			FText AttributeDifference = FText::FromString("Default String");
 
@@ -135,13 +137,13 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 				if (FinalValue < 0) {
 					AttributeDifferenceString = " ( " + FString::FromInt(FinalValue) + " ) ";
 
-					TextBlockTest->SetColorAndOpacity(FSlateColor({ 1, 0, 0, 1 }));
+					TextBlockTest->SetColorAndOpacity(FSlateColor(FLinearColor{ 1, 0, 0, 1 }));
 				}
 				else if (FinalValue > 0)
 				{
 					AttributeDifferenceString = " ( +" + FString::FromInt(FinalValue) + " ) ";
 					
-					TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));
+					TextBlockTest->SetColorAndOpacity(FSlateColor(FLinearColor{ 0, 1, 0, 1 }));
 				}
 				else {
 					TextBlockTest->SetVisibility(ESlateVisibility::Hidden);
@@ -152,12 +154,14 @@ void UW_ItemTooltip::SetAttributes(const FItemStructure& Item)
 				FinalValue = CurrentItemValue;
 				AttributeDifferenceString = " ( +" + FString::FromInt(FinalValue) + " ) ";
 
-				TextBlockTest->SetColorAndOpacity(FSlateColor({ 0, 1, 0, 1 }));
+				TextBlockTest->SetColorAndOpacity(FSlateColor(FLinearColor{ 0, 1, 0, 1 }));
 			}
 
 			TextBlockTest->SetText(FText::FromString(AttributeDifferenceString));
-			TextBlockTest->Font.TypefaceFontName = FName(TEXT("Regular"));
-			TextBlockTest->Font.Size = 12;
+			FSlateFontInfo TextBlockTestFontInfo = FSlateFontInfo(TextBlockTest->GetFont());
+			TextBlockTestFontInfo.TypefaceFontName = FName(TEXT("Regular"));
+			TextBlockTestFontInfo.Size = 12;
+			TextBlockTest->SetFont(TextBlockTestFontInfo);
 			/**/
 
 			AttributesGrid->AddChildToUniformGrid(SingleAttribute, InRow, InColumn);

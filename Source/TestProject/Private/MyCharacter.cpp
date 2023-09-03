@@ -316,30 +316,30 @@ void AMyCharacter::OnRep_MainWeaponMesh()
 void AMyCharacter::OnRep_MainChestMesh()
 {
 	Chest->SetSkeletalMesh(ChestMesh);
-	Chest->SetMasterPoseComponent(GetMesh());
+	Chest->SetLeaderPoseComponent(GetMesh());
 }
 
 void AMyCharacter::OnRep_MainFeetMesh()
 {
 	Feet->SetSkeletalMesh(FeetMesh);
-	Feet->SetMasterPoseComponent(GetMesh());
+	Feet->SetLeaderPoseComponent(GetMesh());
 }
 
 void AMyCharacter::OnRep_MainHandsMesh()
 {
 	Hands->SetSkeletalMesh(HandsMesh);
-	Hands->SetMasterPoseComponent(GetMesh());
+	Hands->SetLeaderPoseComponent(GetMesh());
 }
 
 void AMyCharacter::OnRep_MainLegsMesh()
 {
 	Legs->SetSkeletalMesh(LegsMesh);
-	Legs->SetMasterPoseComponent(GetMesh());
+	Legs->SetLeaderPoseComponent(GetMesh());
 }
 
 void AMyCharacter::OnRep_MainHeadMesh() {
 	Head->SetSkeletalMesh(HeadMesh);
-	Head->SetMasterPoseComponent(GetMesh());
+	Head->SetLeaderPoseComponent(GetMesh());
 }
 
 /* End OnRep Functions */

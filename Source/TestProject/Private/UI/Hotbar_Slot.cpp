@@ -60,7 +60,7 @@ void UHotbar_Slot::NativeOnDragDetected(const FGeometry& InGeometry, const FPoin
 
 		UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
 		DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
-		DragVisual->ItemBorder->SetBrushColor(ItemBorder->BrushColor);
+		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
 
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 

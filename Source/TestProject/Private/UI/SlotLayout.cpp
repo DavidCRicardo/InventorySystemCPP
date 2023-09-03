@@ -143,7 +143,7 @@ void USlotLayout::NativeOnDragDetected(const FGeometry& InGeometry, const FPoint
 
 		UItemDragVisual* DragVisual = CreateWidget<UItemDragVisual>(this, ItemDragVisualClass);
 		DragVisual->Icon->SetBrushFromTexture(SlotStructure.ItemStructure.Icon);
-		DragVisual->ItemBorder->SetBrushColor(ItemBorder->BrushColor);
+		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
 
 		UDragItem* DragDropOperation = NewObject<UDragItem>();
 
@@ -371,7 +371,7 @@ FReply USlotLayout::CustomDetectDrag(const FPointerEvent& InMouseEvent, UWidget*
 /* Tooltip */
 void USlotLayout::ToggleTooltip()
 {
-	if (IsValid(ToolTipWidget))
+	if (IsValid(GetToolTip()))
 	{
 		if (HasItem())
 		{
@@ -385,11 +385,11 @@ void USlotLayout::ToggleTooltip()
 }
 void USlotLayout::DisplayTooltip()
 {
-	ToolTipWidget->SetVisibility(ESlateVisibility::Visible);
+	GetToolTip()->SetVisibility(ESlateVisibility::Visible);
 }
 void USlotLayout::HideTooltip()
 {
-	ToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
+	GetToolTip()->SetVisibility(ESlateVisibility::Hidden);
 }
 
 /* Returns true if slot dragged and dropped its from equipment layout */
