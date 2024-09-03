@@ -40,7 +40,7 @@ FEventReply UWindowLayout::RedirectMouseDownToWidget(const FGeometry& InGeometry
 FReply UWindowLayout::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	return Super::NativeOnPreviewMouseButtonDown(InGeometry, InMouseEvent);
-	return RedirectMouseDownToWidget(InGeometry, InMouseEvent).NativeReply;
+	//return RedirectMouseDownToWidget(InGeometry, InMouseEvent).NativeReply;
 }
 
 void UWindowLayout::ToggleWindow()

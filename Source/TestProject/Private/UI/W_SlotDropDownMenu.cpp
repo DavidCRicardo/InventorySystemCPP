@@ -80,20 +80,20 @@ void UW_SlotDropDownMenu::RunThis() {
 
 	return;
 
-	if (LocalSlot->NativeFromInventory)
-	{
-		Btn_Use->SetVisibility(ESlateVisibility::Visible);
-		Btn_Pick->SetVisibility(ESlateVisibility::Collapsed);
-		Btn_Move->SetVisibility(ESlateVisibility::Visible);
-		Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
-	}
-	else if (LocalSlot->NativeFromContainer)
-	{
-		Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
-		Btn_Pick->SetVisibility(ESlateVisibility::Visible);
-		Btn_Move->SetVisibility(ESlateVisibility::Visible);
-		Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
-	}
+	//if (LocalSlot->NativeFromInventory)
+	//{
+	//	Btn_Use->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_Pick->SetVisibility(ESlateVisibility::Collapsed);
+	//	Btn_Move->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
+	//}
+	//else if (LocalSlot->NativeFromContainer)
+	//{
+	//	Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
+	//	Btn_Pick->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_Move->SetVisibility(ESlateVisibility::Visible);
+	//	Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
+	//}
 
 	//// slot id 0 but it can be native from container
 	//if (LocalSlot->IsHovered())
@@ -226,8 +226,8 @@ void UW_SlotDropDownMenu::CloseDropDownMenu()
 	//LocalSlot->CloseSlotMenu();
 	
 
-	if (SlotReference)
-	{
-		//SlotReference->CloseSlotMenu();
-	}
+	//if (SlotReference)
+	//{
+	//	//SlotReference->CloseSlotMenu();
+	//}
 }
