@@ -75,7 +75,7 @@ void AMyPlayerController::UseHotbarSlot5() {
 
 void AMyPlayerController::QuitGame()
 {
-	FGenericPlatformMisc::RequestExit(false);
+	ConsoleCommand("quit");
 }
 
 void AMyPlayerController::BeginPlay()
