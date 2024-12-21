@@ -80,6 +80,7 @@ void UW_SlotDropDownMenu::RunThis() {
 
 	return;
 
+	/*
 	if (LocalSlot->NativeFromInventory)
 	{
 		Btn_Use->SetVisibility(ESlateVisibility::Visible);
@@ -111,6 +112,7 @@ void UW_SlotDropDownMenu::RunThis() {
 	//}
 
 	return;
+	*/
 }
 
 void UW_SlotDropDownMenu::SetMenuOptions(uint8 LocalNumber)
@@ -223,11 +225,13 @@ void UW_SlotDropDownMenu::CloseDropDownMenu()
 
 	return;
 
-	//LocalSlot->CloseSlotMenu();
+	/*
+	LocalSlot->CloseSlotMenu();
 	
 
 	if (SlotReference)
 	{
-		//SlotReference->CloseSlotMenu();
+		SlotReference->CloseSlotMenu();
 	}
+	*/
 }

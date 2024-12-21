@@ -12,7 +12,7 @@ void UInventoryLayout::NativeConstruct()
 	Super::NativeConstruct();
 
 	FName InTableID = GameInstance->COMMON_WORDS;
-	FText Text = FText::FromStringTable(InTableID, "Inventory");
+	FText Text = FText::FromStringTable(InTableID, TEXT("Inventory"));
 	Super::SetTitleToWindow(Text);
 
 	WindowLayout = ELayout::Inventory;
