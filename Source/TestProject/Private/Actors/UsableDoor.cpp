@@ -60,9 +60,9 @@ bool AUsableDoor::OnWasUsed()
 void AUsableDoor::BeginPlay()
 {
 	FName InTableID = Cast<UMyGameInstance>(GetGameInstance())->COMMON_WORDS;
-	Name = FText::FromStringTable(InTableID, "Door");
+	Name = FText::FromStringTable(InTableID, TEXT("Door"));
 
-	OpenText = FText::FromStringTable(InTableID, "Open");
-	CloseText = FText::FromStringTable(InTableID, "Close");
+	OpenText = FText::FromStringTable(InTableID, TEXT("Open"));
+	CloseText = FText::FromStringTable(InTableID, TEXT("Close"));
 	Action = OpenText;
 }

@@ -12,7 +12,7 @@ ASimpleAxe::ASimpleAxe() {
 void ASimpleAxe::BeginPlay()
 {
 	FName InTableID = Cast<UMyGameInstance>(GetGameInstance())->COMMON_WORDS;
-	Name = FText::FromStringTable(InTableID, "ID_SimpleAxe");
+	Name = FText::FromStringTable(InTableID, TEXT("ID_SimpleAxe"));
 
 	ID = FName("ID_SimpleAxe");
 }

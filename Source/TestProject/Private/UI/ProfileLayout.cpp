@@ -16,7 +16,7 @@ void UProfileLayout::NativeConstruct()
 	Super::NativeConstruct();
 	
 	FName InTableID = GameInstance->COMMON_WORDS;
-	FText Text = FText::FromStringTable(InTableID, "Profile");
+	FText Text = FText::FromStringTable(InTableID, TEXT("Profile"));
 	Super::SetTitleToWindow(Text);
 
 	if(IsValid(PlayerController))
