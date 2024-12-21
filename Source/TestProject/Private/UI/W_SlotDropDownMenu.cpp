@@ -227,7 +227,6 @@ void UW_SlotDropDownMenu::CloseDropDownMenu()
 
 	/*
 	LocalSlot->CloseSlotMenu();
-	
 
 	if (SlotReference)
 	{
