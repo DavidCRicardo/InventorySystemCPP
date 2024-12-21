@@ -33,10 +33,10 @@ void UContainerLayout::SetTextToContainer(ESlateVisibility InVisibility)
 		FText Text{};
 		if (IsStorageContainer)
 		{
-			Text = FText::FromStringTable(InTableID, "Container");
+			Text = FText::FromStringTable(InTableID, TEXT("Container"));
 		}
 		else {
-			Text = FText::FromStringTable(InTableID, "Loot");
+			Text = FText::FromStringTable(InTableID, TEXT("Loot"));
 		}
 		Super::SetTitleToWindow(Text);
 	}

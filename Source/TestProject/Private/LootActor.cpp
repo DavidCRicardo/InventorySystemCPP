@@ -121,8 +121,8 @@ uint8 ALootActor::GetItemMaxStackSize(const FSlotStructure Item)
 void ALootActor::BeginPlay()
 {
 	FName InTableID = Cast<UMyGameInstance>(GetGameInstance())->COMMON_WORDS;
-	Action = FText::FromStringTable(InTableID, "Loot");
-	Name = FText::FromStringTable(InTableID, "Skeleton");
+	Action = FText::FromStringTable(InTableID, TEXT("Loot"));
+	Name = FText::FromStringTable(InTableID, TEXT("Skeleton"));
 
 	DB_ItemList = LoadObject<UDataTable>(this, TEXT("/Game/Blueprints/Item_DB.Item_DB"));
 
