@@ -14,6 +14,7 @@
 #include "UI/MainLayout.h"
 #include "UI/TertiaryHUD.h"
 #include "Actors/UsableDoor.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -75,7 +76,7 @@ void AMyPlayerController::UseHotbarSlot5() {
 
 void AMyPlayerController::QuitGame()
 {
-	ConsoleCommand("quit");
+	UKismetSystemLibrary::QuitGame(GetWorld(), this, EQuitPreference::Quit, false);
 }
 
 void AMyPlayerController::BeginPlay()
