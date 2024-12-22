@@ -78,14 +78,14 @@ void UW_SlotDropDownMenu::InitAvailableOptions()
 
 void UW_SlotDropDownMenu::SetMenuOptions(uint8 LocalNumber)
 {
-	if (NativeFromInventory || LocalNumber == 1)
+	if (/*NativeFromInventory*/ LocalNumber == 1)
 	{
 		Btn_Use->SetVisibility(ESlateVisibility::Visible);
 		Btn_Pick->SetVisibility(ESlateVisibility::Collapsed);
 		Btn_Move->SetVisibility(ESlateVisibility::Visible);
 		Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
 	}
-	else if (NativeFromContainer || LocalNumber == 2)
+	else if (/*NativeFromContainer*/ LocalNumber == 2)
 	{
 		Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
 		Btn_Pick->SetVisibility(ESlateVisibility::Visible);
