@@ -265,7 +265,7 @@ void AMyCharacter::Tick(float DeltaTime)
 		}
 
 		// For Debug Purposes
-		//SetActorTickEnabled(false);
+		SetActorTickEnabled(false);
 		return;
 	}
 

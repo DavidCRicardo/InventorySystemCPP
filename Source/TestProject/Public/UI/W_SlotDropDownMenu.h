@@ -2,58 +2,40 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "W_SlotDropDownMenu.generated.h"
 
-/**
- * 
- */
-class AMyPlayerController;
 class UButton;
 class USlotLayout;
+
 UCLASS()
 class INVENTORYSYSTEMCPP_API UW_SlotDropDownMenu : public UUserWidget
 {
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BindWidget))
-	UButton* Btn_Use;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UButton> Btn_Use = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	UButton* Btn_Pick;
+	TObjectPtr<UButton> Btn_Pick = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	UButton* Btn_Move;
+	TObjectPtr<UButton> Btn_Move = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	UButton* Btn_UseMultiple;
+	TObjectPtr<UButton> Btn_UseMultiple = nullptr;
 
-	UPROPERTY(EditAnywhere)
-	USlotLayout* SlotReference;
-	UPROPERTY(EditAnywhere)
-	uint8 ThisIsANumber = 0;
-
-	UPROPERTY(EditAnywhere)
-	bool NativeFromInventory;
-
-	UPROPERTY(EditAnywhere)
-	bool NativeFromContainer;
-
+	// Replace this LocalNumber param with an actual SlotNativeFrom<> Enum
 	UFUNCTION()
 	void SetMenuOptions(uint8 LocalNumber);
 
 	UFUNCTION()
-	void RunThis();
-	UFUNCTION()
-	void RunThis2(ESlateVisibility InVisibility);
+	void InitAvailableOptions();
 
 protected:
-	UFUNCTION()
 	virtual void NativeConstruct() override;
-
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeDestruct() override;
 
 	UFUNCTION()
 	void BtnUseClicked();
@@ -61,10 +43,4 @@ protected:
 	void BtnPickClicked();
 	UFUNCTION()
 	void BtnMoveClicked();
-
-	UFUNCTION()
-	void CloseDropDownMenu();
-
-	UPROPERTY()
-	AMyPlayerController* PlayerController;
 };

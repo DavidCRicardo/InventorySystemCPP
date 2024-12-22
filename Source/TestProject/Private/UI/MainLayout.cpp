@@ -2,21 +2,11 @@
 
 
 #include "UI/MainLayout.h"
-
 #include "DragItem.h"
 #include "DragWidget.h"
 #include "MyPlayerController.h"
-#include "UI/Attribute_Entry.h"
 #include "UI/InventoryLayout.h"
 #include "UI/ProfileLayout.h"
-#include "UI/ItemDragVisual.h"
-
-void UMainLayout::NativeConstruct()
-{
-	Super::NativeConstruct();
-	
-	SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-}
 
 bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
@@ -42,8 +32,8 @@ bool UMainLayout::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent
 		}
 		
 		return false;
-	} //Drop Dragged UI Window
-	else
+	}
+	else //Drop Dragged UI Window
 	{
 		const FVector2D DragWindowOffset = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
 		const FVector2D DragWindowOffsetResult = DragWindowOffset - DragWidgetResult->DragOffset;

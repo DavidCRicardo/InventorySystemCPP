@@ -15,40 +15,35 @@ void UW_SlotDropDownMenu::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	OnVisibilityChanged.AddUniqueDynamic(this, &UW_SlotDropDownMenu::RunThis2);
+	InitAvailableOptions();
 
 	Btn_UseMultiple->SetIsEnabled(false);
 	Btn_Move->SetIsEnabled(false);
 
-	Btn_Use->OnClicked.AddUniqueDynamic(this, &UW_SlotDropDownMenu::BtnUseClicked);
-	Btn_Move->OnClicked.AddUniqueDynamic(this, &UW_SlotDropDownMenu::BtnMoveClicked);
-	Btn_Pick->OnClicked.AddUniqueDynamic(this, &UW_SlotDropDownMenu::BtnPickClicked);
-
-	SetVisibility(ESlateVisibility::Visible);
-
-	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+	Btn_Use->OnClicked.AddDynamic(this, &UW_SlotDropDownMenu::BtnUseClicked);
+	Btn_Move->OnClicked.AddDynamic(this, &UW_SlotDropDownMenu::BtnMoveClicked);
+	Btn_Pick->OnClicked.AddDynamic(this, &UW_SlotDropDownMenu::BtnPickClicked);
 }
 
-void UW_SlotDropDownMenu::RunThis2(ESlateVisibility InVisibility) 
+void UW_SlotDropDownMenu::NativeDestruct()
 {
-	if (ESlateVisibility::Visible == InVisibility)
-	{
-		RunThis();
-	}
+	Super::NativeDestruct();
+
+	Btn_Use->OnClicked.RemoveDynamic(this, &UW_SlotDropDownMenu::BtnUseClicked);
+	Btn_Move->OnClicked.RemoveDynamic(this, &UW_SlotDropDownMenu::BtnMoveClicked);
+	Btn_Pick->OnClicked.RemoveDynamic(this, &UW_SlotDropDownMenu::BtnPickClicked);	
 }
 
-void UW_SlotDropDownMenu::RunThis() {
+void UW_SlotDropDownMenu::InitAvailableOptions() 
+{
+	AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 
-	if (!PlayerController)
+	if (!IsValid(PlayerController))
 	{
-		PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
-		if (!PlayerController)
-		{
-			return;
-		}
+		return;
 	}
-
-	if (!PlayerController->HUDLayoutReference)
+	
+	if (!IsValid(PlayerController->HUDLayoutReference))
 	{
 		return;
 	}
@@ -59,7 +54,8 @@ void UW_SlotDropDownMenu::RunThis() {
 	{
 		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Profile->EquipmentSlotsArray[Index];
 	}
-	else {
+	else 
+	{
 		Index = PlayerController->MenuAnchorIndex - (uint8)EEquipmentSlot::Count;
 		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Inventory->InventorySlotsArray[Index];
 	}
@@ -71,48 +67,13 @@ void UW_SlotDropDownMenu::RunThis() {
 		Btn_Move->SetVisibility(ESlateVisibility::Visible);
 		Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
 	}
-	else {
-		Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
-		Btn_Pick->SetVisibility(ESlateVisibility::Visible);
-		Btn_Move->SetVisibility(ESlateVisibility::Visible);
-		Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
-	return;
-
-	/*
-	if (LocalSlot->NativeFromInventory)
-	{
-		Btn_Use->SetVisibility(ESlateVisibility::Visible);
-		Btn_Pick->SetVisibility(ESlateVisibility::Collapsed);
-		Btn_Move->SetVisibility(ESlateVisibility::Visible);
-		Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
-	}
-	else if (LocalSlot->NativeFromContainer)
+	else 
 	{
 		Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
 		Btn_Pick->SetVisibility(ESlateVisibility::Visible);
 		Btn_Move->SetVisibility(ESlateVisibility::Visible);
 		Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
 	}
-
-	//// slot id 0 but it can be native from container
-	//if (LocalSlot->IsHovered())
-	//{
-	//	Btn_Use->SetVisibility(ESlateVisibility::Visible);
-	//	Btn_Pick->SetVisibility(ESlateVisibility::Collapsed);
-	//	Btn_Move->SetVisibility(ESlateVisibility::Visible);
-	//	Btn_UseMultiple->SetVisibility(ESlateVisibility::Visible);
-	//}
-	//else {
-	//	Btn_Use->SetVisibility(ESlateVisibility::Collapsed);
-	//	Btn_Pick->SetVisibility(ESlateVisibility::Visible);
-	//	Btn_Move->SetVisibility(ESlateVisibility::Visible);
-	//	Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
-	//}
-
-	return;
-	*/
 }
 
 void UW_SlotDropDownMenu::SetMenuOptions(uint8 LocalNumber)
@@ -131,7 +92,8 @@ void UW_SlotDropDownMenu::SetMenuOptions(uint8 LocalNumber)
 		Btn_Move->SetVisibility(ESlateVisibility::Visible);
 		Btn_UseMultiple->SetVisibility(ESlateVisibility::Collapsed);
 	}
-	else {
+	else 
+	{
 		Btn_Use->SetVisibility(ESlateVisibility::Visible);
 		Btn_Pick->SetVisibility(ESlateVisibility::Visible);
 		Btn_Move->SetVisibility(ESlateVisibility::Visible);
@@ -139,16 +101,13 @@ void UW_SlotDropDownMenu::SetMenuOptions(uint8 LocalNumber)
 	}
 }
 
-FReply UW_SlotDropDownMenu::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	GEngine->AddOnScreenDebugMessage(9, 1.f, FColor::Turquoise, TEXT("OnMouseButtonDown"));
-
-	return FReply::Handled();
-}
-
 void UW_SlotDropDownMenu::BtnUseClicked()
 {
-	CloseDropDownMenu();
+	AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
 
 	USlotLayout* LocalSlot{};
 	uint8 Index = PlayerController->MenuAnchorIndex;
@@ -156,7 +115,8 @@ void UW_SlotDropDownMenu::BtnUseClicked()
 	{
 		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Profile->EquipmentSlotsArray[Index];
 	}
-	else {
+	else 
+	{
 		Index = PlayerController->MenuAnchorIndex - (uint8)EEquipmentSlot::Count;
 		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Inventory->InventorySlotsArray[Index];
 	}
@@ -169,6 +129,12 @@ void UW_SlotDropDownMenu::BtnUseClicked()
 
 void UW_SlotDropDownMenu::BtnPickClicked() 
 {
+	AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
 	USlotLayout* LocalSlot{};
 	uint8 Index = PlayerController->MenuAnchorIndex;
 	
@@ -178,59 +144,9 @@ void UW_SlotDropDownMenu::BtnPickClicked()
 	{
 		LocalSlot->UseItem();
 	}
-
-	CloseDropDownMenu();
 }
 
 void UW_SlotDropDownMenu::BtnMoveClicked()
 {
-	USlotLayout* LocalSlot{};
-	uint8 Index = PlayerController->MenuAnchorIndex;
-	if (PlayerController->MenuAnchorIndex < (uint8)EEquipmentSlot::Count)
-	{
-		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Profile->EquipmentSlotsArray[Index];
-	}
-	else {
-		Index = PlayerController->MenuAnchorIndex - (uint8)EEquipmentSlot::Count;
-		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Inventory->InventorySlotsArray[Index];
-	}
-
-	const FGeometry InGeometry = FGeometry();
-	const FPointerEvent InMouseEvent = FPointerEvent();
-	UDragDropOperation* OutOperation = nullptr;
-
-	//LocalSlot->DragSlot(InGeometry,InMouseEvent, OutOperation);
-
-	CloseDropDownMenu();
-}
-
-void UW_SlotDropDownMenu::CloseDropDownMenu() 
-{
-	USlotLayout* LocalSlot{};
-	uint8 Index = PlayerController->MenuAnchorIndex;
-	if (PlayerController->MenuAnchorIndex < (uint8)EEquipmentSlot::Count)
-	{
-		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Profile->EquipmentSlotsArray[Index];
-	}
-	else {
-		Index = PlayerController->MenuAnchorIndex - (uint8)EEquipmentSlot::Count;
-		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Inventory->InventorySlotsArray[Index];
-	}
-
-	// slot id 0 but it can be native from container
-	if (!LocalSlot->IsHovered())
-	{
-		LocalSlot = PlayerController->HUDLayoutReference->MainLayout->Container->ContainerSlotsArray[Index];
-	}
-
-	return;
-
-	/*
-	LocalSlot->CloseSlotMenu();
-
-	if (SlotReference)
-	{
-		SlotReference->CloseSlotMenu();
-	}
-	*/
+	// ...
 }

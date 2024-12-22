@@ -33,17 +33,17 @@ void USlotLayout::NativeConstruct()
 
 	PlayerController = Cast<AMyPlayerController>(GetOwningPlayer());
 	GameInstance = Cast<UMyGameInstance>(GetGameInstance());
-
-	SlotMenuAnchor->SetPlacement(TEnumAsByte<EMenuPlacement>::EnumType::MenuPlacement_MenuLeft);
 }
 
-void USlotLayout::SetNameBoxVisibility() {
+void USlotLayout::SetNameBoxVisibility()
+{
 	if (IsStorageSlot || NativeFromInventory)
 	{
 		NameBox->SetVisibility(ESlateVisibility::Collapsed);
 		NameText->SetText(FText::GetEmpty());
 	}
-	else {
+	else
+	{
 		FString ItemName = SlotStructure.ItemStructure.ID.ToString();
 		FName InTableID = GameInstance->COMMON_WORDS;
 		FText ItemNameText = FText::FromStringTable(InTableID, ItemName);
@@ -59,18 +59,15 @@ FReply USlotLayout::NativeOnMouseButtonDown(const FGeometry& InGeometry, const F
 	{
 		if (HasItem())
 		{
-			//ToggleTooltip();
 			if (!SlotMenuAnchor->IsOpen())
 			{
 				HideTooltip();
 				PlayerController->MenuAnchorIndex = InventorySlotIndex;
 				
-				//PlayerController->MenuAnchorSlotIndex = { NativeFromInventory, NativeFromContainer, InventorySlotIndex };
-
 				OpenSlotMenu();
-			}
 
-			return FReply::Handled();
+				return FReply::Handled();
+			}
 		}
 	}
 
@@ -95,7 +92,8 @@ FReply USlotLayout::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, 
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
 
-void USlotLayout::UseItem() {
+void USlotLayout::UseItem() 
+{
 	if (NativeFromContainer)
 	{
 		IInventoryHUDInterface::Execute_UI_UseContainerItem(PlayerController, InventorySlotIndex);
@@ -311,11 +309,13 @@ void USlotLayout::UpdateSlotInfo()
 	ItemBorder->SetBrushColor(GetBorderColor());
 }
 
-void USlotLayout::SetSlotIndex(uint8 Index) {
+void USlotLayout::SetSlotIndex(uint8 Index)
+{
 	InventorySlotIndex = Index;
 }
 
-void USlotLayout::SetSlotStructure(const FSlotStructure& SlotToSet) {
+void USlotLayout::SetSlotStructure(const FSlotStructure& SlotToSet) 
+{
 	SlotStructure = SlotToSet;
 }
 
@@ -414,14 +414,16 @@ bool USlotLayout::IsEquipping(const uint8& InventorySlot)
 		return false;
 }
 
-void USlotLayout::OpenSlotMenu() {
+void USlotLayout::OpenSlotMenu() 
+{
 	if (SlotStructure.Amount > 0)
 	{
 		SlotMenuAnchor->Open(true);
 	}
 }
 
-void USlotLayout::CloseSlotMenu() {
+void USlotLayout::CloseSlotMenu() 
+{
 	SlotMenuAnchor->Close();
 }
 

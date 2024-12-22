@@ -44,7 +44,7 @@ void UInteractiveText_Panel::ManageListVisibility()
 		SetVisibility(ESlateVisibility::Visible);
 	}
 	else{
-		SetVisibility(ESlateVisibility::Hidden);
+		SetVisibility(ESlateVisibility::Collapsed);
 	} 
 }
 
